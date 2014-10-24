@@ -44,23 +44,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="components/font-roboto/roboto.html">
   <link rel="import" href="components/core-icons/core-icons.html">
-  <link rel="import" href="components/core-icons/iconsets/av-icons.html">
-  <link rel="import" href="components/core-icons/iconsets/social-icons.html">
+  <link rel="import" href="components/core-icons/av-icons.html">
+  <link rel="import" href="components/core-icons/social-icons.html">
 
   <script>
     (function() {
       "use strict";
         var log = console.log.bind(console);
         var err = console.error.bind(console);
-        var swReady = function() {
-          // Paper over 37<-->40 changes
-          return navigator.serviceWorker.ready ||
-                 navigator.serviceWorker.whenReady();
-        };
-
         if (navigator.serviceWorker) {
+          var swReady = function() {
+            // Paper over 37<-->40 changes
+            return navigator.serviceWorker.ready ||
+                   navigator.serviceWorker.whenReady();
+          };
+
           // Register our ServiceWorker
-          navigator.serviceWorker.register("sw.js").
+          navigator.serviceWorker.register("sw.js");
           swReady().then(function(sw) {
             if (!sw) {
               err("bogus SW registration, balls");
