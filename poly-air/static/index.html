@@ -46,6 +46,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-icons/core-icons.html">
   <link rel="import" href="components/core-icons/av-icons.html">
   <link rel="import" href="components/core-icons/social-icons.html">
+  <link rel="import" href="components/core-drawer-panel/core-drawer-panel.html">
 
   <script>
     (function() {
@@ -106,7 +107,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body>
 
   <template is="auto-binding">
-    <!-- TODO -->
+    <core-drawer-panel>
+      <core-header-panel drawer>
+        <core-toolbar></core-toolbar>
+        <div> Drawer content... </div>
+      </core-header-panel>
+      <core-header-panel main>
+        <core-toolbar></core-toolbar>
+        <div> Main content... </div>
+      </core-header-panel>
+    </core-drawer-panel>
   </template>
 
 </body>
