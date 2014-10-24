@@ -1,0 +1,19 @@
+{
+  "name": "paper-radio-button",
+  "private": true,
+  "dependencies": {
+    "core-a11y-keys": "Polymer/core-a11y-keys#^0.4.0",
+    "paper-ripple": "Polymer/paper-ripple#^0.4.0"
+  },
+  "homepage": "https://github.com/Polymer/paper-radio-button",
+  "version": "0.4.2",
+  "_release": "0.4.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.4.2",
+    "commit": "e583d7ffa43f35fc60cea863f1ee818d64f99af0"
+  },
+  "_source": "git://github.com/Polymer/paper-radio-button.git",
+  "_target": "^0.4.0",
+  "_originalSource": "Polymer/paper-radio-button"
+}

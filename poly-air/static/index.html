@@ -1,0 +1,113 @@
+<!doctype html>
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
+The complete set of authors may be found at http://polymer.github.io/AUTHORS
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+-->
+<html>
+<head>
+  <title>PolyAir</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent" >
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="icon" sizes="196x196" href="icons/icon-196.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/iPad@2x.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="icons/Icon-72@2x.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/iPhone@2x.png">
+
+  <meta name="application-name" content="PolyAir">
+
+  <!--
+  Chrome 35 has old :host behavior before :host-context addition.
+  Since Chrome 35 does not have HTMLImports, we can use this as a decent signal
+  to force the ShadowDOM Polyfill.
+  -->
+  <script>
+    if (!('import' in document.createElement('link'))) {
+      var Platform = {flags: {shadow: true}};
+    }
+  </script>
+
+  <script src="components/platform/platform.js"></script>
+
+  <link rel="stylesheet" href="theme.css" shim-shadowdom>
+
+  <link rel="import" href="components/font-roboto/roboto.html">
+  <link rel="import" href="components/core-icons/core-icons.html">
+  <link rel="import" href="components/core-icons/iconsets/av-icons.html">
+  <link rel="import" href="components/core-icons/iconsets/social-icons.html">
+
+  <script>
+    (function() {
+      "use strict";
+        var log = console.log.bind(console);
+        var err = console.error.bind(console);
+        var swReady = function() {
+          // Paper over 37<-->40 changes
+          return navigator.serviceWorker.ready ||
+                 navigator.serviceWorker.whenReady();
+        };
+
+        if (navigator.serviceWorker) {
+          // Register our ServiceWorker
+          navigator.serviceWorker.register("sw.js").
+          swReady().then(function(sw) {
+            if (!sw) {
+              err("bogus SW registration, balls");
+              return;
+            }
+            // Register for push messages
+            if (navigator.push) {
+              localStorage.removeItem("pushRegistrationId");
+              navigator.push.register('1005995968305').then(function(pushRegistration) {
+                log(pushRegistration.pushRegistrationId);
+                localStorage.setItem("pushRegistrationId",
+                                pushRegistration.pushRegistrationId);
+
+                var xhr = new XMLHttpRequest();
+                var fd = new FormData();
+                fd.append("registration", pushRegistration.pushRegistrationId);
+                xhr.open("POST", "/register_for_pushes", true);
+                xhr.send(fd);
+              }, function(e) {
+                log('Push registration failed.');
+                log(e);
+              });
+
+            }
+          }, err);
+
+          window.addEventListener("message", function(e) {
+            if (e.data == "sync" && Firebase) {
+              Firebase.goOnline();
+              try  {
+                var a = document.getElementsByTagName("topeka-app")[0]
+                a.shadowRoot.getElementsByTagName("topeka-leaderboard")[0].leaderboardChange();
+              } catch(e) {
+                err(e);
+              }
+            }
+          });
+        }
+    })();
+  </script>
+
+</head>
+<body>
+
+  <template is="auto-binding">
+    <!-- TODO -->
+  </template>
+
+</body>
+</html>
