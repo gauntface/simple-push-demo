@@ -21,10 +21,6 @@ handlers:
 - url: /*
   static_dir: static/
 
-- url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
-
 - url: .*
   script: main.app
 
