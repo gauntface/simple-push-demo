@@ -54,9 +54,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (navigator.serviceWorker) {
           var swReady = function() {
             // Paper over 37<-->40 changes
-            return navigator.serviceWorker.ready ||
-                   navigator.serviceWorker.whenReady();
-          };
+            return 'ready' in navigator.serviceWorker ?
+              navigator.serviceWorker.ready :
+              navigator.serviceWorker.whenReady();
+          }
 
           // Register our ServiceWorker
           navigator.serviceWorker.register("sw.js");
