@@ -1,10 +1,8 @@
 <polymer-element name='flight-panel' attributes="company flightNumber status departCode arrivalCode departDate departCity arrivalDate arrivalCity departTime arrivalTime departTerminal departGate arrivalTerminal arrivalGate">
   <template>
-    <!-- on time -->
-    <!-- delayed -->
     <style>
       div.card {
-        width: 550px;
+        width: 320px;
         padding: 10px;
         background-color: white;
       }
@@ -41,6 +39,11 @@
         color: #212121;
         font-size: x-large;
       }
+      .separator {
+        height: 1px;
+        background-color: #878787;
+        margin-bottom: 5px;
+      }
     </style>
     <div class='card'>
       <div class='flight-info'>{{company}} Flight {{flightNumber}}</div>
@@ -66,50 +69,40 @@
           </tr>
         </tbody>
       </table>
-      <table style="width:100%">
+      <div class="city-info">
+        <div>Departs {{departCity}},</div>
+        <div>{{departDate}}</div>
+      </div>
+      <table style="margin:2px 0;text-align:left;width:100%">
         <tbody>
+          <tr class="info-header">
+            <td style="width:55%"> Times  </td>
+            <td style="width:25%">Terminal</td>
+            <td style="text-align:right">Gate</td>
+          </tr>
           <tr>
-            <td>
-              <div class="city-info">
-                <div>Departs {{departCity}},</div>
-                <div>{{departDate}}</div>
-              </div>
-              <table style="margin:2px 0;text-align:left;width:100%">
-                <tbody>
-                  <tr class="info-header">
-                    <td style="width:55%"> Times  </td>
-                    <td style="width:25%">Terminal</td>
-                    <td style="text-align:right">Gate</td>
-                  </tr>
-                  <tr>
-                    <td class="time">{{departTime}}</td>
-                    <td class="terminal-gate">{{departTerminal}}</td>
-                    <td class="terminal-gate" style="text-align:right">{{departGate}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-            <td style="width:10%"></td>
-            <td>
-              <div class="city-info">
-                <div>Arrives {{arrivalCity}},</div>
-                <div>{{arrivalDate}}</div>
-              </div>
-              <table style="margin:2px 0;text-align:left;width:100%">
-                <tbody>
-                  <tr class="info-header">
-                    <td style="width:55%"> Times  </td>
-                    <td style="width:25%">Terminal</td>
-                    <td style="text-align:right">Gate</td>
-                  </tr>
-                  <tr>
-                    <td class="time">{{arrivalTime}}</td>
-                    <td class="terminal-gate">{{arrivalTerminal}}</td>
-                    <td class="terminal-gate" style="text-align:right">{{arrivalGate}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
+            <td class="time">{{departTime}}</td>
+            <td class="terminal-gate">{{departTerminal}}</td>
+            <td class="terminal-gate" style="text-align:right">{{departGate}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class='separator'></div>
+      <div class="city-info">
+        <div>Arrives {{arrivalCity}},</div>
+        <div>{{arrivalDate}}</div>
+      </div>
+      <table style="margin:2px 0;text-align:left;width:100%">
+        <tbody>
+          <tr class="info-header">
+            <td style="width:55%"> Times  </td>
+            <td style="width:25%">Terminal</td>
+            <td style="text-align:right">Gate</td>
+          </tr>
+          <tr>
+            <td class="time">{{arrivalTime}}</td>
+            <td class="terminal-gate">{{arrivalTerminal}}</td>
+            <td class="terminal-gate" style="text-align:right">{{arrivalGate}}</td>
           </tr>
         </tbody>
       </table>
