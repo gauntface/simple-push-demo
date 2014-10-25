@@ -52,3 +52,7 @@ paper-button[raised].colored {
   background: #4285f4;
   color: #fff;
 }
+
+core-scaffold::shadow core-header-panel::shadow #mainPanel {
+  padding: 20px;
+}
