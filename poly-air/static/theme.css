@@ -43,3 +43,12 @@ paper-fab {
   bottom: 1.5em;
 }
 
+
+paper-button.colored {
+  color: #4285f4;
+}
+
+paper-button[raised].colored {
+  background: #4285f4;
+  color: #fff;
+}
