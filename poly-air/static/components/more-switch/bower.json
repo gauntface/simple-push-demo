@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "more-switch",
+  "dependencies": {
+    "polymer": "polymer/polymer#master"
+  },
+  "devDependencies": {
+    "core-component-page": "polymer/core-component-page#master",
+    "core-scaffold": "polymer/core-scaffold#master"
+  }
+}

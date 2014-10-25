@@ -1,0 +1,138 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="more-route.html">
+
+<!--
+TODO(nevir): Document.
+-->
+<polymer-element name="more-route-selector">
+  <script>
+    Polymer('more-route-selector', {
+      publish: {
+        /**
+         * Routes to select from, as either a path expression or route name.
+         *
+         * You can either specify routes via this attribute, or as child nodes
+         * to this element, but not both.
+         *
+         * @attribute routes
+         * @type Array.<String>
+         */
+        routes: [],
+
+        /**
+         * Whether more than one route can be selected at a time. If not, the
+         * _first_ active route will be selected.
+         *
+         * @attribute multi
+         * @type Boolean
+         * @default false
+         */
+        multi: false,
+
+        /**
+         * The index of the selected route (relative to `routes`). -1 when there
+         * is no active route.
+         *
+         * @attribute selectedIndex
+         * @type Integer
+         * @readonly
+         */
+        selectedIndex: -1,
+      },
+
+      /** @override */
+      ready: function() {
+        if (this.routes.length > 0 && this.children.length > 0) {
+          // We don't want to deal with ordering confusion.
+          throw new Error('more-route-selector supports either routes="..." or child elements, not both');
+        }
+      },
+
+      /** @override */
+      attached: function() {
+        this.parent = this._findParent();
+        this.async(function() {
+          this._buildRoutes();
+          this._observeRoutes();
+          this.evaluate();
+        });
+      },
+
+      /**
+       * TODO(nevir): Document
+       */
+      evaluate: function() {
+        for (var i = 0, route; route = this._routeRefs[i]; i++) {
+          if (route.active) {
+            this.selectedIndex = i;
+            return;
+          }
+        }
+        this.selectedIndex = -1;
+      },
+
+      /**
+       * We attach values of `routes` as `more-route` child elements so that we
+       * can ensure that we're adopting proper behavior for nesting/etc.
+       */
+      _buildRoutes: function() {
+        if (this.routes.length > 0) {
+          this._routeRefs = this._routesFromAttributes();
+        } else {
+          this._routeRefs = this._routesFromChildren();
+        }
+      },
+
+      /** Return `Route` objects the routes defined by `routes`. */
+      _routesFromAttributes: function() {
+        var parentPath = this.parent && this.parent.path || '';
+        return this.routes.map(function(route) {
+          if (MoreRouting.isPath(route)) {
+            return MoreRouting.getRouteByPath(parentPath + route);
+          } else {
+            return MoreRouting.getRouteByName(route);
+          }
+        });
+      },
+
+      /** Return `Route` objects declared by child `more-route`s. */
+      _routesFromChildren: function() {
+        var result = [];
+        for (var i = 0, child; child = this.children[i]; i++) {
+          result.push(child.route);
+        }
+        return result;
+      },
+
+      /**
+       * Tracks changes to the routes.
+       *
+       * TODO(nevir): Consider having a global 'route-changed' event so we're
+       * just observing one object (MoreRouting.driver.currentPathParts?).
+       */
+      _observeRoutes: function() {
+        if (this._observer) {
+          this._observer.close();
+        }
+        this._observer = new CompoundObserver();
+        for (var i = 0, route; route = this._routeRefs[i]; i++) {
+          this._observer.addPath(route, 'active');
+        }
+        this._observer.open(this.evaluate.bind(this));
+      },
+
+      /** TODO(nevir): Break out into a shared helper/mixin */
+      _findParent: function() {
+        var node = this;
+        while (node) {
+          node = node.parentNode || node.host;
+          var route = node && node.moreRouteContext || node;
+          if (route instanceof this.constructor && route !== this) {
+            return route;
+          }
+        }
+        return null;
+      },
+    });
+  </script>
+</polymer-element>

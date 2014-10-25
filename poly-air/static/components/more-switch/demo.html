@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>more-switch</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <script src="../platform/platform.js"></script>
+
+  <link rel="import" href="more-switch.html">
+  <link rel="import" href="template-switch.html">
+
+  <style>
+    section {
+      border: 1px solid #eee;
+      margin: 8px;
+      padding: 8px;
+    }
+    code {
+      display: block;
+      margin-bottom: 8px;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body layout horizontal>
+  <template is="auto-binding">
+
+    <section>
+      <p>foo: <input value="{{foo}}" type="range" min="0" max="3" step="1"> {{foo}}</p>
+      <p>selectedIndex: <input value="{{moreSwitchSelectedIndex}}" type="range" min="0" max="2" step="1"></p>
+      <code>&lt;more-switch selectedIndex="{{moreSwitchSelectedIndex}}"&gt;
+  &lt;div when="{<span>{foo == 1}</span>}"&gt;One!&lt;/div&gt;
+  &lt;div when="{<span>{foo == 2}</span>}"&gt;Two!&lt;/div&gt;
+  &lt;div else&gt;Default&lt;/div&gt;
+&lt;/more-switch&gt;</code>
+      <more-switch selectedIndex="{{moreSwitchSelectedIndex}}">
+        <div when="{{foo == 1}}">One!</div>
+        <div when="{{foo == 2}}">Two!</div>
+        <div else>Default</div>
+      </more-switch>
+    </section>
+
+    <section>
+      <p>bar: <input value="{{bar}}" type="range" min="0" max="3" step="1"> {{bar}}</p>
+      <p>selectedIndex: <input value="{{templateSwitchSelectedIndex}}" type="range" min="0" max="2" step="1"></p>
+      <code>&lt;template-switch selectedIndex="{{templateSwitchSelectedIndex}}"&gt;
+  &lt;template when="{<span>{bar == 1}</span>}"&gt;One!&lt;/template&gt;
+  &lt;template when="{<span>{bar == 2}</span>}"&gt;Two!&lt;/template&gt;
+  &lt;template else&gt;Default&lt;/template&gt;
+&lt;/template-switch&gt;</code>
+      <template-switch selectedIndex="{{templateSwitchSelectedIndex}}">
+        <template when="{{bar == 1}}">One!</template>
+        <template when="{{bar == 2}}">Two!</template>
+        <template else>Default</template>
+      </template-switch>
+    </section>
+
+  </template>
+</body>
+</html>

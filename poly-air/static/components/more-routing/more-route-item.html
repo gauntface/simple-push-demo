@@ -1,0 +1,82 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../core-item/core-item.html">
+
+<link rel="import" href="more-route.html">
+
+<!--
+
+-->
+<polymer-element name="more-route-item" extends="core-item" on-tap="{{_onTap}}">
+  <template>
+    <shadow></shadow>
+
+    <style>
+      :host {
+        cursor: pointer;
+      }
+    </style>
+
+    <more-route id="route" name="{{name}}" path="{{path}}"></more-route>
+  </template>
+
+  <script>
+    Polymer('more-route-item', {
+      publish: {
+        /**
+         * The name of this route.
+         *
+         * @attribute name
+         * @type String
+         */
+        name: '',
+
+        /**
+         * A path expression used to parse parameters from the window's URL.
+         *
+         * @attribute path
+         * @type String
+         */
+        path: '',
+
+        /**
+         * Param values to use for navigating to this item, and for determining
+         * whether the item is `current`.
+         *
+         * @attribute params
+         * @type Object
+         */
+        params: {},
+
+        /**
+         * Whether the route matches the current URL.
+         *
+         * @attribute active
+         * @type Boolean
+         * @readonly
+         */
+        active: {value: false, reflect: true},
+
+        /**
+         * Whether the route _and params_ match the current URL.
+         *
+         * @attribute current
+         * @type Boolean
+         * @readonly
+         */
+        current: {value: false, reflect: true},
+      },
+
+      observe: {
+        '$.route.route.parts': '_updateCurrent',
+      },
+
+      _updateCurrent: function() {
+        this.current = this.$.route.isCurrentUrl(this.params);
+      },
+
+      _onTap: function() {
+        this.$.route.navigateTo(this.params);
+      },
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,57 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="routing.html">
+<!-- TODO(nevir): import on demand? -->
+<link rel="import" href="driver/hash.html">
+<link rel="import" href="driver/mock.html">
+<link rel="import" href="driver/path.html">
+
+<!--
+TODO(nevir): Document.
+-->
+<polymer-element name="more-routing">
+  <script>
+    Polymer('more-routing', {
+      publish: {
+        /**
+         * The routing driver to use.
+         *
+         *  * `hash`: `MoreRouting.HashDriver`
+         *  * `path`: `MoreRouting.PathDriver`
+         *  * `mock`: `MoreRouting.MockDriver`
+         *
+         * @attribute driver
+         * @type String
+         */
+        driver: '',
+
+        /**
+         *
+         */
+        urlPrefix: '',
+      },
+
+      ready: function() {
+        var driver;
+        // TODO(nevir): Support custom drivers, too.
+        if (this.driver === 'hash') {
+          driver = new MoreRouting.HashDriver(this._config);
+        } else if (this.driver === 'path') {
+          driver = new MoreRouting.PathDriver(this._config);
+        } else if (this.driver === 'mock') {
+          driver = new MoreRouting.MockDriver(this._config);
+        } else {
+          throw new Error('Unknown driver type "' + this.driver + '"');
+        }
+
+        MoreRouting.driver = driver;
+      },
+
+      get _config() {
+        var config = {};
+        if (this.urlPrefix) config.prefix = this.urlPrefix;
+        return config;
+      },
+    });
+  </script>
+</polymer-element>

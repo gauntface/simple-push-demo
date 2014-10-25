@@ -1,0 +1,129 @@
+<script>
+(function(scope) {
+var MoreRouting = scope.MoreRouting = scope.MoreRouting || {};
+MoreRouting.Driver = Driver;
+
+/**
+ * TODO(nevir): Docs.
+ */
+function Driver(opt_config) {
+  var config = opt_config || {};
+  if (config.prefix) this.prefix = config.prefix;
+
+  this._activeRoutes = [];
+
+  // The root node for matching information. Each node can contain keys:
+  //
+  //  * `routes`:   Routes that match this node and its descendents.
+  //  * `static`:   A map of path parts to nodes.
+  //  * `wildcard`: A node that matches regardless of the part content.
+  //
+  this._root = {};
+}
+
+Driver.prototype.manageRoute = function manageRoute(route) {
+  route.driver = this;
+  this._appendRoute(route);
+  route.processPathParts(this.currentPathParts);
+  if (route.active) this._activeRoutes.push(route);
+};
+
+Driver.prototype.urlForParts = function urlForParts(parts) {
+  return this.prefix + parts.join(this.separator);
+};
+
+Driver.prototype.navigateToParts = function(parts) {
+  return this.navigateToUrl(this.urlForParts(parts));
+};
+
+Driver.prototype.navigateToUrl = function navigateToUrl(url) {
+  throw new Error(this.constructor.name + '#navigateToUrl not implemented');
+};
+
+// Subclass Interface
+
+Driver.prototype.prefix = '/';
+Driver.prototype.separator = '/';
+
+Driver.prototype.setCurrentPath = function setCurrentPath(path) {
+  this.currentPathParts = this.splitPath(path);
+  var newRoutes = this._matchingRoutes(this.currentPathParts);
+
+  // Always update active routes.
+  for (var i = 0, route; route = newRoutes[i]; i++) {
+    route.processPathParts(this.currentPathParts);
+    if (!route.active) {
+      console.warn('Driver thinks route', route, 'should be active, but it is not');
+    }
+  }
+
+  // active -> inactive.
+  for (var i = 0, route; route = this._activeRoutes[i]; i++) {
+    if (newRoutes.indexOf(route) === -1) {
+      route.processPathParts(null);
+    }
+  }
+
+  this._activeRoutes = newRoutes;
+}
+
+Driver.prototype.splitPath = function splitPath(rawPath) {
+  if (this.prefix && rawPath.indexOf(this.prefix) !== 0) {
+    throw new Error(
+        'Invalid path "' + rawPath + '"; ' +
+        'expected it to be prefixed by "' + this.prefix + '"');
+  }
+  var path  = rawPath.substr(this.prefix.length);
+  var parts = path.split(this.separator);
+  // Ignore trailing separators.
+  if (!parts[parts.length - 1]) parts.pop();
+
+  return parts;
+};
+
+// Internal Implementation
+
+Driver.prototype._appendRoute = function _appendRoute(route) {
+  var node = this._root;
+  for (var i = 0, config; config = route.compiled[i]; i++) {
+    if (config.type === 'static') {
+      if (!node.static) node.static = {};
+      if (!node.static[config.part]) node.static[config.part] = {};
+      node = node.static[config.part];
+    } else if (config.type === 'param') {
+      if (!node.wildcard) node.wildcard = {};
+      node = node.wildcard;
+    } else {
+      throw new Error('Unknown compiled route part type "' + config.type + '"');
+    }
+  }
+
+  if (!node.routes) node.routes = [];
+  node.routes.push(route);
+};
+
+Driver.prototype._matchingRoutes = function _matchingRoutes(parts, currentNode) {
+  var node   = currentNode || this._root;
+  var routes = [];
+
+  if (node.routes) {
+    routes = routes.concat(node.routes);
+  }
+  if (parts.length > 0) {
+    var nextParts = parts.slice(1);
+    if (node.static) {
+      var child = node.static[parts[0]];
+      if (child) {
+        routes = routes.concat(this._matchingRoutes(nextParts, child));
+      }
+    }
+    if (node.wildcard) {
+      routes = routes.concat(this._matchingRoutes(nextParts, node.wildcard));
+    }
+  }
+
+  return routes;
+}
+
+})(window);
+</script>

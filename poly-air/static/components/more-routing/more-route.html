@@ -1,0 +1,176 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="routing.html">
+
+<!--
+TODO(nevir): Document.
+
+-->
+<polymer-element name="more-route">
+  <script>
+    Polymer('more-route', {
+      publish: {
+        /**
+         * The name of this route. Behavior differs based on the presence of
+         * `path` during _declaration_.
+         *
+         * If `path` is present during declaration, it is registered via `name`.
+         *
+         * Otherwise, this `more-route` becomes a `reference` to the route with
+         * `name`. Changing `name` will update which route is referenced.
+         *
+         * @attribute name
+         * @type String
+         */
+        name: '',
+
+        /**
+         * A path expression used to parse parameters from the window's URL.
+         *
+         * @attribute path
+         * @type String
+         */
+        path: '',
+
+        /**
+         * The full path expression for this route, including routes this is
+         * nested within.
+         *
+         * @attribute fullPath
+         * @type String
+         * @readonly
+         */
+        fullPath: '',
+
+        /**
+         * Whether this route is a reference to a named route.
+         *
+         * @attribute reference
+         * @type Boolean
+         */
+        reference: false,
+
+        /**
+         * Param values matching the current URL, or an empty object if not
+         * `active`.
+         *
+         * @attribute params
+         * @type Object
+         */
+        params: {},
+
+        /**
+         * Whether the route matches the current URL.
+         *
+         * @attribute active
+         * @type Boolean
+         * @readonly
+         */
+        active: false,
+
+        /**
+         * The underlying `MoreRouting.Route` object that is being wrapped.
+         *
+         * @attribute route
+         * @type MoreRouting.Route
+         * @readonly
+         */
+        route: null,
+
+        /**
+         * The parent `more-route` element, if it is nested within another.
+         *
+         * Parents are found by searching up this element's ancestry for nodes
+         * that are `more-route` elements, or have a `moreRouteContext`
+         * property.
+         *
+         * @attribute parent
+         * @type <more-route>
+         * @readonly
+         */
+        parent: null,
+      },
+
+      observe: {
+        'name':      '_identityChanged',
+        'path':      '_identityChanged',
+        'reference': '_identityChanged',
+        // TODO(nevir): Truly read-only properties would be super handy.
+        'active':    '_updateProxiedValues',
+      },
+
+      ready: function() {
+        this.reference = this.name && !this.path;
+      },
+
+      attached: function() {
+        this.parent = this._findParent();
+      },
+
+      urlFor: function(params) {
+        return this.route.urlFor(params);
+      },
+
+      navigateTo: function(params) {
+        return this.route.navigateTo(params);
+      },
+
+      isCurrentUrl: function(params) {
+        return this.route.isCurrentUrl(params);
+      },
+
+      _identityChanged: function() {
+        var fullPath = (this.parent && this.parent.path || '') + this.path;
+
+        if (this.name && this.reference) {
+          this.route    = MoreRouting.getRouteByName(this.name);
+          this.path     = this.route.path;
+          this.fullPath = this.route.path;
+        } else if (this.path && this.name) {
+          this.route    = MoreRouting.registerNamedRoute(this.name, fullPath);
+          this.path     = this.path;
+          this.fullPath = fullPath;
+        } else if (this.path) {
+          this.route    = MoreRouting.getRouteByPath(fullPath);
+          this.path     = this.path;
+          this.fullPath = fullPath;
+        } else {
+          this.route    = null;
+          this.path     = '';
+          this.fullPath = '';
+        }
+
+        if (this._routeObserver) this._routeObserver.close();
+        if (this.route) {
+          this.params = this.route.params;
+          this._observeRoute(this.route);
+        } else {
+          this.params = {};
+        }
+      },
+
+      _updateProxiedValues: function() {
+        this.active = this.route && this.route.active;
+      },
+
+      _observeRoute: function(route) {
+        this._routeObserver = new CompoundObserver();
+        this._routeObserver.addPath(route, 'active');
+        this._routeObserver.open(this._updateProxiedValues.bind(this));
+      },
+
+      /** TODO(nevir): Break out into a shared helper/mixin */
+      _findParent: function() {
+        var node = this;
+        while (node) {
+          node = node.parentNode || node.host;
+          var route = node && node.moreRouteContext || node;
+          if (route instanceof this.constructor && route !== this) {
+            return route;
+          }
+        }
+        return null;
+      },
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,126 @@
+<link rel="import" href="polymer-expressions.html">
+<link rel="import" href="route.html">
+
+<script>
+(function(scope) {
+var MoreRouting = scope.MoreRouting = scope.MoreRouting || {};
+
+// Route singletons.
+var routesByPath = {};
+var pathsByName  = {};
+
+// Route Management
+
+/**
+ * Retrieves (or builds) the singleton `Route` for the given path expression or
+ * route name.
+ *
+ * Paths begin with `/`; anything else is considered a name.
+ *
+ * For convenience, `Route` objects can also be passed (and will be returned) -
+ * this can be used as a route coercion function.
+ *
+ * @param {String|MoreRouting.Route} pathOrName
+ * @return {MoreRouting.Route}
+ */
+MoreRouting.getRoute = function getRoute(pathOrName) {
+  if (typeof pathOrName !== 'string') return pathOrName;
+  if (this.isPath(pathOrName)) {
+    return this.getRouteByPath(pathOrName);
+  } else {
+    return this.getRouteByName(pathOrName);
+  }
+}
+
+/**
+ * Retrieves (or builds) the singleton `Route` for the given path expression.
+ *
+ * @param {String} path
+ * @return {MoreRouting.Route}
+ */
+MoreRouting.getRouteByPath = function getRouteByPath(path) {
+  if (!routesByPath[path]) {
+    routesByPath[path] = new this.Route(path);
+    this.driver.manageRoute(routesByPath[path]);
+  }
+  return routesByPath[path];
+}
+
+/**
+ * Retrieves the route registered via `name`.
+ *
+ * @param {String} name
+ * @return {MoreRouting.Route}
+ */
+MoreRouting.getRouteByName = function getRouteByName(name) {
+  var path = pathsByName[name];
+  if (!path) {
+    throw new Error('No route named "' + name + '" has been registered');
+  }
+  return this.getRouteByPath(path);
+}
+
+/**
+ * @param {String} path
+ * @return {MoreRouting.Route} The newly registered route.
+ */
+MoreRouting.registerNamedRoute = function registerNamedRoute(name, path) {
+  if (pathsByName[name]) {
+    console.warn(
+        'Overwriting route named "' + name + '" with path:', path,
+        'previously:', pathsByName[name]);
+  }
+  pathsByName[name] = path;
+  return this.getRouteByPath(path);
+};
+
+// Route Shortcuts
+
+MoreRouting.urlFor = function urlFor(pathOrName, params) {
+  return this.getRoute(pathOrName).urlFor(params);
+};
+
+MoreRouting.navigateTo = function navigateTo(pathOrName, params) {
+  return this.getRoute(pathOrName).navigateTo(params);
+};
+
+MoreRouting.isCurrentUrl = function isCurrentUrl(pathOrName, params) {
+  return this.getRoute(pathOrName).isCurrentUrl(params);
+};
+
+// Utility
+
+/**
+ *
+ */
+MoreRouting.isPath = function isPath(pathOrName) {
+  return this.Route.isPath(pathOrName);
+}
+
+/**
+ * @param {...String} paths
+ */
+MoreRouting.joinPath = function joinPath(paths) {
+  return this.Route.joinPath.apply(this.Route, arguments);
+}
+
+// Driver Management
+
+var driver;
+Object.defineProperty(MoreRouting, 'driver', {
+  get: function getDriver() {
+    if (!driver) {
+      throw new Error('No routing driver configured. Did you forget <more-routing>?');
+    }
+    return driver;
+  },
+  set: function setDriver(newDriver) {
+    if (driver) {
+      throw new Error('Changing routing drivers is not supported');
+    }
+    driver = newDriver;
+  }
+});
+
+})(window);
+</script>

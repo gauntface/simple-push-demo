@@ -1,0 +1,150 @@
+<script>
+(function(scope) {
+var MoreRouting = scope.MoreRouting = scope.MoreRouting || {};
+MoreRouting.Route = Route;
+
+// Note that this can differ from the part separator defined by the driver. The
+// driver's separator is used when parsing/generating URLs given to the client,
+// whereas this one is for route definitions.
+var PART_SEPARATOR    = '/';
+var PARAM_SENTINEL    = ':';
+var SEPARATOR_CLEANER = /\/\/+/g;
+
+/**
+ * TODO(nevir): Docs.
+ */
+function Route(path) {
+  this.path     = path;
+  this.compiled = this._compile(this.path);
+  this.active   = false;
+  this.driver   = null;
+
+  this.parts = [];
+  /**
+   * Param values matching the current URL, or an empty object if not `active`.
+   *
+   * To make data "binding" easy, `Route` guarantees that `params` will always
+   * be the same object; just make a reference to it.
+   */
+  this.params = {};
+
+  this._paramObserver = new ObjectObserver(this.params);
+  this._paramObserver.open(this._navigateToParams.bind(this));
+}
+
+Route.isPath = function isPath(pathOrName) {
+  return pathOrName.indexOf(PART_SEPARATOR) === 0;
+};
+
+Route.joinPath = function joinPath(paths) {
+  var joined = Array.prototype.join.call(arguments, PART_SEPARATOR);
+  joined = joined.replace(SEPARATOR_CLEANER, PART_SEPARATOR);
+
+  var minLength = joined.length - PART_SEPARATOR.length;
+  if (joined.substr(minLength) === PART_SEPARATOR) {
+    joined = joined.substr(0, minLength);
+  }
+
+  return joined;
+};
+
+Route.prototype.urlFor = function urlFor(params) {
+  return this.driver.urlForParts(this.partsForParams(params));
+};
+
+Route.prototype.navigateTo = function navigateTo(params) {
+  return this.driver.navigateToParts(this.partsForParams(params));
+}
+
+Route.prototype.isCurrentUrl = function isCurrentUrl(params) {
+  if (!this.active) return false;
+  var currentKeys = Object.keys(this.params);
+  for (var i = 0, key; key = currentKeys[i]; i++) {
+    if (this.params[key] !== String(params[key])) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// Driver Interface
+
+Route.prototype.partsForParams = function partsForParams(params, silent) {
+  var parts = [];
+  for (var i = 0, config; config = this.compiled[i]; i++) {
+    if (config.type === 'static') {
+      parts.push(config.part);
+    } else if (config.type === 'param') {
+      var value = params[config.name];
+      if (!value) {
+        if (silent) {
+          return null;
+        } else {
+          throw new Error('Missing param "' + config.name + '" for route ' + this);
+        }
+      }
+      parts.push(value);
+    }
+  }
+  return parts;
+};
+
+/**
+ * Called by the driver whenever it has detected a change to the URL.
+ *
+ * @param {Array.<String>|null} parts The parts of the URL, or null if the
+ *     route should be disabled.
+ */
+Route.prototype.processPathParts = function processPathParts(parts) {
+  this.parts  = parts;
+  this.active = this.matchesPathParts(parts);
+  for (var i = 0, config; config = this.compiled[i]; i++) {
+    if (config.type === 'param') {
+      this.params[config.name] = this.active ? parts[i] : undefined;
+    }
+  }
+  this._paramObserver.discardChanges();
+};
+
+Route.prototype.matchesPathParts = function matchesPathParts(parts) {
+  if (!parts) return false;
+  if (parts.length < this.compiled.length) return false;
+  for (var i = 0, config; config = this.compiled[i]; i++) {
+    if (config.type === 'static' && parts[i] !== config.part) {
+      return false;
+    }
+  }
+  return true;
+};
+
+Route.prototype.toString = function toString() {
+  return this.path;
+};
+
+// Internal Implementation
+
+Route.prototype._compile = function _compile(rawPath) {
+  // Not strictly required, but helps us stay consistent w/ `getRoute`, etc.
+  if (rawPath.indexOf(PART_SEPARATOR) !== 0) {
+    throw new Error('Route paths must begin with a path separator; got: "' + rawPath + '"');
+  }
+  var path = rawPath.substr(PART_SEPARATOR.length);
+  if (path === '') return [];
+
+  return path.split(PART_SEPARATOR).map(function(part) {
+    if (part.substr(0, 1) == PARAM_SENTINEL) {
+      return {type: 'param', name: part.substr(1)};
+    } else {
+      return {type: 'static', part: part};
+    }
+  });
+};
+
+Route.prototype._navigateToParams = function _navigateToParams() {
+  var parts = this.partsForParams(this.params, true);
+  if (!parts) return;
+  this.driver.navigateToParts(parts);
+};
+
+})(window);
+</script>

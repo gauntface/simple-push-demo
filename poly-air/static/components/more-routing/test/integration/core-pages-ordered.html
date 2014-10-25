@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="../../../webcomponentsjs/webcomponents.js"></script>
+    <script src="../../../web-component-tester/browser.js"></script>
+    <link rel="import" href="../../../core-pages/core-pages.html">
+    <link rel="import" href="../../more-route-selector.html">
+    <link rel="import" href="../../more-route.html">
+    <link rel="import" href="../../more-routing.html">
+  </head>
+  <body>
+    <template is="auto-binding">
+      <more-routing driver="mock"></more-routing>
+      <more-route name="stuff" path="/foo/bar"></more-route>
+
+      <more-route-selector selectedIndex="{{orderedIndex}}" routes="['stuff', '/fizz', '/']"></more-route-selector>
+      <core-pages id="ordered" selected="{{orderedIndex}}">
+        <div>Route: stuff</div>
+        <div>Route: /fizz</div>
+        <div>Default Route</div>
+      </core-pages>
+    </template>
+
+    <script>
+      var pages;
+      function assertNavigated(route, index, done) {
+        MoreRouting.navigateTo(route);
+        flush(function() {
+          assert.equal(pages.selectedIndex, index, 'selectedIndex mismatch for route "' + route + '"');
+          done();
+        });
+      }
+
+      suite('routes declared with same order as pages', function() {
+        suiteSetup(function() {
+          pages = document.getElementById('ordered');
+        });
+
+        beforeEach(function(done) {
+          assertNavigated('/', 2, done);
+        });
+
+        test('navigates to exact routes', function(done) {
+          assertNavigated('/fizz', 1, done);
+        });
+
+        test('navigates to nested routes', function(done) {
+          assertNavigated('/fizz/buzz', 1, done);
+        });
+
+        test('navigates root routes', function(done) {
+          assertNavigated('/fizz', 1, function() {
+            assertNavigated('/404', 2, done);
+          });
+        });
+
+        test('navigates named routes', function(done) {
+          assertNavigated('/foo/bar', 0, done);
+        });
+      });
+    </script>
+  </body>
+</html>

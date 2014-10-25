@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>more-routing</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <script src="../platform/platform.js"></script>
+  <link rel="import" href="../core-scaffold/core-scaffold.html">
+  <link rel="import" href="../more-param/more-param.html">
+
+  <link rel="import" href="more-route-item.html">
+  <link rel="import" href="more-route-switch.html">
+  <link rel="import" href="more-route.html">
+  <link rel="import" href="more-routing.html">
+
+  <style>
+    more-route-item {
+      display: block;
+      padding: 0.5em;
+    }
+    more-route-item[current] {
+      background: #9C5299;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <template is="auto-binding">
+    <more-param key="driver" value="{{driver}}" default="hash"></more-param>
+
+    <more-routing driver="{{driver}}"></more-routing>
+    <more-route name="user" path="/users/:userId">
+      <more-route name="user-bio" path="/bio"></more-route>
+    </more-route>
+
+    <core-scaffold>
+
+      <header tool>more-routing</header>
+
+      <nav>
+        <more-route-item path="/">Index</more-route-item>
+        <more-route-item path="/about">About</more-route-item>
+        <more-route-item name="user"     params="{{ {userId: 1} }}">User 1</more-route-item>
+        <more-route-item name="user-bio" params="{{ {userId: 1} }}">User 1's bio</more-route-item>
+        <more-route-item name="user"     params="{{ {userId: 2} }}">User 2</more-route-item>
+        <more-route-item name="user-bio" params="{{ {userId: 2} }}">User 2's bio</more-route-item>
+      </nav>
+
+      <section id="content">
+        <more-route-switch>
+
+          <template when-route="user">
+            <header>User {{params.userId}}</header>
+            <template if="{{ route('user-bio').active }}">
+              All the details about {{params.userId}} that you didn't want to know...
+            </template>
+          </template>
+
+          <template when-route="/about">
+            It's a routing demo!
+            <a href="{{ urlFor('user-bio', {userId: 1}) }}">Read about user 1</a>.
+          </template>
+
+          <template else>
+            The index.
+          </template>
+
+        </more-route-switch>
+      </section>
+    </core-scaffold>
+
+  </template>
+</body>
+</html>

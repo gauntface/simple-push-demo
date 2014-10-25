@@ -76,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       iconById: function(id) {
-        return this._icons[id] || (this._icons[id] = this.querySelector('#' + id));
+        return this._icons[id] || (this._icons[id] = this.querySelector('[id="' + id +'"]'));
       },
 
       cloneIcon: function(id) {

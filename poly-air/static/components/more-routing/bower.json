@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "more-routing",
+  "dependencies": {
+    "core-item": "Polymer/core-item#master",
+    "more-switch": "Polymore/more-switch#master",
+    "polymer": "Polymer/polymer#master"
+  },
+  "devDependencies": {
+    "core-pages": "Polymer/core-pages#master",
+    "core-scaffold": "Polymer/core-scaffold#master",
+    "more-param": "Polymore/more-param#master",
+    "webcomponentsjs": "Polymer/webcomponentsjs#master",
+    "web-component-tester": "Polymer/web-component-tester#^1.2.0"
+  }
+}
