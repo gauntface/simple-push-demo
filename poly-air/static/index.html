@@ -45,6 +45,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-icons/social-icons.html">
   <link rel="import" href="components/core-drawer-panel/core-drawer-panel.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
+  <link rel="import" href="components/paper-fab/paper-fab.html">
+  <link rel="import" href="components/paper-item/paper-item.html">
 
   <script>
     (function() {
@@ -107,10 +109,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template is="auto-binding">
     <core-scaffold id="scaffold">
-      <nav>Blargity blarg blarg blarg</nav>
+      <core-header-panel navigation flex mode="seamed">
+        <core-toolbar>PolyAir</core-toolbar>
+        <core-menu>
+          <paper-item icon="settings" label="Booking history"></paper-item>
+          <paper-item icon="settings" label="Next bookings"></paper-item>
+        </core-menu>
+      </core-header-panel>
       <core-toolbar tool>PolyAir</core-toolbar>
-      <div>Welcome to PolyAir!
+      <div fit>Welcome to PolyAir!
         <br>Getting you from here to there, with flair.</div>
+      <paper-fab icon='add' class='red'></paper-fab>
     </core-scaffold>
   </template>
 
