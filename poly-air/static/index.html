@@ -49,6 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/paper-fab/paper-fab.html">
   <link rel="import" href="components/paper-input/paper-input.html">
   <link rel="import" href="components/paper-item/paper-item.html">
+  <link rel="import" href="flight-panel.html">
 
   <script>
     (function() {
@@ -145,16 +146,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </core-header-panel>
       <core-toolbar tool>PolyAir</core-toolbar>
       <template bind if="{{ !state }}">
-        <div fit>Welcome to PolyAir!<br>
+        <div>Welcome to PolyAir!<br>
           Getting you from here to there, with flair.
         </div>
+        <paper-fab icon='add' class='red'></paper-fab>
       </template>
       <template bind if="{{ state == 'checkin' }}">
         <paper-input class="narrow" required label="Booking reference"></paper-input>
         <paper-input class="narrow" required label="Last name"></paper-input>
-        <paper-button raised class="colored">Submit</paper-button>
+        <paper-button onclick="updateState('checkin-confirmation');" raised class="colored">Submit</paper-button>
       </template>
-      <paper-fab icon='add' class='red'></paper-fab>
+      <template bind if="{{ state == 'checkin-confirmation' }}">
+        <flight-panel company="United Airlines"
+                      flightNumber="930"
+                      status="On time"
+                      departCode="SFO"
+                      arrivalCode="LHR"
+                      departCity="San Francisco"
+                      arrivalCity="London"
+                      departDate="Monday, 27 October"
+                      arrivalDate="Tuesday, 28 October"
+                      departTime="18:05"
+                      arrivalTime="11:30"
+                      departTerminal="INTL"
+                      departGate="G97"
+                      arrivalTerminal="2"
+                      arrivalGate="-">
+        </flight-panel>
+      </template>
     </core-scaffold>
   </template>
 
