@@ -61,10 +61,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var log = console.log.bind(console);
         var err = console.error.bind(console);
 
-        localforage.getItem('track').then(function(item) {
-          if (item != null)
-            showTrackMenu();
-        });
+        /*
+        setTimeout(function() {
+          localforage.getItem('track').then(function(item) {
+            console.log('track item ' + item);
+            if (item != null)
+              showTrackMenu();
+          });
+        }, 1000);
+        */
 
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register("flight-info-sw.js").then(function(sw) {
@@ -207,8 +212,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-item onclick="updateState('checkin');" icon="work" label="Check-in"></paper-item>
           <paper-item icon="schedule" label="Travel information"></paper-item>
           <paper-item icon="warning" label="Delays"></paper-item>
-          <hr hidden>
-          <paper-item onclick="updateState('track');" id='track-menu' hidden icon="star" label="Tracked Flights"></paper-item>
+          <hr>
+          <paper-item onclick="updateState('track');" id='track-menu' icon="star" label="Tracked Flights"></paper-item>
           <hr>
           <paper-item icon="settings" label="Settings"></paper-item>
           <hr>
