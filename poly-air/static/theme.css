@@ -56,3 +56,16 @@ paper-button[raised].colored {
 core-scaffold::shadow core-header-panel::shadow #mainPanel {
   padding: 20px;
 }
+
+paper-checkbox {
+  padding-right: 10px;
+}
+
+.notification-checkbox {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+paper-button.checkin {
+  margin-top: 20px;
+}

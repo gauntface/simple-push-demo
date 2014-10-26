@@ -47,6 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-drawer-panel/core-drawer-panel.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
   <link rel="import" href="components/paper-button/paper-button.html">
+  <link rel="import" href="components/paper-checkbox/paper-checkbox.html">
   <link rel="import" href="components/paper-fab/paper-fab.html">
   <link rel="import" href="components/paper-input/paper-input.html">
   <link rel="import" href="components/paper-item/paper-item.html">
@@ -184,6 +185,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <core-icon icon="check"></core-icon>
           </paper-button>
         </paper-item>
+        <div class='notification-checkbox' horizontal layout>
+          <paper-checkbox></paper-checkbox>
+          <div>Notify me about flight status updates</div>
+        </div>
+        <paper-button class="colored checkin">
+          <core-icon icon="check"></core-icon>
+          ok
+        </paper-button>
+        <paper-button class="checkin">
+          <core-icon icon="clear "></core-icon>
+          cancel
+        </paper-button>
       </template>
     </core-scaffold>
   </template>
