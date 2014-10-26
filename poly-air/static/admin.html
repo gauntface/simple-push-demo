@@ -73,16 +73,25 @@
   }
 </script>
 <body>
-  <input type='button' value='Clear Registrations' onclick='clearRegistrations();'>
-  <input type='button' value='Fake Registration' onclick='registerFake();'>
-  <input type='button' value='Get Registration' onclick='getRegistration();'>
+  <fieldset>
+    <legend>Debug</legend>
+    <input type='button' value='Clear Registrations' onclick='clearRegistrations();'>
+    <input type='button' value='Fake Registration' onclick='registerFake();'>
+    <input type='button' value='Get Registration' onclick='getRegistration();'>
+  </fieldset>
 
-  <br>
+  <fieldset>
+    <legend>Send pushes</legend>
 
-  <form onsubmit="sendPush(this.message.value); return false;">
-    <input name='message'>
-    <input type='submit'>
-  </form>
+    <form onsubmit="sendPush(this.message.value); return false;">
+      Free form:
+      <input name='message'>
+      <input type='submit'>
+    </form>
+    <br>
+    <input type='button' onclick="sendPush('gate:G42');" value='Change gate to G42'>
+    <input type='button' onclick="sendPush('delay:15');" value='Delay 15mins'>
+  </fieldset>
 
   <textarea id='log' readonly></textarea>
 </body>
