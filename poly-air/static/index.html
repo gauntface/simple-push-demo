@@ -36,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </script>
 
   <script src="components/platform/platform.js"></script>
+  <script src="lib/localforage.js"></script>
 
   <link rel="stylesheet" href="theme.css" shim-shadowdom>
 
@@ -59,18 +60,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       "use strict";
         var log = console.log.bind(console);
         var err = console.error.bind(console);
-        if (!navigator.serviceWorker) {
+
+        localforage.getItem('track').then(function(item) {
+          if (item != null)
+            showTrackMenu();
+        });
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register("flight-info-sw.js").then(function(sw) {
+          }, function(e) {
+            document.querySelector('#no-sw').show();
+          });
+        } else {
           setTimeout(function() {
             document.querySelector('#no-sw').show();
           }, 1000);
-          return;
         }
-
-        navigator.serviceWorker.register("flight-info-sw.js").then(function(sw) {
-        }, function(e) {
-          document.querySelector('#no-sw').show();
-        });
-
     }());
 
     // There is a bug with the History API and SW...
@@ -87,8 +92,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var updateState = function(state) {
       if (ENABLE_HISTORY_API)
         window.history.pushState({ 'state': state }, document.title);
+      if (state == 'track') {
+        updateTrackedFlight();
+      }
       updateContent(state);
     };
+
+    var updateTrackedFlight = function() {
+      localforage.getItem('track').then(function(flight) {
+        var elt = document.createElement('flight-panel');
+        elt.setAttribute('company', flight.company);
+        elt.setAttribute('flightNumber', flight.flightNumber);
+        elt.setAttribute('status', flight.status);
+        elt.setAttribute('departCode', flight.depart.code);
+        elt.setAttribute('departCity', flight.depart.city);
+        elt.setAttribute('departDate', flight.depart.date);
+        elt.setAttribute('departTime', flight.depart.time);
+        elt.setAttribute('departTerminal', flight.depart.terminal);
+        elt.setAttribute('departGate', flight.depart.gate);
+        elt.setAttribute('arrivalCode', flight.arrival.code);
+        elt.setAttribute('arrivalCity', flight.arrival.city);
+        elt.setAttribute('arrivalDate', flight.arrival.date);
+        elt.setAttribute('arrivalTime', flight.arrival.time);
+        elt.setAttribute('arrivalTerminal', flight.arrival.terminal);
+        elt.setAttribute('arrivalGate', flight.arrival.gate);
+        document.getElementById('track-content').appendChild(elt);
+      });
+    }
 
     var updateContent = function(state) {
       var content = document.getElementById('content');
@@ -97,19 +127,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       };
     }
 
-    var registerPush = function() {
+    var showTrackMenu = function() {
+      var trackMenu = document.getElementById('track-menu');
+      trackMenu.hidden = trackMenu.previousElementSibling.hidden = false;
+    }
+
+    var startTracking = function() {
       if (!navigator.push) {
         document.querySelector('#push-error').show();
         return;
       }
 
       navigator.serviceWorker.ready.then(function() {
-//        localStorage.removeItem("pushRegistrationId");
         navigator.push.register('129757602160').then(function(pushRegistration) {
           document.querySelector('#push-success').show();
+
           console.log(pushRegistration.pushRegistrationId);
-//          localStorage.setItem("pushRegistrationId",
-//                               pushRegistration.pushRegistrationId);
+          localforage.setItem('track', {
+            'company': 'Polymer Airlines',
+            'flightNumber': '930',
+            'status': 'On time',
+            'depart': {
+              'code': 'SFO',
+              'city': 'San Francisco',
+              'date': 'Monday, 27 October',
+              'time': '18:05',
+              'terminal': 'INTL',
+              'gate': 'G97',
+            },
+            'arrival': {
+              'code': 'LHR',
+              'city': 'London',
+              'date': 'Tuesday, 28 October',
+              'time': '11:30',
+              'terminal': '2',
+              'gate': '-',
+            }
+          });
+          showTrackMenu();
        }, function(e) {
           document.querySelector('#push-error').show();
           console.log('Push registration failed: ' + e);
@@ -133,6 +188,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-item onclick="updateState('checkin');" icon="work" label="Check-in"></paper-item>
           <paper-item icon="schedule" label="Travel information"></paper-item>
           <paper-item icon="warning" label="Delays"></paper-item>
+          <hr hidden>
+          <paper-item onclick="updateState('track');" id='track-menu' hidden icon="star" label="Tracked Flights"></paper-item>
           <hr>
           <paper-item icon="settings" label="Settings"></paper-item>
           <hr>
@@ -156,15 +213,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       flightNumber="930"
                       status="On time"
                       departCode="SFO"
-                      arrivalCode="LHR"
                       departCity="San Francisco"
-                      arrivalCity="London"
                       departDate="Monday, 27 October"
-                      arrivalDate="Tuesday, 28 October"
                       departTime="18:05"
-                      arrivalTime="11:30"
                       departTerminal="INTL"
                       departGate="G97"
+                      arrivalCode="LHR"
+                      arrivalCity="London"
+                      arrivalDate="Tuesday, 28 October"
+                      arrivalTime="11:30"
                       arrivalTerminal="2"
                       arrivalGate="-">
         </flight-panel>
@@ -182,7 +239,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-checkbox></paper-checkbox>
           <div>Notify me about flight status updates</div>
         </div>
-        <paper-button class="colored checkin" onclick="registerPush();">
+        <paper-button class="colored checkin" onclick="startTracking();">
           <core-icon icon="check"></core-icon>
           ok
         </paper-button>
@@ -190,6 +247,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <core-icon icon="clear "></core-icon>
           cancel
         </paper-button>
+      </template>
+      <template bind if="{{ state == 'track' }}">
+        <div id=track-content></div>
       </template>
     </core-scaffold>
 
