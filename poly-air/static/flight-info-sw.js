@@ -18,10 +18,10 @@ this.addEventListener("push", function(evt) {
   var message = 'No Message';
 
   if (data[0] == 'gate') {
-    title = 'Gate changed!';
-    message = 'New gate is ' + data[1];
-
     localforage.getItem('track').then(function(flight) {
+      title = 'Gate changed!';
+      message = flight.companyShort + flight.flightNumber + ' gate is ' + data[1];
+
       flight.depart.gate = data[1];
       localforage.setItem('track', flight).then(function() {
         new Notification(title, {
@@ -33,4 +33,19 @@ this.addEventListener("push", function(evt) {
     });
   }
 
+  if (data[0] == 'delay') {
+    localforage.getItem('track').then(function(flight) {
+      title = 'Flight delay!';
+      message = flight.companyShort + flight.flightNumber + ' has a ' + data[1] + ' minutes delay';
+
+      flight.status = 'Delay of ' + data[1] + ' minutes';
+      localforage.setItem('track', flight).then(function() {
+        new Notification(title, {
+          serviceWorker: true,
+          body: message,
+          icon: 'icons/icon-96.png'
+        });
+      });
+    });
+  }
 });
