@@ -1,5 +1,6 @@
 "use strict";
 
+importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
 var baseUrl = new URL("/", this.location.href) + "";
