@@ -44,7 +44,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-icons/social-icons.html">
   <link rel="import" href="components/core-icons/maps-icons.html">
   <link rel="import" href="components/core-drawer-panel/core-drawer-panel.html">
-  <link rel="import" href="components/core-pages/core-pages.html">
+  <link rel="import" href="components/core-animated-pages/core-animated-pages.html">
+  <link rel="import" href="components/core-animated-pages/transitions/slide-from-right.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
   <link rel="import" href="components/paper-button/paper-button.html">
   <link rel="import" href="components/paper-checkbox/paper-checkbox.html">
@@ -52,37 +53,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/paper-input/paper-input.html">
   <link rel="import" href="components/paper-item/paper-item.html">
   <link rel="import" href="components/paper-toast/paper-toast.html">
+  <!--
+  <link rel="import" href="components/more-routing/more-route-selector.html">
+  <link rel="import" href="components/more-routing/more-route.html">
+  <link rel="import" href="components/more-routing/more-routing.html">
+  -->
   <link rel="import" href="flight-panel.html">
 
   <link rel="stylesheet" href="theme.css" shim-shadowdom>
 
   <script>
-    (function() {
+    var log = console.log.bind(console);
+    var err = console.error.bind(console);
+    window.addEventListener('polymer-ready', function(e) {
       "use strict";
-        var log = console.log.bind(console);
-        var err = console.error.bind(console);
 
-        /*
-        setTimeout(function() {
-          localforage.getItem('track').then(function(item) {
-            console.log('track item ' + item);
-            if (item != null)
-              showTrackMenu();
-          });
-        }, 1000);
-        */
+      /*
+      setTimeout(function() {
+        localforage.getItem('track').then(function(item) {
+          console.log('track item ' + item);
+          if (item != null)
+            showTrackMenu();
+        });
+      }, 1000);
+      */
 
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register("flight-info-sw.js").then(function(sw) {
-          }, function(e) {
-            document.querySelector('#no-sw').show();
-          });
-        } else {
-          setTimeout(function() {
-            document.querySelector('#no-sw').show();
-          }, 1000);
-        }
-    }());
+      var showNoSWMessage = function() {
+        document.querySelector('#no-sw').show();
+      };
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("flight-info-sw.js").
+            catch(showNoSWMessage);
+      } else {
+        setTimeout(showNoSWMessage, 1000);
+      }
+    });
 
     // There is a bug with the History API and SW...
     var ENABLE_HISTORY_API = false;
@@ -140,7 +146,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           selected = 3;
           break;
       }
-      document.querySelector('core-pages').selected = selected;
+      log("selected:", selected);
+      document.querySelector('core-animated-pages').selected = selected;
     }
 
     var showTrackMenu = function() {
@@ -233,7 +240,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </core-menu>
       </core-header-panel>
       <core-toolbar tool>PolyAir</core-toolbar>
-      <core-pages selected='0'>
+      <core-animated-pages selected='0'>
         <section>
           <div>Welcome to PolyAir!<br>
             Getting you from here to there, with flair.
@@ -288,7 +295,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <section> <!-- track -->
           <div id=track-content></div>
         </section>
-      </core-pages>
+      </core-animated-pages>
     </core-scaffold>
 
     <paper-toast id="no-sw" text="Service Worker is not available. This demo isn't going to work."></paper-toast>
