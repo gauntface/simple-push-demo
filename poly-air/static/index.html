@@ -51,6 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/paper-fab/paper-fab.html">
   <link rel="import" href="components/paper-input/paper-input.html">
   <link rel="import" href="components/paper-item/paper-item.html">
+  <link rel="import" href="components/paper-toast/paper-toast.html">
   <link rel="import" href="flight-panel.html">
 
   <script>
@@ -58,64 +59,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       "use strict";
         var log = console.log.bind(console);
         var err = console.error.bind(console);
-        if (navigator.serviceWorker) {
-          var swReady = function() {
-            // Paper over 37<-->40 changes
-            return 'ready' in navigator.serviceWorker ?
-              navigator.serviceWorker.ready :
-              navigator.serviceWorker.whenReady();
-          }
-
-          // Register our ServiceWorker
-          navigator.serviceWorker.register("sw.js");
-          swReady().then(function(sw) {
-            if (!sw) {
-              err("bogus SW registration, balls");
-              return;
-            }
-            // Register for push messages
-            if (navigator.push) {
-              localStorage.removeItem("pushRegistrationId");
-              navigator.push.register('129757602160').then(function(pushRegistration) {
-                log(pushRegistration.pushRegistrationId);
-                localStorage.setItem("pushRegistrationId",
-                                pushRegistration.pushRegistrationId);
-
-                var xhr = new XMLHttpRequest();
-                var fd = new FormData();
-                fd.append("registration", pushRegistration.pushRegistrationId);
-                xhr.open("POST", "/register_for_pushes", true);
-                xhr.send(fd);
-              }, function(e) {
-                log('Push registration failed.');
-                log(e);
-              });
-
-            }
-          }, err);
-
-          window.addEventListener("message", function(e) {
-            if (e.data == "sync" && Firebase) {
-              Firebase.goOnline();
-              try  {
-                var a = document.getElementsByTagName("topeka-app")[0]
-                a.shadowRoot.getElementsByTagName("topeka-leaderboard")[0].leaderboardChange();
-              } catch(e) {
-                err(e);
-              }
-            }
-          });
+        if (!navigator.serviceWorker) {
+          setTimeout(function() {
+            document.querySelector('#no-sw').show();
+          }, 1000);
+          return;
         }
 
-        window.addEventListener('popstate', function(e) {
-          updateContent(e.state.state);
+        navigator.serviceWorker.register("flight-info-sw.js").then(function(sw) {
+        }, function(e) {
+          document.querySelector('#no-sw').show();
         });
 
-        window.history.replaceState({ 'state': null }, document.title);
-    })();
+    }());
+
+    // There is a bug with the History API and SW...
+    var ENABLE_HISTORY_API = false;
+
+    if (ENABLE_HISTORY_API) {
+      window.addEventListener('popstate', function(e) {
+        updateContent(e.state.state);
+      });
+
+      window.history.replaceState({ 'state': null }, document.title);
+    }
 
     var updateState = function(state) {
-      window.history.pushState({ 'state': state }, document.title);
+      if (ENABLE_HISTORY_API)
+        window.history.pushState({ 'state': state }, document.title);
       updateContent(state);
     };
 
@@ -124,6 +95,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       content.model = {
         state: state,
       };
+    }
+
+    var registerPush = function() {
+      if (!navigator.push) {
+        document.querySelector('#push-error').show();
+        return;
+      }
+
+      navigator.serviceWorker.ready.then(function() {
+//        localStorage.removeItem("pushRegistrationId");
+        navigator.push.register('129757602160').then(function(pushRegistration) {
+          document.querySelector('#push-success').show();
+          console.log(pushRegistration.pushRegistrationId);
+//          localStorage.setItem("pushRegistrationId",
+//                               pushRegistration.pushRegistrationId);
+       }, function(e) {
+          document.querySelector('#push-error').show();
+          console.log('Push registration failed: ' + e);
+        });
+      }, function(e) {
+        console.log('err');
+      });
     }
   </script>
 
@@ -189,7 +182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-checkbox></paper-checkbox>
           <div>Notify me about flight status updates</div>
         </div>
-        <paper-button class="colored checkin">
+        <paper-button class="colored checkin" onclick="registerPush();">
           <core-icon icon="check"></core-icon>
           ok
         </paper-button>
@@ -199,6 +192,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-button>
       </template>
     </core-scaffold>
+
+    <paper-toast id="no-sw" text="Service Worker is not available. This demo isn't going to work."></paper-toast>
+    <paper-toast id="push-success" text="Push registration succeeded. We will keep you posted."></paper-toast>
+    <paper-toast id="push-error" text="Push registration failed. Sorry :("></paper-toast>
   </template>
 
 </body>
