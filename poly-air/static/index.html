@@ -168,7 +168,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           sendRegistration(pushRegistration.pushRegistrationId);
 
           localforage.setItem('track', {
-            'company': 'Polymer Airlines',
+            'company': 'Chrome Airlines',
+            'companyShort': 'CR',
             'flightNumber': '930',
             'status': 'On time',
             'depart': {
@@ -233,7 +234,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-button onclick="updateState('checkin-confirmation');" raised class="colored">Submit</paper-button>
       </template>
       <template bind if="{{ state == 'checkin-confirmation' }}">
-        <flight-panel company="Polymer Airlines"
+        <flight-panel company="Chrome Airlines"
                       flightNumber="930"
                       status="On time"
                       departCode="SFO"
