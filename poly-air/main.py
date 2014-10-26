@@ -23,6 +23,15 @@ from google.appengine.ext import db
 class PushRegistration(db.Model):
   registration = db.StringProperty(required=True)
 
+def clearRegistrations():
+  for r in db.GqlQuery("SELECT * FROM PushRegistration"):
+    r.delete()
+
+class ClearRegistrationsHandler(webapp2.RequestHandler):
+  def post(self):
+    clearRegistrations();
+    self.response.write('{ "success": true }');
+
 class PushHandler(webapp2.RequestHandler):
   def post(self):
     url = "https://android.googleapis.com/gcm/send"
@@ -51,14 +60,23 @@ class PushHandler(webapp2.RequestHandler):
 
 class PushRegistrationHandler(webapp2.RequestHandler):
   def post(self):
-    registrations = db.GqlQuery("SELECT * FROM PushRegistration WHERE registration = :reg", reg=self.request.get("registration"))
-    if not registrations.count():
-      p = PushRegistration(registration = self.request.get("registration"));
-      p.put()
+    clearRegistrations();
+
+    p = PushRegistration(registration = self.request.get("registration"));
+    p.put()
 
     self.response.write('{ "success": true }')
 
+class GetRegistrationsHandler(webapp2.RequestHandler):
+  def post(self):
+    response = ""
+    for r in db.GqlQuery("SELECT * FROM PushRegistration"):
+      response += r.registration + ", "
+    self.response.write('{ "response": "' + response + '" }');
+
 app = webapp2.WSGIApplication([
   ('/push', PushHandler),
-  ('/register_for_pushes', PushRegistrationHandler)
+  ('/register_track', PushRegistrationHandler),
+  ('/clear_registrations', ClearRegistrationsHandler),
+  ('/get_registrations', GetRegistrationsHandler)
 ], debug=True)

@@ -13,7 +13,7 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener("push", function(evt) {
-  var data = evt.data.split(':');
+//  var data = evt.data.split(':');
   var title = 'No Title';
   var message = 'No Message';
 

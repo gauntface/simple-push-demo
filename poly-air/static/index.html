@@ -132,6 +132,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       trackMenu.hidden = trackMenu.previousElementSibling.hidden = false;
     }
 
+    var sendRegistration = function(registration) {
+      console.log('sending ' + registration + ' to ' + location.hostname);
+
+      var formData = new FormData();
+      formData.append('registration', registration);
+
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        console.log('registration with server status: ' + JSON.parse(xhr.response).success);
+      };
+      xhr.onerror = xhr.onabort = function() {
+        console.log('registration with server failed');
+      };
+      xhr.open('POST', '/register_track');
+      xhr.send(formData);
+    }
+
     var startTracking = function() {
       if (!navigator.push) {
         document.querySelector('#push-error').show();
@@ -143,6 +160,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           document.querySelector('#push-success').show();
 
           console.log(pushRegistration.pushRegistrationId);
+          sendRegistration(pushRegistration.pushRegistrationId);
+
           localforage.setItem('track', {
             'company': 'Polymer Airlines',
             'flightNumber': '930',

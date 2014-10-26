@@ -15,7 +15,13 @@ handlers:
 - url: /push
   script: main.app
 
-- url: /register_for_pushes
+- url: /register_track
+  script: main.app
+
+- url: /clear_registrations
+  script: main.app
+
+- url: /get_registrations
   script: main.app
 
 - url: /*

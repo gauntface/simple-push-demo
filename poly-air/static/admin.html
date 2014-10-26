@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PolyAir - Admin page</title>
+</head>
+<style>
+#log {
+  width: 90%;
+  margin-top: 20px;
+  margin-left: 5%;
+  height: 200px;
+}
+</style>
+<script>
+  var log = function(txt) {
+    var elt = document.getElementById('log');
+    elt.value = txt + '\n';
+  }
+
+  var clearRegistrations = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      log(xhr.response);
+    };
+    xhr.onerror = xhr.onabort = function() {
+      log('clearRegistrations failed');
+    };
+    xhr.open('POST', '/clear_registrations');
+    xhr.send();
+  }
+
+  var registerFake = function() {
+    var registration = '0123456789';
+    var data = new FormData();
+    data.append('registration', registration);
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      log(xhr.response);
+    };
+    xhr.onerror = xhr.onabort = function() {
+      log('registration failed');
+    };
+    xhr.open('POST', '/register_track');
+    xhr.send(data);
+  }
+
+  var getRegistration = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      log(xhr.response);
+    };
+    xhr.onerror = xhr.onabort = function() {
+      log('get registration failed');
+    };
+    xhr.open('POST', '/get_registrations');
+    xhr.send();
+
+  }
+</script>
+<body>
+  <input type='button' value='Clear Registrations' onclick='clearRegistrations();'>
+  <input type='button' value='Fake Registration' onclick='registerFake();'>
+  <input type='button' value='Get Registration' onclick='getRegistration();'>
+
+  <textarea id='log' readonly></textarea>
+</body>
+</html>
