@@ -35,28 +35,24 @@ class ClearRegistrationsHandler(webapp2.RequestHandler):
 class PushHandler(webapp2.RequestHandler):
   def post(self):
     url = "https://android.googleapis.com/gcm/send"
-    reg = self.request.get("registration")
-    msg = self.request.get("message")
 
-    registrations = db.GqlQuery("SELECT * FROM PushRegistration")
-    for r in registrations:
-      if r.registration == reg:
-        continue
+    registration = db.GqlQuery("SELECT * FROM PushRegistration")[0].registration;
 
-      form_fields = {
-        "registration_id": r.registration,
-        "data.data": msg
-      }
-      form_data = urllib.urlencode(form_fields)
-      result = urlfetch.fetch(url=url,
-                              payload=form_data,
-                              method=urlfetch.POST,
-                              headers={
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'key=AIzaSyBKVu-Aan8MeyJspfd-h_jR5f-IsWVB6Qc'
-              })
+    form_fields = {
+      "registration_id": registration,
+      "data.data": self.request.get('message')
+    }
+    form_data = urllib.urlencode(form_fields)
+    result = urlfetch.fetch(url=url,
+                            payload=form_data,
+                            method=urlfetch.POST,
+                            headers={
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+              'Authorization': 'key=AIzaSyBYu0LnUCsurx72pU03tT5_DRV_oslWyuo'
+            })
 
-    self.response.write('{ "success": true }')
+    self.response.write('{ "success": true, ' +
+                          '"registration": "' + registration + '" }')
 
 class PushRegistrationHandler(webapp2.RequestHandler):
   def post(self):

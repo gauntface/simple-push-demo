@@ -55,13 +55,34 @@
     };
     xhr.open('POST', '/get_registrations');
     xhr.send();
+  }
 
+  var sendPush = function(message) {
+    var data = new FormData();
+    data.append('message', message);
+
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      log(xhr.response);
+    };
+    xhr.onerror = xhr.onabort = function() {
+      log('registration failed');
+    };
+    xhr.open('POST', '/push');
+    xhr.send(data);
   }
 </script>
 <body>
   <input type='button' value='Clear Registrations' onclick='clearRegistrations();'>
   <input type='button' value='Fake Registration' onclick='registerFake();'>
   <input type='button' value='Get Registration' onclick='getRegistration();'>
+
+  <br>
+
+  <form onsubmit="sendPush(this.message); return false;">
+    <input name='message'>
+    <input type='submit'>
+  </form>
 
   <textarea id='log' readonly></textarea>
 </body>
