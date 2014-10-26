@@ -13,33 +13,24 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener("push", function(evt) {
-//  var data = evt.data.split(':');
+  var data = evt.data.split(':');
   var title = 'No Title';
   var message = 'No Message';
 
-  new Notification(title, {
-    serviceWorker: true,
-    body: message,
-    icon: 'icons/icon-96.png'
-  });
-
-  /*
   if (data[0] == 'gate') {
     title = 'Gate changed!';
     message = 'New gate is ' + data[1];
 
-//    localforage.getItem('track').then(function(flight) {
-//      flight.depart.gate = data[1];
-//      localforage.setItem('track').then(function() {
-//      });
-//    });
-
-    new Notification(title, {
-      serviceWorker: true,
-      body: message,
-      icon: 'icons/icon-96.png'
+    localforage.getItem('track').then(function(flight) {
+      flight.depart.gate = data[1];
+      localforage.setItem('track', flight).then(function() {
+        new Notification(title, {
+          serviceWorker: true,
+          body: message,
+          icon: 'icons/icon-96.png'
+        });
+      });
     });
   }
-*/
 
 });
