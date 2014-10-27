@@ -69,7 +69,7 @@ function matchesVary(request, entryRequest, entryResponse) {
   var varyHeader;
   var requestHeaders = {};
 
-  for (var header of request.headers) {
+  for (var header in request.headers) {
     requestHeaders[header[0].toLowerCase()] = header[1];
   }
 
