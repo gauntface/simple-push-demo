@@ -17,6 +17,7 @@ this.addEventListener("install", function(e) {
   e.waitUntil(cachesPolyfill.open(coreCacheName).then(function(core) {
     var resourceUrls = [
       "",
+      /*
       "lib/localforage.js",
       "components/webcomponentsjs/webcomponents.min.js",
       "theme.css",
@@ -108,6 +109,7 @@ this.addEventListener("install", function(e) {
       "icons/icon.svg",
       "icons/icon-96.png",
       "favicon.ico",
+      */
       // TODO: figure out a local copy of RobotoDraft
     ];
 
@@ -122,6 +124,8 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener("fetch", function(e) {
+  return;
+
   var request = e.request;
   var coreCache = null;
 
@@ -146,7 +150,7 @@ this.addEventListener("fetch", function(e) {
       then(function(core) {
         coreCache = core;
         return coreCache.match(request);
-      }, err).
+      }).
       then(function(response) {
         if (response) {
           return response;
@@ -165,6 +169,7 @@ this.addEventListener("fetch", function(e) {
 
 this.addEventListener("push", function(evt) {
   var data = evt.data.split(':');
+  console.log(data);
   var title = 'No Title';
   var message = 'No Message';
 
