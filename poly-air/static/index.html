@@ -66,6 +66,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     var log = console.log.bind(console);
     var err = console.error.bind(console);
+    var swReady = function() {
+      // Paper over 37<-->40 changes
+      return navigator.serviceWorker.ready ||
+             navigator.serviceWorker.whenReady();
+    };
+
     window.addEventListener('polymer-ready', function(e) {
       "use strict";
 
@@ -149,22 +155,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return;
       }
 
-      navigator.serviceWorker.ready.then(function() {
-        navigator.push.register('129757602160').then(function(pushRegistration) {
-          document.querySelector('#push-success').show();
+      swReady().then(function() {
+        navigator.push.register('129757602160').then(
+          function(pushRegistration) {
+            document.querySelector('#push-success').show();
 
-          console.log(pushRegistration.pushRegistrationId);
-          sendRegistration(pushRegistration.pushRegistrationId);
+            console.log(pushRegistration.pushRegistrationId);
+            sendRegistration(pushRegistration.pushRegistrationId);
 
-          localforage.setItem('track', flightData);
-          showTrackMenu();
-       }, function(e) {
-          document.querySelector('#push-error').show();
-          console.log('Push registration failed: ' + e);
-        });
-      }, function(e) {
-        console.log('err');
-      });
+            localforage.setItem('track', flightData);
+            showTrackMenu();
+          },
+          function(e) {
+            document.querySelector('#push-error').show();
+            console.log('Push registration failed: ' + e);
+          }
+        );
+      }, err);
     }
   </script>
 
