@@ -1,6 +1,6 @@
 "use strict";
 
-importScripts("polyfills/serviceworker-cache-polyfill.js");
+// importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
 var version = 1;
@@ -13,6 +13,8 @@ this.onerror = err;
 
 
 this.addEventListener("install", function(e) {
+  log("oninstall");
+  return;
 
   e.waitUntil(cachesPolyfill.open(coreCacheName).then(function(core) {
     var resourceUrls = [
@@ -124,8 +126,10 @@ this.addEventListener("activate", function(evt) {
 });
 
 this.addEventListener("fetch", function(e) {
+  log("onfetch:", e.request.url);
   return;
 
+  /*
   var request = e.request;
   var coreCache = null;
 
@@ -164,6 +168,7 @@ this.addEventListener("fetch", function(e) {
         );
       }, err)
   );
+  */
 });
 
 
