@@ -66,7 +66,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     var log = console.log.bind(console);
     var err = console.error.bind(console);
+    var _swRef = null;
     var swReady = function() {
+      if (_swRef) {
+        return Promise.resolve(_swRef);
+      }
       // Paper over 37<-->40 changes
       return navigator.serviceWorker.ready ||
              navigator.serviceWorker.whenReady();
@@ -80,8 +84,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       };
 
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register("flight-info-sw.js").
-            catch(showNoSWMessage);
+        navigator.serviceWorker.register("flight-info-sw.js").then(
+          function(reg) {
+            // for old Chrome impl
+            if (reg instanceof ServiceWorker) { _swRef = reg; }
+          },
+          showNoSWMessage
+        );
       } else {
         setTimeout(showNoSWMessage, 1000);
       }
