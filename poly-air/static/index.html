@@ -164,7 +164,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return;
       }
 
-      swReady().then(function() {
+      swReady().then(function(sw) {
+        console.log(sw);
         navigator.push.register('129757602160').then(
           function(pushRegistration) {
             document.querySelector('#push-success').show();
@@ -289,6 +290,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section>
             <!-- /committers -->
             <div>TODO: /committers</div>
+          </section>
+          <section>
+            <!-- /track-->
+            <div>TODO: /track</div>
+          </section>
+          <section>
+            <!-- /help -->
+            <div>TODO: /settings</div>
           </section>
           <section>
             <!-- /help -->
