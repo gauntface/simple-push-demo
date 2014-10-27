@@ -251,63 +251,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-icon-button id="searchbutton" icon="search"></paper-icon-button>
       </core-toolbar>
 
-      <core-animated-pages selected='0' transitions="slide-from-right">
-        <section>
-          <div>Welcome to PolyAir!<br>
-            Getting you from here to there, with flair.
-          </div>
-          <paper-fab icon='add' class='red'></paper-fab>
-        </section>
-        <section> <!-- checkin -->
-          <paper-input class="narrow" required label="Booking reference"></paper-input>
-          <paper-input class="narrow" required label="Last name"></paper-input>
-          <paper-button onclick="updateState('checkin-confirmation');" raised class="colored">Submit</paper-button>
-        </section>
-        <section> <!-- checkin-confirmation -->
-          <flight-panel company="Chrome Airlines"
-                        flightNumber="930"
-                        status="On time"
-                        departCode="SFO"
-                        departCity="San Francisco"
-                        departDate="Monday, 27 October"
-                        departTime="18:05"
-                        departTerminal="INTL"
-                        departGate="G97"
-                        arrivalCode="LHR"
-                        arrivalCity="London"
-                        arrivalDate="Tuesday, 28 October"
-                        arrivalTime="11:30"
-                        arrivalTerminal="2"
-                        arrivalGate="-">
-          </flight-panel>
-          <paper-item icon="social:person" label="Mounir Lamouri">
-            <paper-button class="colored">
+      <div layout horizontal left-center>
+        <core-animated-pages selected='0' transitions="slide-from-right">
+          <section>
+            <div>Welcome to PolyAir!<br>
+              Getting you from here to there, with flair.
+            </div>
+            <paper-fab icon='add' class='red'></paper-fab>
+          </section>
+          <section> <!-- checkin -->
+            <paper-input class="narrow" required label="Booking reference"></paper-input>
+            <paper-input class="narrow" required label="Last name"></paper-input>
+            <paper-button onclick="updateState('checkin-confirmation');" raised class="colored">Submit</paper-button>
+          </section>
+          <section> <!-- checkin-confirmation -->
+            <flight-panel company="Chrome Airlines"
+                          flightNumber="930"
+                          status="On time"
+                          departCode="SFO"
+                          departCity="San Francisco"
+                          departDate="Monday, 27 October"
+                          departTime="18:05"
+                          departTerminal="INTL"
+                          departGate="G97"
+                          arrivalCode="LHR"
+                          arrivalCity="London"
+                          arrivalDate="Tuesday, 28 October"
+                          arrivalTime="11:30"
+                          arrivalTerminal="2"
+                          arrivalGate="-">
+            </flight-panel>
+            <paper-item icon="social:person" label="Mounir Lamouri">
+              <paper-button class="colored">
+                <core-icon icon="check"></core-icon>
+              </paper-button>
+            </paper-item>
+            <paper-item icon="maps:my-location" label="42 A">
+              <paper-button class="colored">
+                <core-icon icon="check"></core-icon>
+              </paper-button>
+            </paper-item>
+            <div class='notification-checkbox' horizontal layout>
+              <paper-checkbox></paper-checkbox>
+              <div>Notify me about flight status updates</div>
+            </div>
+            <paper-button class="colored checkin" onclick="startTracking();">
               <core-icon icon="check"></core-icon>
+              ok
             </paper-button>
-          </paper-item>
-          <paper-item icon="maps:my-location" label="42 A">
-            <paper-button class="colored">
-              <core-icon icon="check"></core-icon>
+            <paper-button class="checkin">
+              <core-icon icon="clear "></core-icon>
+              cancel
             </paper-button>
-          </paper-item>
-          <div class='notification-checkbox' horizontal layout>
-            <paper-checkbox></paper-checkbox>
-            <div>Notify me about flight status updates</div>
-          </div>
-          <paper-button class="colored checkin" onclick="startTracking();">
-            <core-icon icon="check"></core-icon>
-            ok
-          </paper-button>
-          <paper-button class="checkin">
-            <core-icon icon="clear "></core-icon>
-            cancel
-          </paper-button>
-        </section>
-        <section>
-          <!-- track -->
-          <div id=track-content></div>
-        </section>
-      </core-animated-pages>
+          </section>
+          <section>
+            <!-- track -->
+            <div id=track-content></div>
+          </section>
+        </core-animated-pages>
+      </div>
     </core-scaffold>
 
     <paper-toast id="no-sw" text="Service Worker is not available. This demo isn't going to work."></paper-toast>
