@@ -48,6 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-animated-pages/transitions/slide-from-right.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
   <link rel="import" href="components/paper-button/paper-button.html">
+  <link rel="import" href="components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="components/paper-checkbox/paper-checkbox.html">
   <link rel="import" href="components/paper-fab/paper-fab.html">
   <link rel="import" href="components/paper-input/paper-input.html">
@@ -222,25 +223,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved fullbleed>
 
   <template id='content' is="auto-binding">
+
     <core-scaffold id="scaffold">
-      <core-header-panel navigation flex mode="seamed" onclick="this.parentElement.togglePanel();">
-        <core-toolbar>PolyAir</core-toolbar>
+
+      <core-header-panel navigation flex
+        onclick="this.parentElement.togglePanel();">
         <core-menu>
-          <paper-item icon="add" label="Book trip"></paper-item>
+          <paper-item icon="add" label="Book a trip"></paper-item>
           <hr>
-          <paper-item onclick="updateState('checkin');" icon="work" label="Check-in"></paper-item>
+          <paper-item onclick="updateState('checkin');"
+            icon="work" label="Check-in"></paper-item>
           <paper-item icon="schedule" label="Travel information"></paper-item>
           <paper-item icon="account-circle" label="Committer Program"></paper-item>
           <hr>
-          <paper-item onclick="updateState('track');" id='track-menu' icon="star" label="Tracked Flights"></paper-item>
+          <paper-item onclick="updateState('track');"
+            id="track-menu" icon="star" label="Tracked Flights"></paper-item>
           <hr>
           <paper-item icon="settings" label="Settings"></paper-item>
           <hr>
-          <paper-item icon="help" label="Help & Feedback"></paper-item>
+          <paper-item icon="help" label="Help &amp; Feedback"></paper-item>
         </core-menu>
       </core-header-panel>
-      <core-toolbar tool>PolyAir</core-toolbar>
-      <core-animated-pages selected='0'>
+
+      <core-toolbar tool flex id="main-heading">
+        <paper-icon-button icon="maps:flight"></paper-icon-button>
+        <span flex>PolyAir</span>
+        <paper-icon-button id="searchbutton" icon="search"></paper-icon-button>
+      </core-toolbar>
+
+      <core-animated-pages selected='0' transitions="slide-from-right">
         <section>
           <div>Welcome to PolyAir!<br>
             Getting you from here to there, with flair.
@@ -292,7 +303,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             cancel
           </paper-button>
         </section>
-        <section> <!-- track -->
+        <section>
+          <!-- track -->
           <div id=track-content></div>
         </section>
       </core-animated-pages>

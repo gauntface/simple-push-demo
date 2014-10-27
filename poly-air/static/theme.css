@@ -21,10 +21,7 @@ body {
   background-color: #eee;
   background-repeat: no-repeat;
   background-position: 50%;
-  /*
-  background-image: url(images/splash.svg);
-  */
-  font-family: "RobotoDraft", sans-serif;
+  font-family: Arial, "RobotoDraft", sans-serif;
   color: #444;
   fill: #444;
   font-weight: 400;
@@ -36,9 +33,24 @@ body {
   }
 }
 
-topeka-app {
-  min-height: 450px;
-  overflow: hidden;
+body .toolbar-tools {
+  padding: none;
+  background-color: #01579b;
+  color: #fff;
+}
+
+core-scaffold::shadow core-toolbar-panel::shadow {
+  padding: none;
+}
+
+#left-nav-header {
+  background-color: #01579b;
+}
+
+#main-heading {
+  background-color: #b0bec5;
+  padding: 0px;
+  margin: 0px;
 }
 
 paper-fab {
