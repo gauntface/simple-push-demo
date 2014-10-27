@@ -11,17 +11,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <head>
   <title>PolyAir</title>
 
+
+  <!-- Trigger Ganesh (GPU raster) on Chrome for Android -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <!-- Enable "installability" -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-touch-fullscreen" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style"
         content="black-translucent" >
   <meta name="format-detection" content="telephone=no">
-
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="icon" sizes="96x96" href="icons/icon-96.png">
-
   <meta name="application-name" content="PolyAir">
 
   <!--
@@ -54,11 +55,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/paper-input/paper-input.html">
   <link rel="import" href="components/paper-item/paper-item.html">
   <link rel="import" href="components/paper-toast/paper-toast.html">
-  <!--
-  <link rel="import" href="components/more-routing/more-route-selector.html">
   <link rel="import" href="components/more-routing/more-route.html">
+  <link rel="import" href="components/more-routing/more-route-selector.html">
   <link rel="import" href="components/more-routing/more-routing.html">
-  -->
+  <link rel="import" href="components/more-routing/more-route-switch.html">
   <link rel="import" href="flight-panel.html">
 
   <link rel="stylesheet" href="theme.css" shim-shadowdom>
@@ -68,16 +68,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var err = console.error.bind(console);
     window.addEventListener('polymer-ready', function(e) {
       "use strict";
-
-      /*
-      setTimeout(function() {
-        localforage.getItem('track').then(function(item) {
-          console.log('track item ' + item);
-          if (item != null)
-            showTrackMenu();
-        });
-      }, 1000);
-      */
 
       var showNoSWMessage = function() {
         document.querySelector('#no-sw').show();
@@ -91,70 +81,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     });
 
-    // There is a bug with the History API and SW...
-    var ENABLE_HISTORY_API = false;
-
-    if (ENABLE_HISTORY_API) {
-      window.addEventListener('popstate', function(e) {
-        updateContent(e.state.state);
-      });
-
-      window.history.replaceState({ 'state': null }, document.title);
-    }
-
-    var updateState = function(state) {
-      if (ENABLE_HISTORY_API)
-        window.history.pushState({ 'state': state }, document.title);
-      if (state == 'track') {
-        updateTrackedFlight();
-      }
-
-      updateContent(state);
+    var goTo = function(route) {
+      MoreRouting.navigateTo(route);
     };
+
+    // FIXME(slightlyoff): move out to better location
+    var flightData = {
+      'company': 'Polymer Airlines',
+      'companyShort': 'PA',
+      'flightNumber': '930',
+      'status': 'On time',
+      'departCode': 'SFO',
+      'departCity': 'San Francisco',
+      'departDate': 'Monday, 27 October',
+      'departTime': '18:05',
+      'departTerminal': 'INTL',
+      'departGate': 'G97',
+      'arrivalCode': 'LHR',
+      'arrivalCity': 'London',
+      'arrivalDate': 'Tuesday, 28 October',
+      'arrivalTime': '11:30',
+      'arrivalTerminal': '2',
+      'arrivalGate': '-',
+    };
+
+    window.addEventListener('polymer-ready', function(e) {
+      localforage.getItem('track').then(function(flight) {
+        document.querySelector("#content").flight = flight;
+      });
+    });
 
     var updateTrackedFlight = function() {
       localforage.getItem('track').then(function(flight) {
         var elt = document.createElement('flight-panel');
-        elt.setAttribute('company', flight.company);
-        elt.setAttribute('flightNumber', flight.flightNumber);
-        elt.setAttribute('status', flight.status);
-        elt.setAttribute('departCode', flight.depart.code);
-        elt.setAttribute('departCity', flight.depart.city);
-        elt.setAttribute('departDate', flight.depart.date);
-        elt.setAttribute('departTime', flight.depart.time);
-        elt.setAttribute('departTerminal', flight.depart.terminal);
-        elt.setAttribute('departGate', flight.depart.gate);
-        elt.setAttribute('arrivalCode', flight.arrival.code);
-        elt.setAttribute('arrivalCity', flight.arrival.city);
-        elt.setAttribute('arrivalDate', flight.arrival.date);
-        elt.setAttribute('arrivalTime', flight.arrival.time);
-        elt.setAttribute('arrivalTerminal', flight.arrival.terminal);
-        elt.setAttribute('arrivalGate', flight.arrival.gate);
+        elt.model = flight;
         document.getElementById('track-content').appendChild(elt);
       });
     }
 
-    var updateContent = function(state) {
-      var selected = 0;
-      switch(state) {
-        case 'checkin':
-          selected = 1;
-          break;
-        case 'checkin-confirmation':
-          selected = 2;
-          break;
-        case 'track':
-          selected = 3;
-          break;
-      }
-      log("selected:", selected);
-      document.querySelector('core-animated-pages').selected = selected;
-    }
-
+    /*
     var showTrackMenu = function() {
       var trackMenu = document.getElementById('track-menu');
       trackMenu.hidden = trackMenu.previousElementSibling.hidden = false;
     }
+    */
 
     var sendRegistration = function(registration) {
       console.log('sending ' + registration + ' to ' + location.hostname);
@@ -186,28 +156,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.log(pushRegistration.pushRegistrationId);
           sendRegistration(pushRegistration.pushRegistrationId);
 
-          localforage.setItem('track', {
-            'company': 'Chrome Airlines',
-            'companyShort': 'CR',
-            'flightNumber': '930',
-            'status': 'On time',
-            'depart': {
-              'code': 'SFO',
-              'city': 'San Francisco',
-              'date': 'Monday, 27 October',
-              'time': '18:05',
-              'terminal': 'INTL',
-              'gate': 'G97',
-            },
-            'arrival': {
-              'code': 'LHR',
-              'city': 'London',
-              'date': 'Tuesday, 28 October',
-              'time': '11:30',
-              'terminal': '2',
-              'gate': '-',
-            }
-          });
+          localforage.setItem('track', flightData);
           showTrackMenu();
        }, function(e) {
           document.querySelector('#push-error').show();
@@ -224,24 +173,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <template id='content' is="auto-binding">
 
+    <more-routing driver="hash"></more-routing>
+    <more-route-selector selectedIndex="{{orderedIndex}}"
+      routes="['/booking', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"></more-route-selector>
+
     <core-scaffold id="scaffold">
 
-      <core-header-panel navigation flex
-        onclick="this.parentElement.togglePanel();">
+      <core-header-panel navigation flex>
         <core-menu>
-          <paper-item icon="add" label="Book a trip"></paper-item>
+<!--           <paper-item
+            onclick="goTo('/');"
+            icon="" label="Home"></paper-item>
+ -->
+          <paper-item onclick="goTo('/booking');"
+            icon="add" label="Book a trip"></paper-item>
           <hr>
-          <paper-item onclick="updateState('checkin');"
+          <paper-item onclick="goTo('/checkin');"
             icon="work" label="Check-in"></paper-item>
-          <paper-item icon="schedule" label="Travel information"></paper-item>
-          <paper-item icon="account-circle" label="Committer Program"></paper-item>
+          <paper-item onclick="goTo('/travel-info');"
+            icon="schedule" label="Travel information"></paper-item>
+          <paper-item onclick="goTo('/committers');"
+            icon="account-circle" label="Committer Program"></paper-item>
           <hr>
-          <paper-item onclick="updateState('track');"
+          <paper-item onclick="goTo('/track');"
             id="track-menu" icon="star" label="Tracked Flights"></paper-item>
           <hr>
-          <paper-item icon="settings" label="Settings"></paper-item>
+          <paper-item onclick="goTo('/settings');"
+            icon="settings" label="Settings"></paper-item>
           <hr>
-          <paper-item icon="help" label="Help &amp; Feedback"></paper-item>
+          <paper-item onclick="goTo('/help');"
+            icon="help" label="Help &amp; Feedback"></paper-item>
         </core-menu>
       </core-header-panel>
 
@@ -252,34 +213,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </core-toolbar>
 
       <div layout horizontal left-center>
-        <core-animated-pages selected='0' transitions="slide-from-right">
+        <core-animated-pages selected="{{orderedIndex}}" transitions="slide-from-right">
           <section>
-            <div>Welcome to PolyAir!<br>
-              Getting you from here to there, with flair.
-            </div>
-            <paper-fab icon='add' class='red'></paper-fab>
+            <!-- /booking -->
+            <div>Booking</div>
           </section>
-          <section> <!-- checkin -->
+          <section>
+            <!-- /checkin -->
             <paper-input class="narrow" required label="Booking reference"></paper-input>
             <paper-input class="narrow" required label="Last name"></paper-input>
-            <paper-button onclick="updateState('checkin-confirmation');" raised class="colored">Submit</paper-button>
+            <paper-button onclick="goTo('/confirmation');" raised class="colored">Submit</paper-button>
           </section>
-          <section> <!-- checkin-confirmation -->
-            <flight-panel company="Chrome Airlines"
-                          flightNumber="930"
-                          status="On time"
-                          departCode="SFO"
-                          departCity="San Francisco"
-                          departDate="Monday, 27 October"
-                          departTime="18:05"
-                          departTerminal="INTL"
-                          departGate="G97"
-                          arrivalCode="LHR"
-                          arrivalCity="London"
-                          arrivalDate="Tuesday, 28 October"
-                          arrivalTime="11:30"
-                          arrivalTerminal="2"
-                          arrivalGate="-">
+          <section id="confirmation">
+            <!-- /confirmation -->
+            <flight-panel company="{{flight.company}}"
+                          flightNumber="{{flight.flightNumber}}"
+                          status="{{flight.status}}"
+                          departCode="{{flight.departCode}}"
+                          departCity="{{flight.departCity}}"
+                          departDate="{{flight.departDate}}"
+                          departTime="{{flight.departTime}}"
+                          departTerminal="{{flight.departTerminal}}"
+                          departGate="{{flight.departGate}}"
+                          arrivalCode="{{flight.arrivalCode}}"
+                          arrivalCity="{{flight.arrivalCity}}"
+                          arrivalDate="{{flight.arrivalDate}}"
+                          arrivalTime="{{flight.arrivalTime}}"
+                          arrivalTerminal="{{flight.arrivalTerminal}}"
+                          arrivalGate="{{flight.arrivalGate}}">
             </flight-panel>
             <paper-item icon="social:person" label="Mounir Lamouri">
               <paper-button class="colored">
@@ -299,14 +260,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <core-icon icon="check"></core-icon>
               ok
             </paper-button>
-            <paper-button class="checkin">
-              <core-icon icon="clear "></core-icon>
+            <paper-button class="checkin"
+              onclick="goTo('/checkin');">
+              <core-icon icon="clear"></core-icon>
               cancel
             </paper-button>
           </section>
           <section>
-            <!-- track -->
-            <div id=track-content></div>
+            <!-- /travel-info -->
+            <div>TODO: /travel-info</div>
+          </section>
+          <section>
+            <!-- /committers -->
+            <div>TODO: /committers</div>
+          </section>
+          <section>
+            <!-- /help -->
+            <div>TODO: /help</div>
+          </section>
+          <section>
+            <!-- / -->
+            <div>Welcome to PolyAir!<br>
+              Getting you from here to there, with flair.
+            </div>
+            <paper-fab icon='add' class='red'></paper-fab>
           </section>
         </core-animated-pages>
       </div>

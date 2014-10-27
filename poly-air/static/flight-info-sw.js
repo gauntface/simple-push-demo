@@ -80,14 +80,39 @@ this.addEventListener("install", function(e) {
       "components/paper-input/paper-input.css",
       "components/core-transition/core-transition-overlay.css",
       "components/paper-toast/paper-toast.css",
+      "components/core-icon/core-icon.html",
+      "components/core-iconset-svg/core-iconset-svg.html",
+      "components/core-media-query/core-media-query.html",
+      "components/core-selector/core-selector.html",
+      "components/core-animated-pages/transitions/hero-transition.html",
+      "components/core-animated-pages/transitions/cross-fade.html",
+      "components/core-animated-pages/transitions/core-transition-pages.html",
+      "components/core-toolbar/core-toolbar.html",
+      "components/core-header-panel/core-header-panel.html",
+      "components/core-icon-button/core-icon-button.html",
+      "components/polymer/polymer.html",
+      "components/paper-ripple/paper-ripple.html",
+      "components/paper-shadow/paper-shadow.html",
+      "components/paper-button/paper-button-base.html",
+      "components/paper-radio-button/paper-radio-button.html",
+      "components/core-input/core-input.html",
+      "components/core-style/core-style.html",
+      "components/paper-item/paper-item.css",
+      "components/core-overlay/core-overlay.html",
+      "components/core-transition/core-transition-css.html",
+      "components/more-routing/routing.html",
+      "components/more-routing/driver/hash.html",
+      "components/more-routing/driver/mock.html",
+      "components/more-routing/driver/path.html",
+      "components/more-switch/template-switch.html",
       "icons/icon.svg",
       "icons/icon-96.png",
       "favicon.ico",
       // TODO: figure out a local copy of RobotoDraft
     ];
 
-    return Promise.all(resourceUrls.map(function(relativeUrl) {
-      return core.add(baseUrl + relativeUrl);
+    return core.addAll(resourceUrls.map(function(relativeUrl) {
+      return (baseUrl + relativeUrl);
     }));
   }));
 });
@@ -131,9 +156,7 @@ this.addEventListener("fetch", function(e) {
         log("runtime caching:", request.url);
 
         return coreCache.add(request).then(
-          function(response) {
-            return response;
-          }
+          function(response) { return coreCache.match(request); }
         );
       }, err)
   );
@@ -150,7 +173,7 @@ this.addEventListener("push", function(evt) {
       title = 'Gate changed!';
       message = flight.companyShort + flight.flightNumber + ' gate is ' + data[1];
 
-      flight.depart.gate = data[1];
+      flight.departGate = data[1];
       localforage.setItem('track', flight).then(function() {
         new Notification(title, {
           serviceWorker: true,

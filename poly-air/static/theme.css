@@ -21,10 +21,10 @@ body {
   background-color: #eee;
   background-repeat: no-repeat;
   background-position: 50%;
-  font-family: Arial, "RobotoDraft", sans-serif;
+  font-family: "RobotoDraft", sans-serif;
   color: #444;
   fill: #444;
-  font-weight: 400;
+  font-weight: 300;
 }
 
 @media screen and (min-width: 900px) {
