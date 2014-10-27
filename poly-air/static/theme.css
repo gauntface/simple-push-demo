@@ -33,7 +33,8 @@ body {
   }
 }
 
-body .toolbar-tools {
+body .toolbar-tools,
+body /deep/ .toolbar-tools {
   padding: none;
   background-color: #01579b;
   color: #fff;
