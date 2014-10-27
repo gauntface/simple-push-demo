@@ -1,0 +1,93 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`more-param` provides _read-only_ access to GET parameters.
+
+Example:
+
+    <more-param key="user" value="{{userId}}" default="joebob"></more-param>
+
+This example would expose the value of the `user` GET parameter and bind it to
+`userId`. If no user param is present in the URL, `userId` would be set to
+`"joebob"`.
+
+You can also watch repeated GET parameters:
+
+    <more-param key="id" values="{{ids}}"></more-param>
+
+This example would expose `values` as an array of all values for `id` GET
+parameters.
+-->
+<polymer-element name="more-param">
+  <script>
+    Polymer('more-param', {
+      publish: {
+        /**
+         * The key of the GET parameter to observe.
+         *
+         * @attribute key
+         * @type String
+         */
+        key: '',
+
+        /**
+         * The exposed value of the GET parameter at `key`.
+         *
+         * If there are multiple instances of the parameter on the URL, the
+         * first will be exposed.
+         *
+         * @attribute value
+         * @type String
+         */
+        value: '',
+
+        /**
+         * The exposed value of the GET parameter at `key` as an array.
+         *
+         * Supports multiple instances of the GET parameter.
+         *
+         * @attribute values
+         * @type Array.<String>
+         */
+        values: [],
+
+        /**
+         * The default value to be used if the GET parameter is not present.
+         *
+         * @attribute default
+         * @type String|Array.<String>
+         */
+        default: ''
+      },
+
+      ready: function() {
+        this._readValue();
+      },
+
+      _readValue: function() {
+        var parts = this._getPathParts();
+        if (this.key in parts) {
+          this.values = parts[this.key];
+        } else {
+          this.values = Array.isArray(this.default) ? this.default : [this.default];
+        }
+        this.value = this.values[0];
+      },
+
+      _getPathParts: function() {
+        var parts = {};
+        window.location.search.substr(1).split('&').forEach(function(part) {
+          var pair  = part.split('=');
+          var key   = decodeURIComponent(pair[0]);
+          var value = decodeURIComponent(pair[1]);
+          if (!parts[key]) {
+            parts[key] = [];
+          }
+          parts[key].push(value);
+        });
+
+        return parts;
+      }
+    });
+  </script>
+</polymer-element>
