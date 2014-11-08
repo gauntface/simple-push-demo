@@ -32,7 +32,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   -->
   <script>
     if (!('import' in document.createElement('link'))) {
-      var Platform = {flags: {shadow: true}};
+      var Platform = { flags: { shadow: true } };
     }
   </script>
 
@@ -64,31 +64,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="stylesheet" href="theme.css" shim-shadowdom>
 
   <script>
+    "use strict";
+
     var log = console.log.bind(console);
     var err = console.error.bind(console);
-    var _swRef = null;
-    var swReady = function() {
-      if (_swRef) {
-        return Promise.resolve(_swRef);
-      }
-      // Paper over 37<-->40 changes
-      return navigator.serviceWorker.ready ||
-             navigator.serviceWorker.whenReady();
-    };
+
+    var swReady = function() { return navigator.serviceWorker.ready; };
 
     window.addEventListener('polymer-ready', function(e) {
-      "use strict";
 
       var showNoSWMessage = function() {
         document.querySelector('#no-sw').show();
       };
 
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register("flight-info-sw.js").then(
-          function(reg) {
-            // for old Chrome impl
-            if (reg instanceof ServiceWorker) { _swRef = reg; }
-          },
+        navigator.serviceWorker.register("flight-info-sw.js").catch(
           showNoSWMessage
         );
       } else {
@@ -142,17 +132,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     */
 
     var sendRegistration = function(registration) {
-      console.log('sending ' + registration + ' to ' + location.hostname);
+      log('sending ' + registration + ' to ' + location.hostname);
 
       var formData = new FormData();
       formData.append('registration', registration);
 
       var xhr = new XMLHttpRequest();
       xhr.onload = function() {
-        console.log('registration with server status: ' + JSON.parse(xhr.response).success);
+        log('registration with server status: ' + JSON.parse(xhr.response).success);
       };
       xhr.onerror = xhr.onabort = function() {
-        console.log('registration with server failed');
+        log('registration with server failed');
       };
       xhr.open('POST', '/register_track');
       xhr.send(formData);
@@ -165,12 +155,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       swReady().then(function(sw) {
-        console.log(sw);
+        log(sw);
         navigator.push.register('129757602160').then(
           function(pushRegistration) {
             document.querySelector('#push-success').show();
 
-            console.log(pushRegistration.pushRegistrationId);
+            log(pushRegistration.pushRegistrationId);
             sendRegistration(pushRegistration.pushRegistrationId);
 
             localforage.setItem('track', flightData);
@@ -178,7 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           function(e) {
             document.querySelector('#push-error').show();
-            console.log('Push registration failed: ' + e);
+            log('Push registration failed: ' + e);
           }
         );
       }, err);
