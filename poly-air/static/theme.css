@@ -60,6 +60,14 @@ core-scaffold::shadow core-toolbar {
   overflow: auto;
 }
 
+/*
+paper-item doesn't style this at all, currently :(
+https://github.com/Polymer/paper-item/issues/12
+*/
+#panel-list .core-selected {
+  color: #e91e63;
+}
+
 core-animated-pages {
   width: 85%;
   height: 85%;

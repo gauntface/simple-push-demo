@@ -47,6 +47,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-icons/core-icons.html">
   <link rel="import" href="components/core-icons/maps-icons.html">
   <link rel="import" href="components/core-icons/social-icons.html">
+  <link rel="import" href="components/core-menu/core-menu.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
   <link rel="import" href="components/font-roboto/roboto.html">
   <link rel="import" href="components/more-routing/more-route-selector.html">
@@ -209,7 +210,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div on-tap="{{goTo}}" id="panel-head">
           <span href="/">Welcome Back</span>
         </div>
-        <core-menu on-tap="{{goTo}}" flex id="panel-list">
+        <core-menu selected="{{orderedIndex}}" on-tap="{{goTo}}" flex id="panel-list">
           <paper-item href="/booking"
             icon="add" label="Book a trip"></paper-item>
           <hr>
