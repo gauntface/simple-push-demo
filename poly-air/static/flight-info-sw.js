@@ -21,10 +21,10 @@ this.addEventListener("install", function(e) {
   e.waitUntil(caches.open(coreCacheName).then(function(core) {
     var resourceUrls = [
       "/",
-      "manifest.json",
       "//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en",
       "//fonts.gstatic.com/s/robotodraft/v2/u0_CMoUf3y3-4Ss4ci-VwZ7-ASEDocFpVYx1Gz4aSTw.woff2",
       "components/core-a11y-keys/core-a11y-keys.html",
+      "components/core-ajax/core-ajax.html",
       "components/core-animated-pages/core-animated-pages.css",
       "components/core-animated-pages/core-animated-pages.html",
       "components/core-animated-pages/transitions/core-transition-pages.html",
@@ -101,6 +101,7 @@ this.addEventListener("install", function(e) {
       "flight-panel.html",
       "icons/icon.svg",
       "lib/localforage.js",
+      "manifest.json",
     ];
 
     return core.addAll(resourceUrls.map(function(url) {
