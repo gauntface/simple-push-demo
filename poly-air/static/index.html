@@ -120,6 +120,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
         MoreRouting.navigateTo(href);
+      };
+
+      template.onRouteChanged = function(event, detail) {
         document.querySelector("#scaffold").closeDrawer();
       };
 
@@ -203,7 +206,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-routing driver="hash"></more-routing>
     <more-route-selector selectedIndex="{{orderedIndex}}"
-      routes="['/booking', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"></more-route-selector>
+      routes="['/booking', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"
+      on-more-route-change="{{onRouteChanged}}"></more-route-selector>
 
     <core-scaffold id="scaffold" layout vertical>
       <nav flex layout vertical>
