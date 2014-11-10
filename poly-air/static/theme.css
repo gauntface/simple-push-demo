@@ -35,6 +35,10 @@ body {
   }
 }
 
+nav {
+  background-color: #eee;
+}
+
 core-toolbar::shadow > *,
 core-scaffold::shadow core-toolbar {
   padding: none;
@@ -54,6 +58,7 @@ core-scaffold::shadow core-toolbar {
   background-color: #2196F3;
   color: white;
   padding: 16px 0px 16px 22px;
+  font-size: 1em;
 }
 
 #panel-list {
@@ -72,6 +77,10 @@ core-animated-pages {
   width: 85%;
   height: 85%;
   -webkit-user-select: none;
+}
+
+core-animated-pages::shadow [main] {
+  background-color: white;
 }
 
 @media all and (max-width: 480px) {

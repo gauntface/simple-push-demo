@@ -43,6 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-animated-pages/core-animated-pages.html">
   <link rel="import" href="components/core-animated-pages/transitions/slide-from-right.html">
   <link rel="import" href="components/core-drawer-panel/core-drawer-panel.html">
+  <link rel="import" href="components/core-header-panel/core-header-panel.html">
   <link rel="import" href="components/core-icons/av-icons.html">
   <link rel="import" href="components/core-icons/core-icons.html">
   <link rel="import" href="components/core-icons/maps-icons.html">
@@ -239,13 +240,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <core-toolbar tool flex id="main-heading">
         <paper-icon-button icon="maps:flight"></paper-icon-button>
         <span flex>PolyAir</span>
-        <paper-icon-button id="searchbutton" icon="search"></paper-icon-button>
+        <paper-icon-button icon="search"></paper-icon-button>
       </core-toolbar>
 
       <div layout horizontal left-center>
         <core-animated-pages selected="{{orderedIndex}}"
             transitions="slide-from-right"
-            on-tap="{{cyclePages}}">
+            on-tap="{{cyclePages}}"
+            main>
           <section>
             <!-- /booking -->
             <div>Booking</div>
