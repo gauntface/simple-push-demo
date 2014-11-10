@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <head>
   <title>PolyAir</title>
 
-
+  <link rel="manifest" href="manifest.json">
   <!-- Trigger Ganesh (GPU raster) on Chrome for Android -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <!-- Enable "installability" -->
@@ -84,35 +84,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         setTimeout(showNoSWMessage, 1000);
       }
-    });
 
-    var goTo = function(route) {
-      MoreRouting.navigateTo(route);
-    };
 
-    // FIXME(slightlyoff): move out to better location
-    var flightData = {
-      'company': 'Polymer Airlines',
-      'companyShort': 'PA',
-      'flightNumber': '930',
-      'status': 'On time',
-      'departCode': 'SFO',
-      'departCity': 'San Francisco',
-      'departDate': 'Monday, 27 October',
-      'departTime': '18:05',
-      'departTerminal': 'INTL',
-      'departGate': 'G97',
-      'arrivalCode': 'LHR',
-      'arrivalCity': 'London',
-      'arrivalDate': 'Tuesday, 28 October',
-      'arrivalTime': '11:30',
-      'arrivalTerminal': '2',
-      'arrivalGate': '-',
-    };
 
-    window.addEventListener('polymer-ready', function(e) {
+      // FIXME(slightlyoff): move out to better location
+      var flightData = {
+        "company": "Polymer Airlines",
+        "companyShort": "PA",
+        "flightNumber": "930",
+        "status": "On time",
+        "departCode": "SFO",
+        "departCity": "San Francisco",
+        "departDate": "Monday, 27 October",
+        "departTime": "18:05",
+        "departTerminal": "INTL",
+        "departGate": "G97",
+        "arrivalCode": "LHR",
+        "arrivalCity": "London",
+        "arrivalDate": "Tuesday, 28 October",
+        "arrivalTime": "11:30",
+        "arrivalTerminal": "2",
+        "arrivalGate": "-",
+      };
+
+      var template = document.querySelector("#content");
+
+      template.log = log;
+      template.err = err;
+
+      template.goTo = function(e, detail, sender) {
+        var href = e.srcElement.getAttribute("href");
+        if (!href) {
+          return;
+        }
+        MoreRouting.navigateTo(href);
+        document.querySelector("#scaffold").closeDrawer();
+      };
+
+      template.cyclePages = function(e, detail, sender) {
+        // Click clicks should navigate and not cycle pages.
+        if (e.path[0].localName == 'a') {
+          return;
+        }
+
+        e.shiftKey ? sender.selectPrevious(true) : sender.selectNext(true);
+      };
+
       localforage.getItem('track').then(function(flight) {
-        document.querySelector("#content").flight = flight;
+        template.flight = flight;
       });
     });
 
@@ -156,7 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       swReady().then(function(sw) {
         log(sw);
-        navigator.push.register('129757602160').then(
+        navigator.push.register().then(
           function(pushRegistration) {
             document.querySelector('#push-success').show();
 
@@ -178,40 +197,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 <body unresolved fullbleed>
 
-  <template id='content' is="auto-binding">
+  <template id="content" is="auto-binding">
 
     <more-routing driver="hash"></more-routing>
     <more-route-selector selectedIndex="{{orderedIndex}}"
       routes="['/booking', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"></more-route-selector>
 
-    <core-scaffold id="scaffold">
-
-      <core-header-panel navigation flex>
-        <core-menu>
-<!--           <paper-item
-            onclick="goTo('/');"
-            icon="" label="Home"></paper-item>
- -->
-          <paper-item onclick="goTo('/booking');"
+    <core-scaffold id="scaffold" layout vertical>
+      <nav flex layout vertical>
+        <div on-tap="{{goTo}}" id="panel-head">
+          <span href="/">Welcome Back</span>
+        </div>
+        <core-menu on-tap="{{goTo}}" flex id="panel-list">
+          <paper-item href="/booking"
             icon="add" label="Book a trip"></paper-item>
           <hr>
-          <paper-item onclick="goTo('/checkin');"
+          <paper-item href="/checkin"
             icon="work" label="Check-in"></paper-item>
-          <paper-item onclick="goTo('/travel-info');"
+          <paper-item href="/travel-info"
             icon="schedule" label="Travel information"></paper-item>
-          <paper-item onclick="goTo('/committers');"
+          <paper-item href="/committers"
             icon="account-circle" label="Committer Program"></paper-item>
           <hr>
-          <paper-item onclick="goTo('/track');"
+          <paper-item href="/track"
             id="track-menu" icon="star" label="Tracked Flights"></paper-item>
           <hr>
-          <paper-item onclick="goTo('/settings');"
+          <paper-item href="/settings"
             icon="settings" label="Settings"></paper-item>
           <hr>
-          <paper-item onclick="goTo('/help');"
+          <paper-item href="/help"
             icon="help" label="Help &amp; Feedback"></paper-item>
         </core-menu>
-      </core-header-panel>
+      </nav>
 
       <core-toolbar tool flex id="main-heading">
         <paper-icon-button icon="maps:flight"></paper-icon-button>
@@ -220,7 +237,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </core-toolbar>
 
       <div layout horizontal left-center>
-        <core-animated-pages selected="{{orderedIndex}}" transitions="slide-from-right">
+        <core-animated-pages selected="{{orderedIndex}}"
+            transitions="slide-from-right"
+            on-tap="{{cyclePages}}">
           <section>
             <!-- /booking -->
             <div>Booking</div>
@@ -298,7 +317,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div>Welcome to PolyAir!<br>
               Getting you from here to there, with flair.
             </div>
-            <paper-fab icon='add' class='red'></paper-fab>
+            <paper-fab icon="add" class="red"
+                on-tap="{{goTo}}" href="/booking"></paper-fab>
           </section>
         </core-animated-pages>
       </div>
