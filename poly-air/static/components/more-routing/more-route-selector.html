@@ -9,7 +9,12 @@ TODO(nevir): Document.
     Polymer('more-route-selector', {
       /**
        * @event more-route-change fires when a new route is selected.
-       * @param {{newIndex: number, oldIndex: number, newPath: ?string, oldPath: ?string}}
+       * @param {{
+       *   newRoute:  MoreRouting.Route, oldRoute: MoreRouting.Route,
+       *   newIndex:  number,  oldIndex:  number,
+       *   newPath:   ?string, oldPath:   ?string,
+       *   newParams: Object,  oldParams: Object,
+       * }}
        */
 
       publish: {
@@ -45,6 +50,15 @@ TODO(nevir): Document.
         selectedIndex: -1,
 
         /**
+         * The selected `MoreRouting.Route` object, or `null`.
+         *
+         * @attribute selectedRoute
+         * @type MoreRouting.Route
+         * @readonly
+         */
+        selectedRoute: null,
+
+        /**
          * The path expression of the selected route, or `null` if no route.
          *
          * @attribute selectedPath
@@ -52,6 +66,15 @@ TODO(nevir): Document.
          * @readonly
          */
         selectedPath: null,
+
+        /**
+         * The params of the selected route, or an empty object if no route.
+         *
+         * @attribute selectedParams
+         * @type Object
+         * @readonly
+         */
+        selectedParams: {},
       },
 
       /** @override */
@@ -87,17 +110,24 @@ TODO(nevir): Document.
         }
         if (newIndex === oldIndex) return;
 
-        var oldPath = this.selectedPath;
-        var newPath = this._routeRefs[newIndex] ? this._routeRefs[newIndex].path : null;
+        var oldRoute  = this.selectedRoute;
+        var oldPath   = this.selectedPath;
+        var oldParams = this.selectedParams;
 
-        this.selectedIndex = newIndex;
-        this.selectedPath  = newPath;
+        var newRoute  = this._routeRefs[newIndex];
+        var newPath   = newRoute ? newRoute.path   : null;
+        var newParams = newRoute ? newRoute.params : {};
+
+        this.selectedRoute  = newRoute;
+        this.selectedIndex  = newIndex;
+        this.selectedPath   = newPath;
+        this.selectedParams = newParams;
 
         this.fire('more-route-change', {
-          newIndex: newIndex,
-          oldIndex: oldIndex,
-          newPath:  newPath,
-          oldPath:  oldPath,
+          newRoute:  newRoute,  oldRoute:  oldRoute,
+          newIndex:  newIndex,  oldIndex:  oldIndex,
+          newPath:   newPath,   oldPath:   oldPath,
+          newParams: newParams, oldParams: oldParams,
         });
       },
 
