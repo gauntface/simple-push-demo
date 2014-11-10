@@ -59,6 +59,7 @@ core-scaffold::shadow core-toolbar {
   color: white;
   padding: 16px 0px 16px 22px;
   font-size: 1em;
+  background: url("images/carbon_intake.png") no-repeat center center;
 }
 
 #panel-list {
