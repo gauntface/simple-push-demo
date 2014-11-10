@@ -25,6 +25,7 @@ this.addEventListener("install", function(e) {
       "//fonts.gstatic.com/s/robotodraft/v2/u0_CMoUf3y3-4Ss4ci-VwZ7-ASEDocFpVYx1Gz4aSTw.woff2",
       "components/core-a11y-keys/core-a11y-keys.html",
       "components/core-ajax/core-ajax.html",
+      "components/core-ajax/core-xhr.html",
       "components/core-animated-pages/core-animated-pages.css",
       "components/core-animated-pages/core-animated-pages.html",
       "components/core-animated-pages/transitions/core-transition-pages.html",
