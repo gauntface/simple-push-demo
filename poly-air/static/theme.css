@@ -53,17 +53,19 @@ core-scaffold::shadow core-toolbar {
 }
 
 #panel-head {
-  height: 8em;
+  height: 150px;
   overflow: auto;
   background-color: #2196F3;
   color: white;
   padding: 16px 0px 16px 22px;
-  font-size: 1em;
-  background: url("images/carbon_intake.png") no-repeat center center;
+  font-size: 19px;
+  background: url("images/carbon_intake.png") no-repeat center bottom;
 }
 
 #panel-list {
   overflow: auto;
+  margin: 0px;
+  padding: 0px;
 }
 
 /*
@@ -80,7 +82,7 @@ core-animated-pages {
   -webkit-user-select: none;
 }
 
-core-animated-pages::shadow [main] {
+core-animated-pages > * {
   background-color: white;
 }
 
