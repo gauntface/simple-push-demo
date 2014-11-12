@@ -35,26 +35,17 @@ body {
   }
 }
 
-nav {
-  background-color: #eee;
-}
-
-core-toolbar::shadow > *,
-core-scaffold::shadow core-toolbar {
-  padding: none;
+core-toolbar {
   background-color: #303F9F;
-  /* #2196F3; */
   font-size: 24px;
   color: white;
-  /*
-  color: #fff;
-  font-weight: 400;
-  */
+}
+
+#panel-head.tall {
+  height: 150px;
 }
 
 #panel-head {
-  height: 150px;
-  overflow: auto;
   background-color: #2196F3;
   color: white;
   padding: 16px 0px 16px 22px;

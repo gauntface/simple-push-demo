@@ -9,7 +9,7 @@ Promise.whatevs = function(ops) {
 importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
-var version = 1;
+var version = 2;
 var coreCacheName = "poly-air-" + version.toString();
 var baseUrl = new URL("/", this.location.href) + "";
 
