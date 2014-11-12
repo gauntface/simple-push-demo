@@ -76,10 +76,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var swReady = function() { return navigator.serviceWorker.ready; };
 
     window.addEventListener('polymer-ready', function(e) {
+      var template = document.querySelector("#content");
+
+      var toast = null;
+      var showMessage = function(msg) {
+        if (!toast) {
+          toast = document.createElement("paper-toast");
+          document.body.appendChild(toast);
+        }
+        toast.text = msg;
+        toast.show();
+      };
 
       var showNoSWMessage = function() {
-        document.querySelector('#no-sw').show();
+        showMessage(
+          "Service Worker is not available. This demo isn't going to work."
+        );
       };
+
+      var showPushSuccess = showMessage.bind(null,
+          "Push registration succeeded. We will keep you posted.");
+      var showPushError = showMessage.bind(null,
+          "Push registration failed. Sorry :(");
+
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register("flight-info-sw.js").catch(
@@ -88,8 +107,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       } else {
         setTimeout(showNoSWMessage, 1000);
       }
-
-
 
       // FIXME(slightlyoff): move out to better location
       var flightData = {
@@ -111,7 +128,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         "arrivalGate": "-",
       };
 
-      var template = document.querySelector("#content");
 
       template.log = log;
       template.err = err;
@@ -137,11 +153,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         e.shiftKey ? sender.selectPrevious(true) : sender.selectNext(true);
       };
 
+      var sendRegistration = function(registration) {
+        log('sending ' + registration + ' to ' + location.hostname);
+
+        var formData = new FormData();
+        formData.append('registration', registration);
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          log('registration with server status: ' + JSON.parse(xhr.response).success);
+        };
+        xhr.onerror = xhr.onabort = function() {
+          log('registration with server failed');
+        };
+        xhr.open('POST', '/register_track');
+        xhr.send(formData);
+      }
+
+      template.startTracking = function() {
+        if (!navigator.push) {
+          showPushError();
+          return;
+        }
+
+        swReady().then(function(sw) {
+          log(sw);
+          navigator.push.register().then(
+            function(pushRegistration) {
+              showPushSuccess();
+
+              log(pushRegistration.pushRegistrationId);
+              sendRegistration(pushRegistration.pushRegistrationId);
+
+              localforage.setItem('track', flightData);
+              showTrackMenu();
+            },
+            function(e) {
+              showPushError();
+              log('Push registration failed: ' + e);
+            }
+          );
+        }, err);
+      }
       localforage.getItem('track').then(function(flight) {
         template.flight = flight;
       });
+
     });
 
+    /*
     var updateTrackedFlight = function() {
       localforage.getItem('track').then(function(flight) {
         var elt = document.createElement('flight-panel');
@@ -150,55 +210,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     }
 
-    /*
     var showTrackMenu = function() {
       var trackMenu = document.getElementById('track-menu');
       trackMenu.hidden = trackMenu.previousElementSibling.hidden = false;
     }
     */
 
-    var sendRegistration = function(registration) {
-      log('sending ' + registration + ' to ' + location.hostname);
-
-      var formData = new FormData();
-      formData.append('registration', registration);
-
-      var xhr = new XMLHttpRequest();
-      xhr.onload = function() {
-        log('registration with server status: ' + JSON.parse(xhr.response).success);
-      };
-      xhr.onerror = xhr.onabort = function() {
-        log('registration with server failed');
-      };
-      xhr.open('POST', '/register_track');
-      xhr.send(formData);
-    }
-
-    var startTracking = function() {
-      if (!navigator.push) {
-        document.querySelector('#push-error').show();
-        return;
-      }
-
-      swReady().then(function(sw) {
-        log(sw);
-        navigator.push.register().then(
-          function(pushRegistration) {
-            document.querySelector('#push-success').show();
-
-            log(pushRegistration.pushRegistrationId);
-            sendRegistration(pushRegistration.pushRegistrationId);
-
-            localforage.setItem('track', flightData);
-            showTrackMenu();
-          },
-          function(e) {
-            document.querySelector('#push-error').show();
-            log('Push registration failed: ' + e);
-          }
-        );
-      }, err);
-    }
   </script>
 
 </head>
@@ -255,7 +272,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <section>
             <!-- /checkin -->
             <paper-input class="narrow" required label="Booking reference"></paper-input>
+            <br>
             <paper-input class="narrow" required label="Last name"></paper-input>
+            <br>
             <paper-button on-tap="{{goTo}}" href="/confirmation"
                 raised class="colored">Submit</paper-button>
           </section>
@@ -291,12 +310,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-checkbox></paper-checkbox>
               <div>Notify me about flight status updates</div>
             </div>
-            <paper-button class="colored checkin" onclick="startTracking();">
+            <paper-button class="colored checkin" on-tap="{{startTracking}}">
               <core-icon icon="check"></core-icon>
               ok
             </paper-button>
-            <paper-button class="checkin"
-              onclick="goTo('/checkin');">
+            <paper-button class="checkin" href="/checkin"
+              on-tap="{{goTo}}">
               <core-icon icon="clear"></core-icon>
               cancel
             </paper-button>
@@ -332,10 +351,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </core-animated-pages>
       </core-header-panel>
     </core-drawer-panel>
-    <!-- FIXME(slightlyoff: these don't work now!) -->
-    <paper-toast id="no-sw" text="Service Worker is not available. This demo isn't going to work."></paper-toast>
-    <paper-toast id="push-success" text="Push registration succeeded. We will keep you posted."></paper-toast>
-    <paper-toast id="push-error" text="Push registration failed. Sorry :("></paper-toast>
   </template>
 
 </body>

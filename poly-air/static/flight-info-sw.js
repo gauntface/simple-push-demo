@@ -2,14 +2,10 @@
 var log = console.log.bind(console);
 var err = console.error.bind(console);
 
-Promise.whatevs = function(ops) {
-
-};
-
 importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
-var version = 2;
+var version = 4;
 var coreCacheName = "poly-air-" + version.toString();
 var baseUrl = new URL("/", this.location.href) + "";
 
