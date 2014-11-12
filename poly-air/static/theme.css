@@ -59,6 +59,10 @@ core-toolbar {
   padding: 0px;
 }
 
+core-header-panel {
+  background-color: #eee;
+}
+
 /*
 paper-item doesn't style this at all, currently :(
 https://github.com/Polymer/paper-item/issues/12

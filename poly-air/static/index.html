@@ -73,7 +73,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var log = console.log.bind(console);
     var err = console.error.bind(console);
 
-    window.addEventListener('polymer-ready', function(e) {
+    window.addEventListener("polymer-ready", function(e) {
       var template = document.querySelector("#content");
       template.log = log;
       template.err = err;
@@ -136,6 +136,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.querySelector("core-drawer-panel").closeDrawer();
       };
 
+      /*
       template.cyclePages = function(e, detail, sender) {
         // Click clicks should navigate and not cycle pages.
         if (e.path[0].localName == 'a') {
@@ -144,6 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         e.shiftKey ? sender.selectPrevious(true) : sender.selectNext(true);
       };
+      */
 
       var sendRegistration = function(registration) {
         log('sending ' + registration + ' to ' + location.hostname);
@@ -325,7 +327,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div>TODO: /track</div>
           </section>
           <section>
-            <!-- /help -->
+            <!-- /settings -->
             <div>TODO: /settings</div>
           </section>
           <section>
