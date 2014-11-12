@@ -1,0 +1,23 @@
+{
+  "name": "TemplateBinding",
+  "homepage": "https://github.com/Polymer/TemplateBinding",
+  "authors": [
+    "The Polymer Authors"
+  ],
+  "dependencies": {
+    "NodeBind": "Polymer/NodeBind#master",
+    "observe-js": "Polymer/observe-js#master"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^1.0.1"
+  },
+  "license": "BSD",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

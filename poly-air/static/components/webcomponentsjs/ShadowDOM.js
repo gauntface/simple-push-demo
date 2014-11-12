@@ -7,7 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-// @version 0.5.0-49f383f
+// @version 0.5.0
 if (typeof WeakMap === "undefined") {
   (function() {
     var defineProperty = Object.defineProperty;
@@ -30,10 +30,9 @@ if (typeof WeakMap === "undefined") {
       },
       "delete": function(key) {
         var entry = key[this.name];
-        if (!entry) return false;
-        var hasValue = entry[0] === key;
+        if (!entry || entry[0] !== key) return false;
         entry[0] = entry[1] = undefined;
-        return hasValue;
+        return true;
       },
       has: function(key) {
         var entry = key[this.name];

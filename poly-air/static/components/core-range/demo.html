@@ -12,58 +12,63 @@
   <head>
     <title>core-range</title>
     
-    <script src="../platform/platform.js"></script>
+    <script src="../webcomponentsjs/webcomponents.js"></script>
     
     <link rel="import" href="core-range.html">
     <link rel="import" href="../core-input/core-input.html">
     
     <style>
     
-      
-    </style>
+      body {
+        font-family: sans-serif;
+      }
     
+    </style>
   </head>
   
   <body unresolved>
     
-    <polymer-element name="x-test" noscript attributes="value">
+    <polymer-element name="x-progressbar" noscript attributes="value min max">
     
       <template>
       
         <style>
           
           :host {
-            display: inline-block;
-            height: 25px;
-            width: 300px;
-            background-color: #ddd;
+            display: block;
+            height: 40px;
+            background-color: #555;
+            border-radius: 4px;
+            padding: 8px;
+            box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.5);
           }
           
           .progress {
-            background-color: red;
+            background-color: #999;
             height: 100%;
-            padding: 5px 0;
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
           }
           
-          core-input {
-            border: 1px solid #ccc;
+          .progress-value {
+            padding: 0 8px;
+            font-size: 18px;
+            color: #fff;
           }
           
         </style>
         
-        <core-range min="0" max="200" step="0.5" value="{{value}}" ratio="{{ratio}}"></core-range>
+        <core-range min="{{min}}" max="{{max}}" value="{{value}}" ratio="{{ratio}}"></core-range>
         
-        <div class="progress" style="width: {{ratio}}%;">{{ratio}}%</div><br>
+        <div class="progress" horizontal center layout _style="width: {{ratio}}%;">
+          <div class="progress-value">{{ratio}}%</div>
+        </div>
         
-        value (0 - 200): <core-input value="{{value}}"></core-input>
-      
       </template>
       
     </polymer-element>
     
-    <x-test value="100"></x-test>
+    <x-progressbar min="0" max="200" value="120"></x-progressbar>
     
   </body>
 </html>

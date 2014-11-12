@@ -48,6 +48,7 @@ core-icon::shadow svg {
   background-color: transparent;
   margin: 12px;
   color: #000;
+  overflow: visible;
 }
 
 #menu {

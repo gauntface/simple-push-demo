@@ -13,7 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 }
 
 :host(:focus) {
-  outline: none;
+  outline: 0;
 }
 
 #checkboxContainer {

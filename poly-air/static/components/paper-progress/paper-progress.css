@@ -17,13 +17,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   position: relative;
   height: 100%;
   background-color: #c8c8c8;
+  overflow: hidden;
 }
 
-#activeProgress, #secondaryProgress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
+#activeProgress,
+#secondaryProgress {
+  -webkit-transform-origin: left center;
+  transform-origin: left center;
+  -webkit-transform: scaleX(0);
+  transform: scaleX(0);
 }
 
 #activeProgress {
@@ -32,4 +34,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 #secondaryProgress {
   background-color: #87ceac;
+}
+
+#activeProgress.indeterminate {
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-animation: indeterminate-bar 1s linear infinite;
+  animation: indeterminate-bar 1s linear infinite;
+}
+
+@-webkit-keyframes indeterminate-bar {
+  0% {
+    -webkit-transform: translate(-50%) scaleX(0);
+  }
+  50% {
+    -webkit-transform: translate(0%) scaleX(0.3);
+  }
+  100% {
+    -webkit-transform: translate(50%) scaleX(0);
+  }
+}
+
+@keyframes indeterminate-bar {
+  0% {
+    transform: translate(-50%) scaleX(0);
+  }
+  50% {
+    transform: translate(0%) scaleX(0.3);
+  }
+  100% {
+    transform: translate(50%) scaleX(0);
+  }
 }

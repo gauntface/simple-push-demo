@@ -1,0 +1,116 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+Element providing material design circular spinner.
+
+##### Example
+
+    <paper-spinner active></paper-spinner>
+
+The default spinner cycles between blue, red, yellow and green. It can be customized so
+that it uses one color only.
+
+##### Example
+
+    <style shim-shadowdom>
+      paper-spinner.blue::shadow .circle {
+        border-color: #4285f4;
+      }
+    </style>
+
+    <paper-spinner class="blue" active></paper-spinner>
+
+@element paper-spinner
+@blurb Element providing material design circular spinner.
+@status alpha
+@homepage http://polymerlabs.github.io/paper-spinner
+-->
+
+<polymer-element name="paper-spinner" attributes="active">
+
+  <template>
+    <link rel="stylesheet" href="paper-spinner.css">
+
+    <div id="spinnerContainer">
+      <div class="spinner-layer blue">
+        <div class="circle-clipper left">
+          <div class="circle" fit></div>
+        </div><div class="gap-patch">
+          <div class="circle" fit></div>
+        </div><div class="circle-clipper right">
+          <div class="circle" fit></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer red">
+        <div class="circle-clipper left">
+          <div class="circle" fit></div>
+        </div><div class="gap-patch">
+          <div class="circle" fit></div>
+        </div><div class="circle-clipper right">
+          <div class="circle" fit></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer yellow">
+        <div class="circle-clipper left">
+          <div class="circle" fit></div>
+        </div><div class="gap-patch">
+          <div class="circle" fit></div>
+        </div><div class="circle-clipper right">
+          <div class="circle" fit></div>
+        </div>
+      </div>
+
+      <div class="spinner-layer green">
+        <div class="circle-clipper left">
+          <div class="circle" fit></div>
+        </div><div class="gap-patch">
+          <div class="circle" fit></div>
+        </div><div class="circle-clipper right">
+          <div class="circle" fit></div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      eventDelegates: {
+        'animationend': 'reset',
+        'webkitAnimationEnd': 'reset'
+      },
+      publish: {
+        /**
+         * Displays the spinner.
+         *
+         * @attribute active
+         * @type boolean
+         * @default false
+         */
+        active: {value: false, reflect: true}
+      },
+
+      activeChanged: function() {
+        if (this.active) {
+          this.$.spinnerContainer.classList.add('active');
+        } else {
+          this.$.spinnerContainer.classList.add('warmdown');
+        }
+      },
+
+      reset: function() {
+        this.$.spinnerContainer.classList.remove('active', 'warmdown');
+      }
+    });
+  </script>
+</polymer-element>

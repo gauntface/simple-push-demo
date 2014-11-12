@@ -1,0 +1,184 @@
+<html>
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<head>
+  <title>Template instantiation benchmarks</title>
+  <meta charset="utf-8">
+  <script src="../load.js"></script>
+  <script src="../../observe-js/benchmark/chartjs/Chart.js"></script>
+  <script src="../../observe-js/benchmark/benchmark.js"></script>
+  <script src="../../polymer-expressions/third_party/esprima/esprima.js"></script>
+  <script src="../../polymer-expressions/src/polymer-expressions.js"></script>
+  <script src="benchmark.js"></script>
+  <style>
+    * {
+      font-family: arial, helvetica, sans-serif;
+      font-weight: 400;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: rgba(0, 0, 0, .1);
+    }
+  </style>
+</head>
+<body>
+<h1>Template instantiation benchmarks</h1>
+
+Width: <select id="widthSelect">
+  <option selected>2
+  <option>3
+</select>
+
+Depth: <select id="depthSelect">
+  <option>2
+  <option selected>4
+  <option>8
+</select>
+
+Decoration: <select id="decorationSelect">
+  <option>0
+  <option>4
+  <option selected>8
+  <option>16
+</select>
+
+Instance Count: <select id="instanceCountSelect">
+  <option>1
+  <option>5
+  <option selected>10
+  <option>15
+</select>
+<br>
+<span>Binding Density (%): </span>
+<input id="bindingDensityInput" style="width: 200px" value="0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100">
+<button id="go">Run Benchmarks</button><br>
+One-time Bindings: <input id="oneTimeBindings" type="checkbox">
+Compound Bindings: <input id="compoundBindings" type="checkbox">
+Expressions: <input id="expressions" type="checkbox">
+<span id="statusSpan"></span>
+
+<section style="width: 100%">
+  <article>
+    <div style="display:inline-block; padding-bottom: 20px">
+      Times in ms
+    </div>
+    <div style="display:inline-block">
+      <canvas id="times" width="800" height="400"></canvas>
+    </div>
+    <div style="display:inline-block">
+      <ul id="legendList">
+      </ul>
+    </div>
+  </article>
+</section>
+<h3 style="margin-left: 440px">Binding Density</h3>
+
+<div style="display:none">
+  <div id="testDiv"></div>
+</div>
+<script>
+var benchmark;
+var goButton = document.getElementById('go');
+
+var widthSelect = document.getElementById('widthSelect');
+var depthSelect = document.getElementById('depthSelect');
+var decorationSelect = document.getElementById('decorationSelect');
+var instanceCountSelect = document.getElementById('instanceCountSelect');
+
+var compoundCheckbox = document.getElementById('compoundBindings');
+var oneTimeBindings = document.getElementById('oneTimeBindings');
+var expressionCheckbox = document.getElementById('expressions');
+
+var bindingDensityInput = document.getElementById('bindingDensityInput');
+
+var statusSpan = document.getElementById('statusSpan');
+
+var timesCanvas = document.getElementById('times');
+var benchmarkSelect = document.getElementById('benchmarkSelect');
+var configSelect = document.getElementById('configSelect');
+
+var testDiv = document.getElementById('testDiv');
+var ul = document.getElementById('legendList');
+var rgbColor = 'rgba(100, 149, 237, .7)';
+
+goButton.addEventListener('click', function() {
+  goButton.disabled = true;
+  goButton.textContent = 'Running...';
+  ul.textContent = '';
+
+  var bindingDensities = bindingDensityInput.value.split(',').map(function(val) {
+    return Number(val) / 100;
+  });
+
+
+  var li = document.createElement('li');
+  li.textContent = 'mdv';
+  li.style.color = rgbColor;
+  ul.appendChild(li);
+
+  function benchmarkComplete(results) {
+    if (Observer._allObserversCount > 4)
+      alert('Error. All Observer Count: ' + Observer._allObserversCount);
+
+    datasets = [];
+
+    timesCanvas.height = 400;
+    timesCanvas.width = 800;
+    timesCanvas.setAttribute('style', '');
+
+    var labels = bindingDensities.map(function(density) {
+      return density * 100 + '%';
+    });
+
+    var timesArray = [results];
+
+    var ctx = timesCanvas.getContext("2d");
+    new Chart(ctx).Line({
+      labels: labels,
+      datasets: timesArray.map(function(times, i) {
+        return {
+          fillColor: 'rgba(255, 255, 255, 0)',
+          strokeColor: rgbColor,
+          pointColor: rgbColor,
+          pointStrokeColor: "#fff",
+          data: times
+        };
+      })
+    }, {
+      bezierCurve: false
+    });
+
+    goButton.disabled = false;
+    goButton.textContent = 'Run Benchmarks';
+    statusSpan.textContent = 'finished';
+  }
+
+  function updateStatus(b, variation, runCount) {
+    statusSpan.textContent = (100 * b.density) + '% binding density, ' + runCount + ' runs';
+  }
+
+  var width = Number(widthSelect.value);
+  var depth = Number(depthSelect.value);
+  var decoration = Number(decorationSelect.value);
+  var instanceCount = Number(instanceCountSelect.value);
+
+  var benchmarks = bindingDensities.map(function(density) {
+    return new MDVBenchmark(testDiv, density, width, depth, decoration,
+                            instanceCount,
+                            oneTimeBindings.checked,
+                            compoundBindings.checked,
+                            expressionCheckbox.checked);
+  });
+
+  Benchmark.all(benchmarks, 0, updateStatus).then(benchmarkComplete);
+});
+</script>
+</body>
+</html>

@@ -30,12 +30,16 @@ information about `paper-radio-button`.
 @homepage github.io
 -->
 
+<link rel="import" href="../core-a11y-keys/core-a11y-keys.html">
 <link rel="import" href="../core-selector/core-selector.html">
 <link rel="import" href="../paper-radio-button/paper-radio-button.html">
 
 <polymer-element name="paper-radio-group" extends="core-selector" role="radiogroup">
 
   <template>
+
+    <core-a11y-keys target="{{}}" keys="up left" on-keys-pressed="{{selectPrevious}}"></core-a11y-keys>
+    <core-a11y-keys target="{{}}" keys="down right" on-keys-pressed="{{selectNext}}"></core-a11y-keys>
   
     <style>
     
@@ -57,7 +61,36 @@ information about `paper-radio-button`.
   <script>
   
     Polymer('paper-radio-group', {
-      
+      nextIndex: function(index) {
+        var items = this.items;
+        var newIndex = index;
+        do {
+          newIndex = (newIndex + 1) % items.length;
+          if (newIndex === index) {
+            break;
+          }
+        } while (items[newIndex].disabled);
+        return newIndex;
+      },
+      previousIndex: function(index) {
+        var items = this.items;
+        var newIndex = index;
+        do {
+          newIndex = (newIndex || items.length) - 1;
+          if (newIndex === index) {
+            break;
+          }
+        } while (items[newIndex].disabled);
+        return newIndex;
+      },
+      selectNext: function() {
+        var node = this.selectIndex(this.nextIndex(this.selectedIndex));
+        node.focus();
+      },
+      selectPrevious: function() {
+        var node = this.selectIndex(this.previousIndex(this.selectedIndex));
+        node.focus();
+      },
       selectedAttribute: 'checked',
       activateEvent: 'change'
       

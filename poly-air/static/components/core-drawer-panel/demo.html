@@ -15,7 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     
-    <script src="../platform/platform.js"></script>
+    <script src="../webcomponentsjs/webcomponents.js"></script>
     
     <link rel="import" href="core-drawer-panel.html">
     
@@ -29,6 +29,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-family: sans-serif;
         color: #FFF;
         margin: 0;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
       }
       
       [drawer] {
@@ -37,20 +42,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       
       [main] {
-        height: 100%;
         background-color: #4F7DC9;
       }
       
       button {
-        display: none;
         width: 160px;
         height: 40px;
         font-size: 16px;
         margin: 8px;
-      }
-      
-      core-drawer-panel[narrow] button {
-        display: inline-block
       }
       
     </style>
@@ -64,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div drawer></div>
         
       <div main>
-        <button onclick="document.querySelector('core-drawer-panel').togglePanel();">toggle drawer</button>
+        <button core-drawer-toggle>toggle drawer</button>
       </div>
       
     </core-drawer-panel>

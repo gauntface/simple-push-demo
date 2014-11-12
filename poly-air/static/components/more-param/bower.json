@@ -2,10 +2,10 @@
   "private": true,
   "name": "more-param",
   "dependencies": {
-    "polymer": "polymer/polymer#master"
+    "polymer": "polymer/polymer"
   },
   "devDependencies": {
-    "core-component-page": "polymer/core-component-page#master",
-    "core-scaffold": "polymer/core-scaffold#master"
+    "core-component-page": "polymer/core-component-page",
+    "core-scaffold": "polymer/core-scaffold"
   }
 }

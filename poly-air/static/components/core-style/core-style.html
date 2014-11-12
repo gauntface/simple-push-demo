@@ -46,8 +46,8 @@ shadowRoot of the `x-test` element. If the content of the `x-test` producer
 `core-style` changes, all consumers of it are automatically kept in sync. This
 allows updating styling on the fly.
 
-The `core-style` element also supports bindings and it is the producer 
-`core-style` element is the model for its content. Here's an example:
+The `core-style` element also supports bindings, in which case the producer
+`core-style` element is the model. Here's an example:
 
     <core-style id="x-test">
       :host {
@@ -265,7 +265,7 @@ Polymer('core-style', {
       this.styleElement._cssText = cssText;
       if (window.ShadowDOMPolyfill) {
         this.styleElement.textContent = cssText;
-        cssText = Platform.ShadowCSS.shimStyle(this.styleElement,
+        cssText = WebComponents.ShadowCSS.shimStyle(this.styleElement,
             this.getScopeSelector());
       }
       this.styleElement.textContent = cssText;
@@ -333,7 +333,7 @@ Polymer('core-style', {
       if (host) {
         var typeExtension = host.hasAttribute('is');
         var name = typeExtension ? host.getAttribute('is') : host.localName;
-        selector = Platform.ShadowCSS.makeScopeSelector(name, 
+        selector = WebComponents.ShadowCSS.makeScopeSelector(name, 
             typeExtension);
       }
       this._scopeSelector = selector;

@@ -57,6 +57,15 @@ Apply `circle` class to make the rippling effect within a circle.
 @homepage github.io
 -->
 
+<!--
+Fired when the animation finishes. This is useful if you want to wait until the ripple
+animation finishes to perform some action.
+
+@event core-transitionend
+@param {Object} detail
+@param {Object} detail.node The animated node
+-->
+
 <link rel="import" href="../polymer/polymer.html" >
 
 <polymer-element name="paper-ripple" attributes="initialOpacity opacityDecayVelocity">
@@ -121,7 +130,7 @@ Apply `circle` class to make the rippling effect within a circle.
     // INK EQUATIONS
     //
     function waveRadiusFn(touchDownMs, touchUpMs, anim) {
-      // Convert from ms to s.
+      // Convert from ms to s
       var touchDown = touchDownMs / 1000;
       var touchUp = touchUpMs / 1000;
       var totalElapsed = touchDown + touchUp;

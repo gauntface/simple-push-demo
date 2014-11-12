@@ -88,8 +88,8 @@ polyfill-next-selector { content: ':host.core-narrow .toolbar-tools, .core-narro
 }
 
 /* make elements (e.g. buttons) respond to mouse/touch events */
-polyfill-next-selector { content: '.toolbar-tools > *'; }
-::content > * {
+polyfill-next-selector { content: '.toolbar-tools > *:not([disabled])'; }
+::content > *:not([disabled]) {
   pointer-events: auto;
 }
 

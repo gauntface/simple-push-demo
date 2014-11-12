@@ -7,196 +7,72 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <!--
-A `paper-menu-button` is a `paper-icon-button` that opens a drop down menu when tapped.
+
+`paper-menu-button` works together with a button and a `paper-dropdown` to
+implement a button that displays a drop-down when tapped on.
+
+The child element with the class `dropdown` will be used as the drop-down
+menu. It should be a `paper-dropdown` or other overlay element.
 
 Example:
 
-    <paper-menu-button icon="menu">
-      <div>Menu Item 1</div>
-      <div>Menu Item 2</div>
-      <div>Menu Item 3</div>
-    </paper-menu-button>
-
-Theming
-=======
-
-To change the text color in the menu:
-
-paper-menu-button::shadow #menu {
-  color: white;
-}
-
-To change the overlay background color:
-
-paper-menu-button::shadow .paper-menu-button-overlay-bg {
-  background: green;
-}
-
-To change the color of the ripple effect:
-
-paper-menu-button:shadow .paper-menu-button-overlay-ink {
- background: red;
-}
+    <paper-dropdown-menu>
+        <paper-dropdown class="dropdown">
+            <core-menu class="menu">
+                <paper-item>Share</paper-item>
+                <paper-item>Settings</paper-item>
+                <paper-item>Help</paper-item>
+            </core-menu>
+        </paper-dropdown>
+    </paper-dropdown-menu>
 
 @group Paper Elements
 @element paper-menu-button
-@extends paper-focusable
+@extends core-dropdown-base
+@status unstable
 -->
 <link href="../polymer/polymer.html" rel="import">
+<link href="../core-a11y-keys/core-a11y-keys.html" rel="import">
+<link href="../core-dropdown/core-dropdown-base.html" rel="import">
 
-<link href="../core-dropdown/core-dropdown.html" rel="import">
-<link href="../core-icon/core-icon.html" rel="import">
-<link href="../core-menu/core-menu.html" rel="import">
-<link href="../core-style/core-style.html" rel="import">
+<polymer-element name="paper-menu-button" extends="core-dropdown-base" relative>
+<template>
 
-<link href="../paper-focusable/paper-focusable.html" rel="import">
-<link href="../paper-shadow/paper-shadow.html" rel="import">
+  <style>
+    :host {
+      display: inline-block;
+    }
 
-<link href="paper-menu-button-transition.html" rel="import">
+    :host([disabled]) {
+      pointer-events: none;
+      color: #a8a8a8;
+    }
 
-<core-style id="paper-menu-button">
+    polyfill-next-selector { content: ':host([disabled]) *'; }
+    :host([disabled]) ::content * {
+      pointer-events: none;
+    }
+  </style>
 
-.paper-menu-button-overlay-ink {
-  background: {{g.paperMenuButton.background}}
-}
+  <core-a11y-keys target="{{}}" keys="enter space" on-keys-pressed="{{toggleOverlay}}"></core-a11y-keys>
 
-.paper-menu-button-overlay-bg {
-  background: {{g.paperMenuButton.background}}
-}
+  <content></content>
 
-</core-style>
-
+</template>
 <script>
-  (function() {
 
-    CoreStyle.g.paperMenuButton = CoreStyle.g.paperMenuButton || {
-      'background': '#fff'
-    };
+  Polymer({
 
-  })();
+    overlayListeners: {
+      'core-overlay-open': 'openAction',
+      'core-activate': 'activateAction'
+    },
+
+    activateAction: function() {
+      this.opened = false;
+    }
+
+  });
+
 </script>
-
-<polymer-element name="paper-menu-button" extends="paper-focusable" attributes="src icon opened halign valign slow">
-  <template>
-
-    <link rel="stylesheet" href="paper-menu-button.css">
-    <core-style ref="paper-menu-button"></core-style>
-
-    <core-icon src="{{src}}" icon="{{icon}}" on-tap="{{tapAction}}"></core-icon>
-
-    <core-dropdown id="dropdown" relatedTarget="{{}}" opened="{{opened}}" halign="{{halign}}" valign="{{valign}}" transition="{{noTransition ? '' : transition}}" on-core-transitionend="{{transitionEndAction}}">
-
-      <paper-shadow id="shadow" z="1" target="{{$.dropdown}}"></paper-shadow>
-
-      <div class="paper-menu-button-overlay-ink"></div>
-      <div id="overlayBg" class="paper-menu-button-overlay-bg"></div>
-
-      <div class="paper-menu-button-menu-container">
-        <core-menu id="menu" selected="{{selected}}" selectedItem="{{selectedItem}}" selectedClass="{{selectedClass}}" valueattr="{{valueattr}}" selectedProperty="{{selectedProperty}}" selectedAttribute="{{selectedAttribute}}" on-core-select="{{selectAction}}" on-core-activate="{{activateAction}}">
-          <content></content>
-        </core-menu>
-      </div>
-
-    </core-dropdown>
-
-  </template>
-  <script>
-    Polymer('paper-menu-button', {
-
-      publish: {
-
-        /**
-         * If true, this menu is currently visible.
-         *
-         * @attribute opened
-         * @type boolean
-         * @default false
-         */
-        opened: false,
-
-        /**
-         * The horizontal alignment of the menu relative to the button.
-         *
-         * @attribute halign
-         * @type 'left' | 'right'
-         * @default 'left'
-         */
-        halign: 'left',
-
-        /**
-         * The vertical alignment of the menu relative to the button.
-         *
-         * @attribute valign
-         * @type 'bottom' | 'top'
-         * @default 'top'
-         */
-        valign: 'top',
-
-        /**
-         * Set to true to disable the transition.
-         *
-         * @attribute noTransition
-         * @type boolean
-         * @default false
-         */
-        noTransition: false
-
-      },
-
-      computed: {
-        transition: '"paper-menu-button-transition-" + valign + "-" + halign'
-      },
-
-      /**
-       * The URL of an image for the icon. Should not use `icon` property
-       * if you are using this property.
-       *
-       * @attribute src
-       * @type string
-       * @default ''
-       */
-      src: '',
-
-      /**
-       * Specifies the icon name or index in the set of icons available in
-       * the icon set.  Should not use `src` property if you are using this
-       * property.
-       *
-       * @attribute icon
-       * @type string
-       * @default ''
-       */
-      icon: '',
-
-      tapAction: function() {
-        if (this.disabled) {
-          return;
-        }
-
-        this.super();
-        this.toggle();
-        if (this.opened && !this.noTransition) {
-          this.$.shadow.z = 0;
-        }
-      },
-
-      transitionEndAction: function() {
-        this.$.shadow.z = 1;
-      },
-
-      activateAction: function() {
-        this.opened = false;
-      },
-
-      /**
-       * Toggle the opened state of the menu.
-       *
-       * @method toggle
-       */
-      toggle: function() {
-        this.opened = !this.opened;
-      }
-
-    });
-  </script>
 </polymer-element>

@@ -9,20 +9,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 :host {
   display: block;
-  position: relative;
   font-size: 14px;
   font-weight: 500;
   height: 48px;
   overflow: hidden;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 #tabsContainer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  position: relative;
+  height: 100%;
   white-space: nowrap;
+  overflow: hidden;
+}
+
+#tabsContent {
+  height: 100%;
+}
+
+#tabsContainer.scrollable > #tabsContent {
+  position: absolute;
+  white-space: nowrap;
+}
+
+.scroll-button {
+  width: 40px;
+  padding: 0 12px;
+}
+
+.scroll-button > paper-icon-button {
+  transition: opacity 0.18s;
+}
+
+.scroll-button > .hidden {
+  opacity: 0;
 }
 
 #selectionBar {
@@ -35,10 +59,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   transition: width, left;
 }
 
-#selectionBar[hidden] {
-  display: hidden;
-}
-
 #selectionBar.expand {
   transition-duration: 0.15s;
   transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1);
@@ -49,9 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   transition-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
 }
 
-polyfill-next-selector { content: '#tabsContainer > *:not(#selectionBar)'; }
+polyfill-next-selector { content: '#tabsContent > *:not(#selectionBar)'; }
 ::content > * {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1;
+  height: 100%;
 }

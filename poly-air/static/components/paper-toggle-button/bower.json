@@ -2,7 +2,8 @@
   "name": "paper-toggle-button",
   "private": true,
   "dependencies": {
-    "font-roboto": "Polymer/font-roboto#^0.4.0",
-    "paper-radio-button": "Polymer/paper-radio-button#^0.4.0"
-  }
+    "font-roboto": "Polymer/font-roboto#^0.5.0",
+    "paper-radio-button": "Polymer/paper-radio-button#^0.5.0"
+  },
+  "version": "0.5.0"
 }

@@ -60,12 +60,12 @@ To change the bar color for unchecked state:
 
 <link rel="import" href="../paper-radio-button/paper-radio-button.html">
 
-<polymer-element name="paper-toggle-button" attributes="checked" role="button" aria-pressed="false" tabindex="0">
+<polymer-element name="paper-toggle-button" attributes="checked disabled" role="button" aria-pressed="false" tabindex="0">
 <template>
 
   <link rel="stylesheet" href="paper-toggle-button.css">
 
-  <div id="toggleContainer">
+  <div id="toggleContainer" disabled?="{{disabled}}">
   
     <div id="toggleBar" checked?="{{checked}}"></div>
   
@@ -99,6 +99,16 @@ To change the bar color for unchecked state:
      * @default false
      */
     checked: false,
+    
+    /**
+     * If true, the toggle button is disabled.  A disabled toggle button cannot
+     * be tapped or dragged to change the checked state.
+     *
+     * @attribute disabled
+     * @type boolean
+     * @default false
+     */
+    disabled: false,
 
     trackStart: function(e) {
       this._w = this.$.toggleBar.offsetLeft + this.$.toggleBar.offsetWidth;

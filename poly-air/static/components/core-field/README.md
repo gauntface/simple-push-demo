@@ -1,3 +1,6 @@
+# *DEPRECATED*
+> Please use [core-label](https://github.com/Polymer/core-label) instead
+
 core-field
 ==========
 

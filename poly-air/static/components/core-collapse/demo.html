@@ -13,27 +13,38 @@
 
   <title>core-collapse</title>
 
-  <script src="../platform/platform.js"></script>
+  <script src="../webcomponentsjs/webcomponents.js"></script>
 
   <link rel="import" href="core-collapse.html">
 
   <style>
+  
     body {
-      overflow: auto;
+      font-family: sans-serif;
       margin: 8px 24px;
     }
 
-
-    .box {
-      background: #eee;
+    .heading {
+      padding: 10px 15px;
+      background-color: #f3f3f3;
+      border: 1px solid #dedede;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
     }
     
     .content {
-      margin: 10px;
-    }
-    
-    section {
-      padding: 10px;
+      padding: 15px;
+      border: 1px solid #dedede;
+      border-top: none;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
     }
     
   </style>
@@ -41,53 +52,28 @@
 </head>
 <body unresolved>
 
-  <section style="background: steelblue;">
-
-    <button onclick="document.querySelector('#collapse1').toggle()">toggle collapse</button>
-
-    <core-collapse id="collapse1" fixedSize class="box" style="height: 300px;">
-      <div class="content">Forma temperiemque cornua sidera dissociata cornua recessit innabilis ligavit: solidumque coeptis nullus caelum sponte phoebe di regat mentisque tanta austro capacius amphitrite sui quin postquam semina fossae liquidum umor galeae coeptis caligine liberioris quin liquidum matutinis invasit posset: flexi glomeravit radiis certis invasit oppida postquam onerosior inclusum dominari opifex terris pace finxit quam aquae nunc sine altae auroram quam habentem homo totidemque scythiam in pondus ensis tegit caecoque poena lapidosos humanas coeperunt poena aetas totidem nec natura aethera locavit caelumque distinxit animalibus phoebe cingebant moderantum porrexerat terrae possedit sua sole diu summaque obliquis melioris orbem</div>
-    </core-collapse>
-
-  </section>
-
-  <section style="background: seagreen;">
-
-    <button onclick="document.querySelector('#collapse2').toggle()">toggle collapse</button>
-
-    <core-collapse id="collapse2" class="box">
-
-      <div class="content">Coercuit iunctarum vix sic aberant spisso imagine litem cetera nubes ambitae tanta usu circumfuso fulminibus umentia rectumque iuga pluviaque meis semina regat ne campoque meis coeperunt nix cura iunctarum ligavit: secant ventos seductaque permisit sic iunctarum locoque his coeptis tum terras animalia recepta aethera cornua invasit tollere videre tonitrua humanas otia tuba alta dissociata sanctius adsiduis inclusum caesa ita onus sine pluviaque litem manebat fixo extendi ubi inposuit cum sublime membra undas orba forma deducite aethera turba coercuit retinebat obliquis bracchia nisi mentisque origine peregrinum manebat</div>
-
-      <section style="background: lightgreen;">
-
-        <button onclick="document.querySelector('#collapse3').toggle()">toggle collapse</button>
-
-        <core-collapse id="collapse3" class="box" opened>
-
-          <div class="content">Forma temperiemque cornua sidera dissociata cornua recessit innabilis ligavit: solidumque coeptis nullus caelum sponte phoebe di regat mentisque tanta austro capacius amphitrite sui quin postquam semina fossae liquidum umor galeae coeptis caligine liberioris quin liquidum matutinis invasit posset: flexi glomeravit radiis certis invasit oppida postquam onerosior inclusum dominari opifex terris pace finxit quam aquae nunc sine altae auroram quam habentem homo totidemque scythiam in pondus ensis tegit caecoque poena lapidosos humanas coeperunt poena aetas totidem nec natura aethera locavit caelumque distinxit animalibus phoebe cingebant moderantum porrexerat terrae possedit sua sole diu summaque obliquis melioris orbem</div>
-
-          <section style="background: #00FF99;">
-
-            <button onclick="document.querySelector('#collapse4').toggle()">toggle collapse</button>
-            
-            <core-collapse id="collapse4" class="box">
-            
-              <div class="content">Forma temperiemque cornua sidera dissociata cornua recessit innabilis ligavit: solidumque coeptis nullus caelum sponte phoebe di regat mentisque tanta austro capacius amphitrite sui quin postquam semina fossae liquidum umor galeae coeptis caligine liberioris quin liquidum matutinis invasit posset: flexi glomeravit radiis certis invasit oppida postquam onerosior inclusum dominari opifex terris pace finxit quam aquae nunc sine altae auroram quam habentem homo totidemque scythiam in pondus ensis tegit caecoque poena lapidosos humanas coeperunt poena aetas totidem nec natura aethera locavit caelumque distinxit animalibus phoebe cingebant moderantum porrexerat terrae possedit sua sole diu summaque obliquis melioris orbem</div>
-              
-            </core-collapse>
-
-          </section>
-
-        </core-collapse>
-
-      </section>
-
-      <div class="content">Obstabatque cingebant nitidis rapidisque cepit moderantum discordia habentia frigore solidumque fert inter caecoque sine coeperunt corpore quarum fluminaque coercuit vultus animal austro quem os sectamque animus origo solidumque quoque melioris adspirate recepta utramque rapidisque caelumque orba unus pluviaque erant mutastis gravitate illic quisque alta calidis speciem mixtam ante contraria duae</div>
-
-    </core-collapse>
-
-  </section>
+  <div class="heading" onclick="document.querySelector('#collapse1').toggle();">Collapse #1</div>
+  <core-collapse id="collapse1">
+    <div class="content">
+      <div>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea, id minim maiestatis incorrupte duo. Dolorum verterem ad ius, his et nullam verterem. Eu alia debet usu, an doming tritani est. Vix ad ponderum petentium suavitate, eum eu tempor populo, graece sententiae constituam vim ex. Cu torquatos reprimique neglegentur nec, voluptua periculis has ut, at eos discere deleniti sensibus. Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea, id minim maiestatis incorrupte duo. Dolorum verterem ad ius, his et nullam verterem. Eu alia debet usu, an doming tritani est. Vix ad ponderum petentium suavitate, eum eu tempor populo, graece sententiae constituam vim ex. Cu torquatos reprimique neglegentur nec, voluptua periculis has ut, at eos discere deleniti sensibus.</div>
+    </div>
+  </core-collapse>
+  
+  <br>
+  
+  <div class="heading" onclick="document.querySelector('#collapse2').toggle();">Collapse #2</div>
+  <core-collapse id="collapse2">
+    <div class="content">
+      <div>Pro saepe pertinax ei, ad pri animal labores suscipiantur. Modus commodo minimum eum te, vero utinam assueverit per eu, zril oportere suscipiantur pri te. Partem percipitur deterruisset ad sea, at eam suas luptatum dissentiunt. No error alienum pro, erant senserit ex mei, pri semper alterum no. Ut habemus menandri vulputate mea. Feugiat verterem ut sed. Dolores maiestatis id per. Pro saepe pertinax ei, ad pri animal labores suscipiantur. Modus commodo minimum eum te, vero utinam assueverit per eu, zril oportere suscipiantur pri te. Partem percipitur deterruisset ad sea, at eam suas luptatum dissentiunt. No error alienum pro, erant senserit ex mei, pri semper alterum no. Ut habemus menandri vulputate mea. Feugiat verterem ut sed. Dolores maiestatis id per.</div>
+      <br>
+      <div class="heading" onclick="document.querySelector('#collapse3').toggle();">Collapse #3</div>
+      <core-collapse id="collapse3">
+        <div class="content">
+          <div>Iisque perfecto dissentiet cum et, sit ut quot mandamus, ut vim tibique splendide instructior. Id nam odio natum malorum, tibique copiosae expetenda mel ea. Mea melius malorum ut. Ut nec tollit vocent timeam. Facer nonumy numquam id his, munere salutatus consequuntur eum et, eum cotidieque definitionem signiferumque id. Ei oblique graecis patrioque vis, et probatus dignissim inciderint vel. Sed id paulo erroribus, autem semper accusamus in mel. Iisque perfecto dissentiet cum et, sit ut quot mandamus, ut vim tibique splendide instructior. Id nam odio natum malorum, tibique copiosae expetenda mel ea. Mea melius malorum ut. Ut nec tollit vocent timeam. Facer nonumy numquam id his, munere salutatus consequuntur eum et, eum cotidieque definitionem signiferumque id. Ei oblique graecis patrioque vis, et probatus dignissim inciderint vel. Sed id paulo erroribus, autem semper accusamus in mel.</div>
+        </div>
+      </core-collapse>
+    </div>
+  </core-collapse>
 
 </body>
 </html>

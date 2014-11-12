@@ -145,3 +145,8 @@ polyfill-next-selector { content: ':host .narrow-layout > #main > [main]'; }
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
+
+polyfill-next-selector { content: 'core-selector:not(.narrow-layout) [core-drawer-toggle]'; }
+core-selector:not(.narrow-layout) ::content [core-drawer-toggle] {
+  display: none;
+}

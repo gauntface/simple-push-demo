@@ -8,7 +8,7 @@ license that can be found in the LICENSE file.
   <head>
     <title>paper-icon-button</title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
-    <script src="../platform/platform.js"></script>
+    <script src="../webcomponentsjs/webcomponents.js"></script>
 
     <link rel="import" href="../core-icons/core-icons.html">
     <link rel="import" href="paper-icon-button.html">
@@ -72,10 +72,10 @@ license that can be found in the LICENSE file.
 
         <div>Icon buttons</div>
 
-        <paper-icon-button icon="menu"></paper-icon-button>
-        <paper-icon-button icon="arrow-back"></paper-icon-button>
-        <paper-icon-button icon="arrow-forward"></paper-icon-button>
-        <paper-icon-button disabled icon="clear"></paper-icon-button>
+        <paper-icon-button icon="menu" title="menu"></paper-icon-button>
+        <paper-icon-button icon="arrow-back" title="arrow-back"></paper-icon-button>
+        <paper-icon-button icon="arrow-forward" title="arrow-forward"></paper-icon-button>
+        <paper-icon-button disabled icon="clear" title="clear"></paper-icon-button>
 
       </section>
 
@@ -85,10 +85,20 @@ license that can be found in the LICENSE file.
 
         <div>Styled</div>
 
-        <paper-icon-button icon="favorite"></paper-icon-button>
-        <paper-icon-button class="hover" icon="favorite"></paper-icon-button>
-        <paper-icon-button class="red" icon="favorite"></paper-icon-button>
-        <paper-icon-button class="red blueRipple" icon="favorite"></paper-icon-button>
+        <paper-icon-button icon="favorite" title="favorite"></paper-icon-button>
+        <paper-icon-button class="hover" icon="favorite" title="favorite"></paper-icon-button>
+        <paper-icon-button class="red" icon="favorite" title="favorite"></paper-icon-button>
+        <paper-icon-button class="red blueRipple" icon="favorite" title="favorite"></paper-icon-button>
+
+      </section>
+
+      <section>
+
+        <div>Link</div>
+
+        <a href="https://www.polymer-project.org" target="_blank">
+          <paper-icon-button icon="polymer" title="polymer"></paper-icon-button>
+        </a>
 
       </section>
 
@@ -112,7 +122,7 @@ license that can be found in the LICENSE file.
 
         <div>Custom icon src</div>
 
-        <paper-icon-button class="custom" src="https://assets-cdn.github.com/images/modules/logos_page/Octocat.png" aria-label="octocat"></paper-icon-button>
+        <paper-icon-button class="custom" src="https://assets-cdn.github.com/images/modules/logos_page/Octocat.png" aria-label="octocat" title="octocat"></paper-icon-button>
 
       </section>
     </column>

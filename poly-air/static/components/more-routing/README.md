@@ -11,7 +11,37 @@ a breeze.
 * [Declarative route switching](#more-route-switch).
 * [Polymer helpers](#polymer-helpers--filters) for easy integration into existing elements.
 
-TL;DR:
+TL;DR via [`more-route-selector`](#more-route-selector):
+
+```html
+<more-routing driver="path"></more-routing>
+<more-route name="user" path="/users/:userId">
+  <more-route name="user-bio" path="/bio"></more-route>
+</more-route>
+
+<more-route-selector routes="['user', '/about', '/']" selectedIndex="{{pageIndex}}" selectedParams="{{params}}"></more-route-selector>
+<core-pages selected="{{pageIndex}}">
+
+  <div>
+    <header>User {{params.userId}}</header>
+    <template if="{{ route('user-bio').active }}">
+      All the details about {{params.userId}} that you didn't want to know...
+    </template>
+  </div>
+
+  <div>
+    It's a routing demo!
+    <a href="{{ urlFor('user-bio', {userId: 1}) }}">Read about user 1</a>.
+  </div>
+
+  <div>
+    The index.
+  </div>
+
+</core-pages>
+```
+
+TL;DR via [`more-route-switch`](#more-route-switch):
 
 ```html
 <more-routing driver="path"></more-routing>
@@ -103,6 +133,32 @@ In this example, the route named `user-bio` will match `/users/:userId/bio`.
 _Nesting isn't restricted to `<more-route>` elements! See
 [`<more-route-switch>`'s `routeContext` attribute](more-route-switch--nesting) 
 for an example of nesting within your live DOM._
+
+
+<a name="more-route-selector"></a>
+`<more-route-selector>`
+-----------------------
+
+_Defined in [`more-route-selector.html`](more-route-selector.html)._
+
+Given a list of routes to evaluate, `more-route-selector` chooses the **first**
+active route from that list.
+
+```html
+<more-route-selector
+  routes="['user', '/about', '/']"
+  selectedIndex="{{index}}"
+  selectedParams="{{params}}">
+</more-route-selector>
+```
+
+It exposes information about the selected route via a few properties:
+
+`selectedIndex`: The index of the selected route (relative to `routes`).
+
+`selectedPath`: The path expression of the selected route.
+
+`selectedParams`: The params of the selected route.
 
 
 <a name="more-route-switch"></a>

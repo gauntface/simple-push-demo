@@ -318,7 +318,7 @@ Fired when a page transition completes.
         this.animating = null;
       }
 
-      Platform.flush();
+      Polymer.flush();
 
       if (this.transitioning.indexOf(src) === -1) {
         this.transitioning.push(src);
@@ -334,7 +334,7 @@ Fired when a page transition completes.
         src: src,
         dst: dst,
         easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-      }
+      };
 
       // fire an event so clients have a chance to do something when the
       // new page becomes visible but before it draws.
@@ -422,8 +422,8 @@ Fired when a page transition completes.
       if (oldItem && this.selectedItem) {
         // TODO(sorvell): allow bindings to update first?
         var self = this;
-        Platform.flush();
-        Platform.endOfMicrotask(function() {
+        Polymer.flush();
+        Polymer.endOfMicrotask(function() {
           self.applyTransition(oldItem, self.selectedItem);
         });
       }

@@ -142,6 +142,7 @@ Keys Syntax Grammar:
      * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
      */
     var KEY_CODE = {
+      9: 'tab',
       13: 'enter',
       27: 'esc',
       33: 'pageup',
@@ -292,6 +293,9 @@ Keys Syntax Grammar:
         this._keyHandler = processKeys.bind(this);
       },
       attached: function() {
+        if (!this.target) {
+          this.target = this.parentNode;
+        }
         listen(this.target, this._keyHandler);
       },
       detached: function() {
@@ -308,10 +312,11 @@ Keys Syntax Grammar:
         keys: '',
         /**
          * The node that will fire keyboard events.
+         * Default to this element's parentNode unless one is assigned
          *
          * @attribute target
          * @type Node
-         * @default null
+         * @default this.parentNode
          */
         target: null
       },

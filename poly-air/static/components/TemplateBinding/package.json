@@ -1,0 +1,29 @@
+{
+  "name": "template-binding",
+  "version": "0.4.2",
+  "description": "",
+  "main": "./src/TemplateBinding.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Polymer/TemplateBinding.git"
+  },
+  "author": "The Polymer Authors",
+  "license": "BSD",
+  "gitHead": "cdd89f1fb6273ede781c9e00a512720df1adffff",
+  "dependencies": {
+    "node-bind": "^0.4.2",
+    "observe-js": "^0.4.2"
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-concat": "~0.3.0",
+    "web-component-tester": "^1.0.1"
+  }
+}

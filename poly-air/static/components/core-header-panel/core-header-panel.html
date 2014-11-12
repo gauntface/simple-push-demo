@@ -92,7 +92,7 @@ Use `mode` to control the header and scrolling behavior.
 </template>
 <script>
 
-  Polymer('core-header-panel', {
+  Polymer({
 
     /**
      * Fired when the content has been scrolled.  `event.detail.target` returns
@@ -147,9 +147,9 @@ Use `mode` to control the header and scrolling behavior.
        *     </style>
        *
        *     <core-header-panel mode="cover">
-       *       <core-appbar class="tall">
+       *       <core-toolbar class="tall">
        *         <core-icon-button icon="menu"></core-icon-button>
-       *       </core-appbar>
+       *       </core-toolbar>
        *       <div class="content"></div>
        *     </core-header-panel>
        *
@@ -211,9 +211,9 @@ Use `mode` to control the header and scrolling behavior.
     },
 
     modeChanged: function(old) {
+      var configs = this.modeConfigs;
       var header = this.header;
       if (header) {
-        var configs = this.modeConfigs;
         // in tallMode it may add tallClass to the header; so do the cleanup
         // when mode is changed from tallMode to not tallMode
         if (configs.tallMode[old] && !configs.tallMode[this.mode]) {
@@ -225,7 +225,7 @@ Use `mode` to control the header and scrolling behavior.
           header.classList.toggle('animate', configs.tallMode[this.mode]);
         }
       }
-      if (configs.outerScroll[this.mode] || configs.outerScroll[old]) {
+      if (configs && (configs.outerScroll[this.mode] || configs.outerScroll[old])) {
         this.removeListener(old);
         this.addListener();
       }

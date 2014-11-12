@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <head>
   <title>core-overlay</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <script src="../../../platform/platform.js"></script>
+  <script src="../../../webcomponentsjs/webcomponents.js"></script>
   <script src="../../../polymer-test-tools/chai/chai.js"></script>
   <script src="../../../polymer-test-tools/htmltest.js"></script>
   <link rel="import" href="../../../core-transition/core-transition-css.html">
@@ -80,6 +80,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var rect = basic.getBoundingClientRect();
           chai.assert.ok(Math.abs(rect.left - (window.innerWidth - rect.right)) < 5, 'overlay centered horizontally');
           chai.assert.ok(Math.abs(rect.top - (window.innerHeight - rect.bottom)) < 5, 'overlay centered vertically');
+        }, next);
+      },
+      // does not retain positioning when centered and re-opened
+      function(next) {
+        var listener = function(e) {
+          var dimensions = e.target.dimensions;
+          chai.assert.equal(dimensions.position.h, undefined);
+          chai.assert.equal(dimensions.position.v, undefined);
+        };
+        basic.addEventListener('core-overlay-open-completed', listener, false);
+        testWhenOpen(basic, function() {
+          var rect = basic.getBoundingClientRect();
+          chai.assert.ok(Math.abs(rect.left - (window.innerWidth - rect.right)) < 5, 'overlay centered horizontally');
+          chai.assert.ok(Math.abs(rect.top - (window.innerHeight - rect.bottom)) < 5, 'overlay centered vertically');
+          basic.removeEventListener('core-overlay-open-completed', listener, false);
         }, next);
       },
       // css positioned overlay

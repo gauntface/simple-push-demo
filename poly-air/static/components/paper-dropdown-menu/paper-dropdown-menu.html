@@ -55,52 +55,73 @@ contains the selection state.
 -->
 <link href="../polymer/polymer.html" rel="import">
 
-<link href="../core-dropdown/core-dropdown.html" rel="import">
+<link href="../core-a11y-keys/core-a11y-keys.html" rel="import">
+<link href="../core-dropdown/core-dropdown-base.html" rel="import">
+<link href="../core-focusable/core-focusable.html" rel="import">
 <link href="../core-icon/core-icon.html" rel="import">
 <link href="../core-icons/core-icons.html" rel="import">
-<link href="../core-menu/core-menu.html" rel="import">
-
 <link href="../paper-shadow/paper-shadow.html" rel="import">
 
-<polymer-element name="paper-dropdown-menu">
+<style shim-shadowdom>
+  html /deep/ #paper-dropdown-menu-dropdown {
+    margin: 12px;
+    overflow: visible;
+  }
+
+  html /deep/ #paper-dropdown-menu-dropdown #menu {
+    padding: 8px 0;
+    margin: 0;
+  }
+
+  html /deep/ #paper-dropdown-menu-dropdown .menu-container {
+    overflow: auto;
+    max-height: 100%;
+    max-width: 100%;
+  }
+</style>
+
+<polymer-element name="paper-dropdown-menu" extends="core-dropdown-base" relative layout inline horizontal center tabindex="0">
 <template>
 
-  <link href="paper-dropdown-menu.css" rel="stylesheet">
+  <style>
+    :host {
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: pointer;
+      padding: 0.5em 0 0.25em;
+      margin: 0.75em 0;
+      border-bottom: 1px solid #757575;
+      outline: none;
+    }
 
-  <div id="control" layout horizontal selected?="{{selectedItem}}" on-tap="{{toggle}}">
-    <div flex>
-      {{selectedItem ? (selectedItem.label || selected) : label}}
-    </div>
-    <core-icon id="arrow" icon="{{opened ? 'arrow-drop-up' : 'arrow-drop-down'}}"></core-icon>
-  </div>
+    #label, #arrow {
+      color: #757575;
+    }
 
-  <core-dropdown id="dropdown" relatedTarget="{{$.control}}" opened="{{opened}}" halign="{{halign}}" valign="{{valign}}">
+    #label {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  </style>
 
-    <paper-shadow z="1" target="{{$.dropdown}}" hasPosition></paper-shadow>
+  <core-a11y-keys target="{{}}" keys="enter space" on-keys-pressed="{{toggleOverlay}}"></core-a11y-keys>
 
-    <div class="menu-container">
-      <core-menu id="menu" selected="{{selected}}" selectedItem="{{selectedItem}}" selectedClass="{{selectedClass}}" valueattr="{{valueattr}}" selectedProperty="{{selectedProperty}}" selectedAttribute="{{selectedAttribute}}" on-core-activate="{{activateAction}}">
-        <content></content>
-      </core-menu>
-    </div>
+  <div flex auto id="label">{{selectedItemLabel || label}}</div>
+  <core-icon id="arrow" icon="{{opened ? openedIcon : closedIcon}}"></core-icon>
 
-  </core-dropdown>
+  <content></content>
 
 </template>
 <script>
 
-  Polymer({
+(function() {
+
+  var p = {
 
     publish: {
-
-      /**
-       * True if the menu is open.
-       *
-       * @attribute opened
-       * @type boolean
-       * @default false
-       */
-      opened: false,
 
       /**
        * A label for the control. The label is displayed if no item is selected.
@@ -112,90 +133,52 @@ contains the selection state.
       label: 'Select an item',
 
       /**
-       * The currently selected element. By default this is the index of the item element.
-       * If you want a specific attribute value of the element to be used instead of the
-       * index, set `valueattr` to that attribute name.
+       * The icon to display when the drop-down is opened.
        *
-       * @attribute selected
-       * @type Object
-       * @default null
-       */
-      selected: null,
-
-      /**
-       * Specifies the attribute to be used for "selected" attribute.
-       *
-       * @attribute valueattr
+       * @attribute openedIcon
        * @type string
-       * @default 'name'
+       * @default 'arrow-drop-up'
        */
-      valueattr: 'name',
+      openedIcon: 'arrow-drop-up',
 
       /**
-       * Specifies the CSS class to be used to add to the selected element.
-       * 
-       * @attribute selectedClass
-       * @type string
-       * @default 'core-selected'
-       */
-      selectedClass: 'core-selected',
-
-      /**
-       * Specifies the property to be used to set on the selected element
-       * to indicate its active state.
+       * The icon to display when the drop-down is closed.
        *
-       * @attribute selectedProperty
+       * @attribute closedIcon
        * @type string
-       * @default ''
+       * @default 'arrow-drop-down'
        */
-      selectedProperty: '',
-
-      /**
-       * Specifies the attribute to set on the selected element to indicate
-       * its active state.
-       *
-       * @attribute selectedAttribute
-       * @type string
-       * @default 'active'
-       */
-      selectedAttribute: 'selected',
-
-      /**
-       * The currently selected element.
-       *
-       * @attribute selectedItem
-       * @type Object
-       * @default null
-       */
-      selectedItem: null,
-
-      /**
-       * Horizontally align the overlay with the control.
-       * @attribute halign
-       * @type "left"|"right"
-       * @default "left"
-       */
-      halign: 'left',
-
-      /**
-       * Vertically align the dropdown menu with the control.
-       * @attribute valign
-       * @type "top"|"bottom"
-       * @default "top"
-       */
-      valign: 'top'
+      closedIcon: 'arrow-drop-down'
 
     },
 
-    toggle: function() {
-      this.opened = !this.opened;
+    selectedItemLabel: '',
+
+    overlayListeners: {
+      'core-overlay-open': 'openAction',
+      'core-activate': 'activateAction',
+      'core-select': 'selectAction'
     },
 
-    activateAction: function() {
+    activateAction: function(e) {
       this.opened = false;
+    },
+
+    selectAction: function(e) {
+      var detail = e.detail;
+      if (detail.isSelected) {
+        this.selectedItemLabel = detail.item.label || detail.item.textContent;
+      } else {
+        this.selectedItemLabel = '';
+      }
     }
 
-  });
+  };
+
+  Polymer.mixin2(p, Polymer.CoreFocusable);
+  Polymer(p);
+
+})();
 
 </script>
 </polymer-element>

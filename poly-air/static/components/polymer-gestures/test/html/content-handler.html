@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>content tap</title>
+    <script src="../../../webcomponentsjs/webcomponents.js"></script>
+    <script src="../../polymer-gestures.js"></script>
+    <style>
+      #host {
+        height: 200px;
+        width: 200px;
+        background: blue;
+        position: relative;
+      }
+      #result {
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: none;
+      }
+      #result.fail {
+        background: red;
+        display: block;
+      }
+      #result.pass{
+        background: green;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+  <pre>Tap the gray box with touch. If the screen turns green, the test passed. If it turns red, the test failed.</pre>
+
+  <div id="host">
+    <div id="shadow"></div>
+  </div>
+
+  <div id="result"></div>
+  <script>
+    var host = document.getElementById('host');
+    var shadow = document.getElementById('shadow');
+    var result = document.getElementById('result');
+    var cancel;
+
+    function pass(ev) {
+      clearTimeout(cancel);
+      ev.stopImmediatePropagation();
+      result.classList.add('remove');
+      result.classList.add('pass');
+    }
+
+    function fail(ev) {
+      result.classList.remove('pass');
+      result.classList.add('fail');
+    }
+
+    shadow.style.cssText = 'height: 100px; width: 100px; margin: 50px; background: gray; position: absolute;';
+
+    var sr = host.createShadowRoot();
+    var content = document.createElement('content');
+
+    sr.appendChild(content);
+
+    PolymerGestures.addEventListener(shadow, 'down', function() {
+      cancel = setTimeout(fail, 1000);
+    });
+
+    PolymerGestures.addEventListener(content, 'tap', pass);
+  </script>
+</body>
+</html>

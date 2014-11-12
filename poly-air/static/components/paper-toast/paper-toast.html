@@ -43,6 +43,13 @@ position by overriding bottom and left positions.
       bottom: 40px;
       left: 10px;
     }
+    
+To position the toast to the right:
+
+    paper-toast {
+      right: 10px;
+      left: auto;
+    } 
   
 To make it fit at the bottom of the screen:
 
@@ -59,18 +66,33 @@ the toast will automatically fits at the bottom of the screen.
 @element paper-toast
 @homepage github.io
 -->
+<!--
+Fired when the `paper-toast`'s `opened` property changes.
 
+@event core-overlay-open
+@param {boolean} detail the opened state
+-->
+<!--
+Fired when the `paper-toast` has completely opened.
+
+@event core-overlay-open-completed
+-->
+<!--
+Fired when the `paper-toast` has completely closed.
+
+@event core-overlay-close-completed
+-->
 <link rel="import" href="../core-overlay/core-overlay.html">
 <link rel="import" href="../core-transition/core-transition-css.html">
 <link rel="import" href="../core-media-query/core-media-query.html">
 
-<polymer-element name="paper-toast" attributes="text duration opened responsiveWidth swipeDisabled" role="status">
+<polymer-element name="paper-toast" attributes="text duration opened responsiveWidth swipeDisabled autoCloseDisabled" role="status">
 
 <template>
 
   <link rel="stylesheet" href="paper-toast.css" >
 
-  <core-overlay autoFocusDisabled opened="{{opened}}" target="{{}}" sizingTarget="{{$.container}}" transition="core-transition-bottom"></core-overlay>
+  <core-overlay id="overlay" autoFocusDisabled autoCloseDisabled="{{autoCloseDisabled}}" opened="{{opened}}" target="{{}}" transition="core-transition-bottom"></core-overlay>
 
   <div class="toast-container" horizontal layout>
 
@@ -139,6 +161,19 @@ the toast will automatically fits at the bottom of the screen.
        */
       swipeDisabled: false,
       
+      /**
+       * By default, the toast will close automatically if the user taps
+       * outside it or presses the escape key. Disable this behavior by setting
+       * the `autoCloseDisabled` property to true.
+       *
+       * @attribute autoCloseDisabled
+       * @type boolean
+       * @default false
+       */
+      autoCloseDisabled: false,
+      
+      narrowMode: false,
+      
       eventDelegates: {
         trackstart: 'trackStart',
         track: 'track',
@@ -148,6 +183,9 @@ the toast will automatically fits at the bottom of the screen.
       
       narrowModeChanged: function() {
         this.classList.toggle('fit-bottom', this.narrowMode);
+        if (this.opened) {
+          this.$.overlay.resizeHandler();
+        }
       },
       
       openedChanged: function() {
@@ -211,11 +249,11 @@ the toast will automatically fits at the bottom of the screen.
           if (this.vertical) {
             var y = e.dy;
             s.opacity = (this.h - Math.abs(y)) / this.h;
-            s.webkitTransform = s.transform =  'translate3d(0, ' + y + 'px, 0)';
+            s.transform = s.webkitTransform = 'translate3d(0, ' + y + 'px, 0)';
           } else {
             var x = e.dx;
             s.opacity = (this.w - Math.abs(x)) / this.w;
-            s.webkitTransform = s.transform = 'translate3d(' + x + 'px, 0, 0)';
+            s.transform = s.webkitTransform = 'translate3d(' + x + 'px, 0, 0)';
           }
         }
       },
@@ -223,8 +261,8 @@ the toast will automatically fits at the bottom of the screen.
       trackEnd: function(e) {
         if (this.dragging) {
           this.classList.remove('dragging');
-          this.style.opacity = null;
-          this.style.webkitTransform = this.style.transform = null;
+          this.style.opacity = '';
+          this.style.transform = this.style.webkitTransform = '';
           var cl = this.classList;
           if (this.vertical) {
             cl.toggle('fade-out-down', e.yDirection === 1 && e.dy > 0);

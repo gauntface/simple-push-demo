@@ -3,4 +3,4 @@ paper-dropdown-menu
 
 owner: @morethanreal
 
-See the [component page](http://polymer-project.org/docs/elements/core-elements.html#paper-dropdown-menu) for more information.
+See the [component page](https://www.polymer-project.org/docs/elements/paper-elements.html#paper-dropdown-menu) for more information.

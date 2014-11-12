@@ -9,12 +9,15 @@
 -->
 <x-meta id="core-input" label="Input" group="Core" isEditor>
 
+  <property name="value"></property>
+  <property name="placeholder"></property>
+
   <template>
-    <core-input placeholder="Type something..." style="padding: 15px;"></core-input>
+    <input is="core-input" placeholder="type something..." style="padding: 15px;">
   </template>
-  
+
   <template id="imports">
     <link rel="import" href="core-input.html">
   </template>
-  
+
 </x-meta>

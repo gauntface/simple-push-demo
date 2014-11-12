@@ -2,10 +2,14 @@
   "name": "core-dropdown",
   "private": false,
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.4.0",
-    "core-icon": "Polymer/core-icon#^0.4.0",
-    "core-icon-button": "Polymer/core-icon-button#^0.4.0",
-    "core-icons": "Polymer/core-icons#^0.4.0",
-    "core-overlay": "Polymer/core-overlay#^0.4.0"
-  }
+    "polymer": "Polymer/polymer#^0.5.0",
+    "core-collapse": "Polymer/core-collapse#^0.5.0",
+    "core-icon-button": "Polymer/core-icon-button#^0.5.0",
+    "core-icons": "Polymer/core-icons#^0.5.0",
+    "core-overlay": "Polymer/core-overlay#^0.5.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^1.1.4"
+  },
+  "version": "0.5.0"
 }

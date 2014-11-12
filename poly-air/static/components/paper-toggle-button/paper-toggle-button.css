@@ -59,3 +59,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   -webkit-transition: none;
   transition: none;
 }
+
+/* disabled state */
+#toggleContainer[disabled] {
+  opacity: 0.3;
+  pointer-events: none;
+}

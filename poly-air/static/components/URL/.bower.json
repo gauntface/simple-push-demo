@@ -1,0 +1,13 @@
+{
+  "name": "URL",
+  "homepage": "https://github.com/Polymer/URL",
+  "_release": "cf5d82e444",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "cf5d82e444d2a029834365a8b9d185fd792227f0"
+  },
+  "_source": "git://github.com/Polymer/URL.git",
+  "_target": "master",
+  "_originalSource": "Polymer/URL"
+}

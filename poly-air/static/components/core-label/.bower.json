@@ -1,0 +1,28 @@
+{
+  "name": "core-label",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^1"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "0.5.0",
+  "homepage": "https://github.com/Polymer/core-label",
+  "_release": "0.5.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.5.0",
+    "commit": "728fc609ce6af5381baf1753aa1565d68db1421f"
+  },
+  "_source": "git://github.com/Polymer/core-label.git",
+  "_target": "^0.5.0",
+  "_originalSource": "Polymer/core-label"
+}

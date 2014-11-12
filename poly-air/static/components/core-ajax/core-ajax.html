@@ -20,7 +20,7 @@ The `core-ajax` element exposes `XMLHttpRequest` functionality.
         on-core-response="{{handleResponse}}"></core-ajax>
 
 With `auto` set to `true`, the element performs a request whenever
-its `url` or `params` properties are changed.
+its `url`, `params` or `body` properties are changed.
 
 Note: The `params` attribute must be double quoted JSON.
 
@@ -32,7 +32,7 @@ element.
 @homepage github.io
 -->
 <link rel="import" href="core-xhr.html">
-<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body contentType withCredentials">
+<polymer-element name="core-ajax" hidden attributes="url handleAs auto params response error method headers body contentType withCredentials progress loading">
 <script>
 
   Polymer('core-ajax', {
@@ -106,7 +106,7 @@ element.
     params: '',
 
     /**
-     * The response for the most recently made request, or null if it hasn't
+     * The response for the current request, or null if it hasn't
      * completed yet or the request resulted in error.
      *
      * @attribute response
@@ -116,7 +116,7 @@ element.
     response: null,
 
     /**
-     * The error for the most recently made request, or null if it hasn't
+     * The error for the current request, or null if it hasn't
      * completed yet or the request resulted in success.
      *
      * @attribute error
@@ -124,6 +124,24 @@ element.
      * @default null
      */
     error: null,
+
+    /**
+     * Whether the current request is currently loading.
+     *
+     * @attribute loading
+     * @type boolean
+     * @default false
+     */
+    loading: false,
+
+    /**
+     * The progress of the current request.
+     *
+     * @attribute progress
+     * @type {loaded: number, total: number, lengthComputable: boolean}
+     * @default {}
+     */
+    progress: null,
 
     /**
      * The HTTP method to use such as 'GET', 'POST', 'PUT', or 'DELETE'.
@@ -199,6 +217,10 @@ element.
      */
     xhrArgs: null,
 
+    created: function() {
+      this.progress = {};
+    },
+
     ready: function() {
       this.xhr = document.createElement('core-xhr');
     },
@@ -233,7 +255,26 @@ element.
       this.fire('core-error', {response: response, xhr: xhr});
     },
 
+    processProgress: function(progress, xhr) {
+      if (xhr !== this.activeRequest) {
+        return;
+      }
+      // We create a proxy object here because these fields
+      // on the progress event are readonly properties, which
+      // causes problems in common use cases (e.g. binding to
+      // <paper-progress> attributes).
+      var progressProxy = {
+        lengthComputable: progress.lengthComputable,
+        loaded: progress.loaded,
+        total: progress.total
+      }
+      this.progress = progressProxy;
+    },
+
     complete: function(xhr) {
+      if (xhr === this.activeRequest) {
+        this.loading = false;
+      }
       this.fire('core-complete', {response: xhr.status, xhr: xhr});
     },
 
@@ -289,6 +330,10 @@ element.
       this.autoGo();
     },
 
+    bodyChanged: function() {
+      this.autoGo();
+    },
+
     autoChanged: function() {
       this.autoGo();
     },
@@ -334,8 +379,24 @@ element.
       args.url = this.url;
       args.method = this.method;
 
-      this.response = this.error = null;
+      this.response = this.error = this.progress = null;
       this.activeRequest = args.url && this.xhr.request(args);
+      if (this.activeRequest) {
+        this.loading = true;
+        var activeRequest = this.activeRequest;
+        // IE < 10 doesn't support progress events.
+        if ('onprogress' in activeRequest) {
+          this.activeRequest.addEventListener(
+              'progress',
+              function(progress) {
+                this.processProgress(progress, activeRequest);
+              }.bind(this), false);
+        } else {
+          this.progress = {
+            lengthComputable: false,
+          }
+        }
+      }
       return this.activeRequest;
     }
 

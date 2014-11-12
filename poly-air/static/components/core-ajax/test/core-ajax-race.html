@@ -1,0 +1,88 @@
+<!doctype html>
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <title>core-ajax</title>
+
+  <script src="../../webcomponentsjs/webcomponents.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+
+
+  <link rel="import" href="../core-ajax.html">
+
+</head>
+<body>
+
+  <core-ajax
+    handleAs="json"
+    auto></core-ajax>
+
+<!--
+    Test that when core-ajax fires multiple times as requests are updated,
+    only the response from the most recent request is used to update the response
+    object.
+  -->
+  <script>
+    test('race-condition', function(done) {
+      var ajax = document.querySelector("core-ajax");
+      var xhr = sinon.useFakeXMLHttpRequest();
+      var headers = {
+        "Content-Type": "text/json"
+      };
+      var body = function(url) {
+        return '{"url": "' + url + '"}';
+      };
+      var requests = [];
+      xhr.onCreate = function (xhr) {
+          requests.push(xhr);
+      };
+      var animationFrameFlush = function(callback) {
+        requestAnimationFrame(function(){
+          flush(callback);
+        })
+      };
+
+      // Make request1, then request2. request2 returns first, followed by request1.
+      async.series([
+        function(cb) {
+          ajax.url="http://example.org/request1"
+          cb();
+        },
+        flush,
+        animationFrameFlush,
+        function(cb) {
+          ajax.url="http://example.org/request2"
+          cb();
+        },
+        flush,
+        animationFrameFlush,
+        function(cb) {
+          requests[0].respond(200, headers, body("http://example.org/request2"));
+          cb();
+        },
+        flush,
+        function(cb) {
+          requests[1].respond(200, headers, body("http://example.org/request1"));
+          cb();
+        },
+        flush,
+        function(cb) {
+          assert(ajax.response.url.match('request1'),
+              "Race condition detected. An earlier request's delayed response " +
+              "caused the more recent request's response to be overwritten.");
+          done();
+          cb();
+        }
+      ], function(){});
+    });
+</script>
+</body>
+</html>

@@ -218,14 +218,14 @@ You can configure the duration of the hero transition with the global variable
     // carefully look into ::shadow with polyfill specific hack
     findInShadows: function(node, selector) {
       return node.querySelector(selector) || (hasShadowDOMPolyfill ? 
-          Platform.queryAllShadows(node, selector) :
+          queryAllShadows(node, selector) :
           node.querySelector('::shadow ' + selector));
     },
 
     findAllInShadows: function(node, selector) {
       if (hasShadowDOMPolyfill) {
         var nodes = node.querySelectorAll(selector).array();
-        var shadowNodes = Platform.queryAllShadows(node, selector, true);
+        var shadowNodes = queryAllShadows(node, selector, true);
         return nodes.concat(shadowNodes);
       } else {
         return node.querySelectorAll(selector).array().concat(node.shadowRoot ? node.shadowRoot.querySelectorAll(selector).array() : []);
@@ -259,6 +259,63 @@ You can configure the duration of the hero transition with the global variable
     }
 
   });
+
+  
+  // utility method for searching through shadowRoots.
+  function queryShadow(node, selector) {
+    var m, el = node.firstElementChild;
+    var shadows, sr, i;
+    shadows = [];
+    sr = node.shadowRoot;
+    while(sr) {
+      shadows.push(sr);
+      sr = sr.olderShadowRoot;
+    }
+    for(i = shadows.length - 1; i >= 0; i--) {
+      m = shadows[i].querySelector(selector);
+      if (m) {
+        return m;
+      }
+    }
+    while(el) {
+      m = queryShadow(el, selector);
+      if (m) {
+        return m;
+      }
+      el = el.nextElementSibling;
+    }
+    return null;
+  }
+
+  function _queryAllShadows(node, selector, results) {
+    var el = node.firstElementChild;
+    var temp, sr, shadows, i, j;
+    shadows = [];
+    sr = node.shadowRoot;
+    while(sr) {
+      shadows.push(sr);
+      sr = sr.olderShadowRoot;
+    }
+    for (i = shadows.length - 1; i >= 0; i--) {
+      temp = shadows[i].querySelectorAll(selector);
+      for(j = 0; j < temp.length; j++) {
+        results.push(temp[j]);
+      }
+    }
+    while (el) {
+      _queryAllShadows(el, selector, results);
+      el = el.nextElementSibling;
+    }
+    return results;
+  }
+
+  queryAllShadows = function(node, selector, all) {
+    if (all) {
+      return _queryAllShadows(node, selector, []);
+    } else {
+      return queryShadow(node, selector);
+    }
+  };
 
 })();
 </script>

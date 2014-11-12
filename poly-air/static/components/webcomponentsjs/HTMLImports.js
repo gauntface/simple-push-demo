@@ -7,7 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-// @version 0.5.0-49f383f
+// @version 0.5.0
 if (typeof WeakMap === "undefined") {
   (function() {
     var defineProperty = Object.defineProperty;
@@ -30,10 +30,9 @@ if (typeof WeakMap === "undefined") {
       },
       "delete": function(key) {
         var entry = key[this.name];
-        if (!entry) return false;
-        var hasValue = entry[0] === key;
+        if (!entry || entry[0] !== key) return false;
         entry[0] = entry[1] = undefined;
-        return hasValue;
+        return true;
       },
       has: function(key) {
         var entry = key[this.name];
@@ -352,15 +351,6 @@ window.HTMLImports = window.HTMLImports || {
 (function(scope) {
   var IMPORT_LINK_TYPE = "import";
   var useNative = Boolean(IMPORT_LINK_TYPE in document.createElement("link"));
-  var modules = [];
-  var addModule = function(module) {
-    modules.push(module);
-  };
-  var initializeModules = function() {
-    modules.forEach(function(module) {
-      module(scope);
-    });
-  };
   var hasShadowDOMPolyfill = Boolean(window.ShadowDOMPolyfill);
   var wrap = function(node) {
     return hasShadowDOMPolyfill ? ShadowDOMPolyfill.wrapIfNeeded(node) : node;
@@ -474,13 +464,6 @@ window.HTMLImports = window.HTMLImports || {
       }
     })();
   }
-  if (typeof window.CustomEvent !== "function") {
-    window.CustomEvent = function(inType, dictionary) {
-      var e = document.createEvent("HTMLEvents");
-      e.initEvent(inType, dictionary.bubbles === false ? false : true, dictionary.cancelable === false ? false : true, dictionary.detail);
-      return e;
-    };
-  }
   whenReady(function() {
     HTMLImports.ready = true;
     HTMLImports.readyTime = new Date().getTime();
@@ -490,12 +473,24 @@ window.HTMLImports = window.HTMLImports || {
   });
   scope.IMPORT_LINK_TYPE = IMPORT_LINK_TYPE;
   scope.useNative = useNative;
-  scope.addModule = addModule;
-  scope.initializeModules = initializeModules;
   scope.rootDocument = rootDocument;
   scope.whenReady = whenReady;
   scope.isIE = isIE;
-})(window.HTMLImports);
+})(HTMLImports);
+
+(function(scope) {
+  var modules = [];
+  var addModule = function(module) {
+    modules.push(module);
+  };
+  var initializeModules = function() {
+    modules.forEach(function(module) {
+      module(scope);
+    });
+  };
+  scope.addModule = addModule;
+  scope.initializeModules = initializeModules;
+})(HTMLImports);
 
 HTMLImports.addModule(function(scope) {
   var CSS_URL_REGEXP = /(url\()([^)]*)(\))/g;
@@ -1039,6 +1034,13 @@ HTMLImports.addModule(function(scope) {
   initializeModules = scope.initializeModules;
   if (scope.useNative) {
     return;
+  }
+  if (typeof window.CustomEvent !== "function") {
+    window.CustomEvent = function(inType, dictionary) {
+      var e = document.createEvent("HTMLEvents");
+      e.initEvent(inType, dictionary.bubbles === false ? false : true, dictionary.cancelable === false ? false : true, dictionary.detail);
+      return e;
+    };
   }
   initializeModules();
   var rootDocument = scope.rootDocument;

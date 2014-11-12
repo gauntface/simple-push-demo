@@ -11,6 +11,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   display: inline-block;
   width: 200px;
   cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 :host(:focus) {
@@ -97,7 +102,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 }
 
 .transiting #sliderBar::shadow #activeProgress {
-  transition: width 0.08s ease;
+  transition: -webkit-transform 0.08s ease;
+  transition: transform 0.08s ease;
 }
 
 #sliderKnob {

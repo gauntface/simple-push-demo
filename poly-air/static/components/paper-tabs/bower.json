@@ -2,11 +2,13 @@
   "name": "paper-tabs",
   "private": true,
   "dependencies": {
-    "core-icons": "Polymer/core-icons#^0.4.0",
-    "core-selector": "Polymer/core-selector#^0.4.0",
-    "core-toolbar": "Polymer/core-toolbar#^0.4.0",
-    "font-roboto": "Polymer/font-roboto#^0.4.0",
-    "paper-icon-button": "Polymer/paper-icon-button#^0.4.0",
-    "paper-ripple": "Polymer/paper-ripple#^0.4.0"
-  }
+    "core-icons": "Polymer/core-icons#^0.5.0",
+    "core-selector": "Polymer/core-selector#^0.5.0",
+    "core-toolbar": "Polymer/core-toolbar#^0.5.0",
+    "core-media-query": "Polymer/core-media-query#^0.5.0",
+    "font-roboto": "Polymer/font-roboto#^0.5.0",
+    "paper-icon-button": "Polymer/paper-icon-button#^0.5.0",
+    "paper-ripple": "Polymer/paper-ripple#^0.5.0"
+  },
+  "version": "0.5.0"
 }

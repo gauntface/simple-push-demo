@@ -8,23 +8,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 :host {
-  display: block;
   position: relative;
   overflow: hidden;
-}
-
-#tabContainer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  cursor: default;
 }
 
 .tab-content {
   transition: opacity .1s cubic-bezier(0.4, 0.0, 1, 1), color .1s cubic-bezier(0.4, 0.0, 1, 1);
-  cursor: default;
-  pointer-events: none;
+  height: 100%;
+  margin: 0 12px;
+}
+
+:host-context(#tabsContainer.scrollable) .tab-content {
+  margin: 0 24px;
+}
+
+:host-context(paper-tabs[link]) .tab-content {
+  margin: 0 !important;
+}
+
+polyfill-next-selector { content: '.core-narrow #tabsContainer.scrollable :host .tab-content'; }
+:host-context(.core-narrow):host-context(#tabsContainer.scrollable) .tab-content {
+  margin: 0 12px;
 }
 
 :host(:not(.core-selected)) .tab-content {
@@ -38,12 +43,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   bottom: 0;
   left: 0;
   color: #ffff8d;
-}
-
-:host[noink] #ink {
   pointer-events: none;
 }
 
-:host-context(paper-tabs[noink]) #ink {
-  pointer-events: none;
+polyfill-next-selector { content: '.tab-content > a'; }
+::content > a {
+  height: 100%;
+  padding: 0 12px;
+  /* flex */
+  -ms-flex: 1 1 0.000000001px;
+  -webkit-flex: 1;
+  flex: 1;
+  -webkit-flex-basis: 0.000000001px;
+  flex-basis: 0.000000001px;
 }

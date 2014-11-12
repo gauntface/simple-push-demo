@@ -1,59 +1,79 @@
 <!--
-    @license
-    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
-    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-    Code distributed by Google as part of the polymer project is also
-    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>core-animation</title>
-    <script src="../platform/platform.js"></script>
-    <link rel="import" href="core-animation.html">
-    <link rel="import" href="core-animation-group.html">
+<head>
 
-<!--     <link rel="import" href="polymer-blink.html">
-    <link rel="import" href="polymer-bounce.html">
-    <link rel="import" href="polymer-fadein.html">
-    <link rel="import" href="polymer-fadeout.html">
-    <link rel="import" href="polymer-flip.html">
-    <link rel="import" href="polymer-shake.html">
- -->    
-    <style>
-      body {
-        text-align: center;
-        font-family: Helvetica, sans-serif;
-      }
-      div#target {
-        display: inline-block;
-        background-color: dimgrey;
-        border-radius: 5px;
-        padding: 5px 10px;
-        margin: 50px;
-        font-size: 30px;
-        color: white;
-      }
-      div.animations > * {
-        display: inline-block;
-        background-color: darkgrey;
-        border-radius: 5px;
-        padding: 5px 10px;
-        margin: 5px;
-        color: white;
-      }
-    </style>
-  </head>
-  <body>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
 
-    <div id="target">animated!</div>
+  <title>core-animation</title>
 
-    <div class="animations">
+  <script src="../webcomponentsjs/webcomponents.js"></script>
 
+  <link href="../font-roboto/roboto.html" rel="import">
+  <link href="../core-icon/core-icon.html" rel="import">
+  <link href="../core-icons/core-icons.html" rel="import">
+
+  <link href="core-animation.html" rel="import">
+  <link href="core-animation-group.html" rel="import">
+
+  <style shim-shadowdom>
+
+    body {
+      font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+      font-size: 14px;
+      margin: 0;
+      padding: 24px;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      -webkit-touch-callout: none;
+    }
+
+    section {
+      padding: 20px 0;
+    }
+
+    section > div {
+      padding: 14px;
+      font-size: 16px;
+    }
+
+    html /deep/ core-icon {
+      height: 48px;
+      width: 48px;
+    }
+
+    #target {
+      display: inline-block;
+      font-size: 32px;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+  </style>
+
+</head>
+<body unresolved onclick="clickAction(event);">
+
+  <section>
+
+    <div>
+      <div id="target" layout horizontal center>
+        <core-icon icon="polymer"></core-icon>
+        <span>polymer</span>
+      </div>
+    </div>
+
+    <button>
+      opacity
       <core-animation id="raw" duration="1000">
-        raw
         <core-animation-keyframe>
           <core-animation-prop name="opacity" value="1">
           </core-animation-prop>
@@ -67,9 +87,11 @@
           </core-animation-prop>
         </core-animation-keyframe>
       </core-animation>
+    </button>
 
+    <button>
+      group: opacity + scale
       <core-animation-group type="seq">
-        raw group
         <core-animation duration="300">
           <core-animation-keyframe>
             <core-animation-prop name="opacity" value="1">
@@ -99,11 +121,11 @@
           </core-animation-keyframe>
         </core-animation>
       </core-animation-group>
+    </button>
 
-      <core-animation id="custom-animation" duration="500">custom</core-animation>
-
+    <button>
+      infinite duration
       <core-animation duration="1000" iterations="Infinity" direction="alternate">
-        infinite
         <core-animation-keyframe>
           <core-animation-prop name="opacity" value="1">
           </core-animation-prop>
@@ -113,37 +135,59 @@
           </core-animation-prop>
         </core-animation-keyframe>
       </core-animation>
-<!--       <polymer-bounce duration="1000">bounce</polymer-bounce>
-      <polymer-shake>shake</polymer-shake>
-      <polymer-flip>flip X</polymer-flip>
-      <polymer-flip axis="y">flip Y</polymer-flip>
-      <polymer-blink>blink</polymer-blink>
-      <polymer-fadein>fade in</polymer-fadein>
- -->    </div>
-    <script>
-      var customAnimationFn = function(timeFraction, target) {
-        if (timeFraction < 1) {
-          target.textContent = timeFraction;
-        } else {
-          target.textContent = 'animated!';
-        }
-      };
+    </button>
 
-      document.addEventListener('polymer-ready', function() {
-        document.querySelector('.animations').addEventListener('click',
-          function(e) {
-            var animation = e.target;
-            if (animation.id === 'custom-animation') {
-              animation.customEffect = customAnimationFn;
-            }
-            animation.target = target;
-            animation.play();
-          });
-          document.getElementById('raw').addEventListener(
-            'core-animation-finish', function(e) {
-              console.log('finish!');
-            });
-      });
-    </script>
-  </body>
+    <button>
+      custom effect
+      <core-animation id="custom-animation" duration="500"></core-animation>
+    </button>
+
+  </section>
+
+  <script>
+    var player;
+
+    document.body.addEventListener('core-animation-finish', function(e) {
+      console.log('core-animation-finish');
+      if (player) {
+        player.cancel();
+        player = null;
+        target.querySelector('span').textContent = 'polymer';
+      }
+    });
+
+    var customAnimationFn = function(timeFraction, target) {
+      // var colors = [
+      //   '#db4437',
+      //   '#ff9800',
+      //   '#ffeb3b',
+      //   '#0f9d58',
+      //   '#4285f4',
+      //   '#3f51b5',
+      //   '#9c27b0'
+      // ];
+      target.querySelector('span').textContent = timeFraction;
+    };
+
+
+    function clickAction(e) {
+      var t = e.target;
+      if (e.target.localName !== 'button') {
+        return;
+      }
+
+      if (player) {
+        player.cancel();
+      }
+
+      var a = t.querySelector('core-animation,core-animation-group');
+      if (a.id === 'custom-animation') {
+        a.customEffect = customAnimationFn;
+      }
+
+      a.target = document.getElementById('target');
+      player = a.play();
+    }
+  </script>
+</body>
 </html>

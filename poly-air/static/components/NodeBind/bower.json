@@ -1,0 +1,16 @@
+{
+  "name": "NodeBind",
+  "homepage": "https://github.com/Polymer/NodeBind",
+  "authors": [
+    "The Polymer Authors"
+  ],
+  "license": "BSD",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

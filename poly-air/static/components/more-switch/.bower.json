@@ -16,6 +16,6 @@
     "commit": "25e15300b2538915d513663e7c5a3590760164f7"
   },
   "_source": "git://github.com/Polymore/more-switch.git",
-  "_target": "master",
+  "_target": "*",
   "_originalSource": "Polymore/more-switch"
 }

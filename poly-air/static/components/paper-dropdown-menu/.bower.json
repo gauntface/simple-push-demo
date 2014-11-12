@@ -2,23 +2,26 @@
   "name": "paper-dropdown-menu",
   "private": false,
   "dependencies": {
-    "polymer": "Polymer/polymer#^0.4.0",
-    "core-dropdown": "Polymer/core-dropdown#^0.4.0",
-    "core-icon": "Polymer/core-icon#^0.4.0",
-    "core-icons": "Polymer/core-icons#^0.4.0",
-    "core-menu": "Polymer/core-menu#^0.4.0",
-    "paper-item": "Polymer/paper-item#^0.4.0",
-    "paper-shadow": "Polymer/paper-shadow#^0.4.0"
+    "polymer": "Polymer/polymer#^0.5.0",
+    "core-a11y-keys": "Polymer/core-a11y-keys#^0.5.0",
+    "core-collapse": "Polymer/core-collapse#^0.5.0",
+    "core-focusable": "Polymer/core-focusable#^0.5.0",
+    "core-icon": "Polymer/core-icon#^0.5.0",
+    "core-icons": "Polymer/core-icons#^0.5.0",
+    "core-menu": "Polymer/core-menu#^0.5.0",
+    "paper-dropdown": "Polymer/paper-dropdown#^0.5.0",
+    "paper-item": "Polymer/paper-item#^0.5.0",
+    "paper-shadow": "Polymer/paper-shadow#^0.5.0"
   },
+  "version": "0.5.0",
   "homepage": "https://github.com/Polymer/paper-dropdown-menu",
-  "version": "0.4.2",
-  "_release": "0.4.2",
+  "_release": "0.5.0",
   "_resolution": {
     "type": "version",
-    "tag": "0.4.2",
-    "commit": "cbb5ddd4c676fdfaecf958351ed0833984950f45"
+    "tag": "0.5.0",
+    "commit": "5227e1d689a81ec261492130b48bb29938fc2604"
   },
   "_source": "git://github.com/Polymer/paper-dropdown-menu.git",
-  "_target": "^0.4.0",
+  "_target": "^0.5.0",
   "_originalSource": "Polymer/paper-dropdown-menu"
 }

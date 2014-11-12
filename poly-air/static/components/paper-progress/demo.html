@@ -16,7 +16,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   
-  <script src="../platform/platform.js"></script>
+  <script src="../webcomponentsjs/webcomponents.js"></script>
   
   <link rel="import" href="paper-progress.html">
   <link rel="import" href="../paper-button/paper-button.html">
@@ -54,6 +54,8 @@
   
   <br><br><br>
   
+  <paper-progress></paper-progress><br>
+  
   <paper-progress value="40"></paper-progress><br>
   
   <paper-progress value="800" min="100" max="1000"></paper-progress><br>
@@ -62,10 +64,14 @@
   
   <paper-progress value="200" max="200"></paper-progress><br>
   
+  <paper-progress indeterminate></paper-progress><br>
+
   <paper-progress class="pink" value="80"></paper-progress><br>
   
-  <paper-progress class="pink" value="40" secondaryProgress="80"></paper-progress>
+  <paper-progress class="pink" value="40" secondaryProgress="80"></paper-progress><br>
   
+  <paper-progress class="pink" indeterminate></paper-progress><br>
+
   <script>
     
     var progress = document.querySelector('paper-progress');

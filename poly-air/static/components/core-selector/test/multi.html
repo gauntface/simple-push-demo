@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta charset="UTF-8">
   <title>core-selector-multi</title>
 
-  <script src="../../platform/platform.js"></script>
+  <script src="../../webcomponentsjs/webcomponents.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
 
   <link rel="import" href="../core-selector.html">
@@ -60,8 +60,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else {
             selectEventCounter--;
           }
-          // check selectedItem in core-select event
-          assert.equal(this.selectedItem.length, selectEventCounter);
         });
         // set selected
         s.selected = [0, 2];
@@ -79,7 +77,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           s.children[0].dispatchEvent(new CustomEvent('tap', {bubbles: true}));
           // check selected
           assert.equal(s.selected.length, 1);
-          assert.isFalse(s.children[0].classList.contains('core-selected'));
+          asyncPlatformFlush(function() {
+            assert.equal(selectEventCounter, 1);
+            assert.isFalse(s.children[0].classList.contains('core-selected'));
+            // add selected
+            s.selected.push(3);
+            s.selected.push(4);
+            // check core-select event
+            asyncPlatformFlush(function() {
+              assert.equal(selectEventCounter, 3);
+              done();
+            });
+          });
+        });
+      });
+      
+      test('toggle multi to false', function(done) {
+        // set selected
+        s.selected = [0, 2];
+        var first = s.selected[0];
+        // set mutli to false, so to make it single-selection
+        s.multi = false;
+        asyncPlatformFlush(function() {
+          // selected should not be an array
+          assert.isNotArray(s.selected);
+          // selected should be the first value in the old array
+          assert.equal(s.selected, first);
           done();
         });
       });

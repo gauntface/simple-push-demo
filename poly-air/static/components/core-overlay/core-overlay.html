@@ -248,7 +248,7 @@ object like this: `{v: 'top', h: 'right'}`.
     ready: function() {
       this.target = this.target || this;
       // flush to ensure styles are installed before paint
-      Platform.flush();
+      Polymer.flush();
     },
 
     /** 
@@ -571,11 +571,13 @@ object like this: `{v: 'top', h: 'right'}`.
     },
 
     resetTargetDimensions: function() {
-      if (!this.dimensions.size.v) {
+      if (!this.dimensions || !this.dimensions.size.v) {
         this.sizingTarget.style.maxHeight = '';  
+        this.target.style.top = '';
       }
-      if (!this.dimensions.size.h) {
+      if (!this.dimensions || !this.dimensions.size.h) {
         this.sizingTarget.style.maxWidth = '';  
+        this.target.style.left = '';
       }
       this.dimensions = null;
     },

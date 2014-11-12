@@ -15,7 +15,7 @@
       <more-route name="stuff" path="/foo/bar"></more-route>
 
       <more-route-selector selectedIndex="{{orderedIndex}}" routes="['stuff', '/fizz', '/']"></more-route-selector>
-      <core-pages id="ordered" selected="{{orderedIndex}}">
+      <core-pages selected="{{orderedIndex}}">
         <div>Route: stuff</div>
         <div>Route: /fizz</div>
         <div>Default Route</div>
@@ -23,40 +23,43 @@
     </template>
 
     <script>
-      var pages;
-      function assertNavigated(route, index, done) {
-        MoreRouting.navigateTo(route);
+      var pages, selector;
+      function assertNavigated(path, index, selectedPath, done) {
+        MoreRouting.navigateTo(path);
         flush(function() {
-          assert.equal(pages.selectedIndex, index, 'selectedIndex mismatch for route "' + route + '"');
-          done();
+          assert.equal(pages.selectedIndex, index, 'selectedIndex mismatch for route "' + path + '"');
+          assert.equal(selector.selectedPath, selectedPath, 'selectedPath mismatch');
+          flush(done);
         });
       }
 
       suite('routes declared with same order as pages', function() {
         suiteSetup(function() {
-          pages = document.getElementById('ordered');
+          pages    = document.querySelector('core-pages');
+          selector = document.querySelector('more-route-selector');
         });
 
         beforeEach(function(done) {
-          assertNavigated('/', 2, done);
+          assertNavigated('/', 2, '/', done);
         });
 
+
         test('navigates to exact routes', function(done) {
-          assertNavigated('/fizz', 1, done);
+          assertNavigated('/fizz', 1, '/fizz', done);
         });
 
         test('navigates to nested routes', function(done) {
-          assertNavigated('/fizz/buzz', 1, done);
+          assertNavigated('/fizz/buzz', 1, '/fizz', done);
         });
 
         test('navigates root routes', function(done) {
-          assertNavigated('/fizz', 1, function() {
-            assertNavigated('/404', 2, done);
+          assertNavigated('/fizz', 1, '/fizz', function() {
+            assertNavigated('/404', 2, '/', done);
           });
         });
 
         test('navigates named routes', function(done) {
-          assertNavigated('/foo/bar', 0, done);
+          assertNavigated('/foo/bar', 0, '/foo/bar', done);
         });
       });
     </script>
