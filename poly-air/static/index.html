@@ -237,89 +237,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-item href="/help"
             icon="help" label="Help &amp; Feedback"></paper-item>
         </core-menu>
-        <!--
-        <nav flex layout vertical>
-          <div on-tap="{{goTo}}" id="panel-head">
-            <span href="/">Welcome Back</span>
-          </div>
-        </nav>
-      -->
-<!--
-        <core-toolbar>
-          <div>Application</div>
-        </core-toolbar>
-        <div> Drawer content... </div>
- -->
       </core-header-panel>
       <core-header-panel main>
         <core-toolbar>
           <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
-          <div>Title</div>
+          <paper-icon-button icon="maps:flight"></paper-icon-button>
+          <span flex>PolyAir</span>
+          <paper-icon-button icon="search"></paper-icon-button>
         </core-toolbar>
-        <core-animated-pages>
-          Main content...
-        </core-animated-pages>
-      </core-header-panel>
-    </core-drawer-panel>
-
-  </template>
-
-<!--
-    <core-scaffold id="scaffold" layout vertical>
-      <nav flex layout vertical>
-        <div on-tap="{{goTo}}" id="panel-head">
-          <span href="/">Welcome Back</span>
-        </div>
-        <core-menu selected="{{orderedIndex}}" on-tap="{{goTo}}" flex id="panel-list">
-          <paper-item href="/booking"
-            icon="add" label="Book a trip"></paper-item>
-          <hr>
-          <paper-item href="/checkin"
-            icon="work" label="Check-in"></paper-item>
-          <paper-item href="/travel-info"
-            icon="schedule" label="Travel information"></paper-item>
-          <paper-item href="/committers"
-            icon="account-circle" label="Committer Program"></paper-item>
-          <hr>
-          <paper-item href="/track"
-            id="track-menu" icon="star" label="Tracked Flights"></paper-item>
-          <hr>
-          <paper-item href="/settings"
-            icon="settings" label="Settings"></paper-item>
-          <hr>
-          <paper-item href="/help"
-            icon="help" label="Help &amp; Feedback"></paper-item>
-        </core-menu>
-      </nav>
-
-      <core-toolbar tool flex id="main-heading">
-        <paper-icon-button icon="maps:flight"></paper-icon-button>
-        <span flex>PolyAir</span>
-        <paper-icon-button icon="search"></paper-icon-button>
-      </core-toolbar>
-
-      <div layout horizontal center-center fit>
         <core-animated-pages selected="{{orderedIndex}}"
             transitions="slide-from-right"
             main>
           <section>
--->
             <!-- /booking -->
-<!--
             <div>Booking</div>
           </section>
           <section>
--->
             <!-- /checkin -->
-<!--
             <paper-input class="narrow" required label="Booking reference"></paper-input>
             <paper-input class="narrow" required label="Last name"></paper-input>
-            <paper-button onclick="goTo('/confirmation');" raised class="colored">Submit</paper-button>
+            <paper-button on-tap="{{goTo}}" href="/confirmation"
+                raised class="colored">Submit</paper-button>
           </section>
           <section id="confirmation">
--->
             <!-- /confirmation -->
-<!--
             <flight-panel company="{{flight.company}}"
                           flightNumber="{{flight.flightNumber}}"
                           status="{{flight.status}}"
@@ -361,42 +302,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-button>
           </section>
           <section>
--->
             <!-- /travel-info -->
-<!--             <div>TODO: /travel-info</div>
+            <div>TODO: /travel-info</div>
           </section>
           <section>
- -->            <!-- /committers -->
-<!--             <div>TODO: /committers</div>
+            <!-- /committers -->
+            <div>TODO: /committers</div>
           </section>
           <section>
- -->            <!-- /track-->
-<!--             <div>TODO: /track</div>
+           <!-- /track-->
+            <div>TODO: /track</div>
           </section>
           <section>
- -->            <!-- /help -->
-<!--             <div>TODO: /settings</div>
+            <!-- /help -->
+            <div>TODO: /settings</div>
           </section>
           <section>
- -->            <!-- /help -->
-<!--             <div>TODO: /help</div>
+            <!-- /help -->
+            <div>TODO: /help</div>
           </section>
           <section>
- -->            <!-- / -->
-<!--             <div>Welcome to PolyAir!<br>
+            <!-- / -->
+            <div>Welcome to PolyAir!<br>
               Getting you from here to there, with flair.
             </div>
             <paper-fab icon="add" class="red"
                 on-tap="{{goTo}}" href="/booking"></paper-fab>
           </section>
         </core-animated-pages>
-      </div>
-    </core-scaffold>
+      </core-header-panel>
+    </core-drawer-panel>
+    <!-- FIXME(slightlyoff: these don't work now!) -->
     <paper-toast id="no-sw" text="Service Worker is not available. This demo isn't going to work."></paper-toast>
     <paper-toast id="push-success" text="Push registration succeeded. We will keep you posted."></paper-toast>
     <paper-toast id="push-error" text="Push registration failed. Sorry :("></paper-toast>
   </template>
- -->
 
 </body>
 </html>
