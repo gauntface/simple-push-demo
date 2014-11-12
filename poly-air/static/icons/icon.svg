@@ -9,7 +9,7 @@
         fill="none"
         fill-rule="evenodd">
         <g id="icon">
-            <g id="circle" fill="#8B8FF5">
+            <g id="circle" fill="#303F9F">
                 <circle cx="180" cy="180" r="180"></circle>
             </g>
             <g id="logo" transform="translate(35.000000, 27.000000)" fill="#FFFFFF">
