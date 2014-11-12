@@ -64,7 +64,7 @@ paper-item doesn't style this at all, currently :(
 https://github.com/Polymer/paper-item/issues/12
 */
 #panel-list .core-selected {
-  color: #e91e63;
+  color: #283593;
 }
 
 core-animated-pages {
@@ -73,7 +73,8 @@ core-animated-pages {
   -webkit-user-select: none;
 }
 
-core-animated-pages > * {
+core-animated-pages > *,
+[main] {
   background-color: white;
 }
 
@@ -97,7 +98,6 @@ paper-fab {
 }
 
 
-/*
 paper-button.colored {
   color: #4285f4;
 }
@@ -119,4 +119,3 @@ paper-checkbox {
 paper-button.checkin {
   margin-top: 20px;
 }
-*/

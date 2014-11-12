@@ -73,10 +73,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var log = console.log.bind(console);
     var err = console.error.bind(console);
 
-    var swReady = function() { return navigator.serviceWorker.ready; };
-
     window.addEventListener('polymer-ready', function(e) {
       var template = document.querySelector("#content");
+      template.log = log;
+      template.err = err;
 
       var toast = null;
       var showMessage = function(msg) {
@@ -88,17 +88,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         toast.show();
       };
 
-      var showNoSWMessage = function() {
-        showMessage(
-          "Service Worker is not available. This demo isn't going to work."
-        );
-      };
-
+      var showNoSWMessage = showMessage.bind(null,
+          "Service Worker is not available. This demo isn't going to work.");
       var showPushSuccess = showMessage.bind(null,
           "Push registration succeeded. We will keep you posted.");
       var showPushError = showMessage.bind(null,
           "Push registration failed. Sorry :(");
-
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register("flight-info-sw.js").catch(
@@ -128,9 +123,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         "arrivalGate": "-",
       };
 
-
-      template.log = log;
-      template.err = err;
 
       template.goTo = function(e, detail, sender) {
         var href = e.srcElement.getAttribute("href");
@@ -176,7 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
-        swReady().then(function(sw) {
+        navigator.serviceWorker.ready.then(function(sw) {
           log(sw);
           navigator.push.register().then(
             function(pushRegistration) {
