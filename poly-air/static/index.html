@@ -182,7 +182,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               sendRegistration(pushRegistration.pushRegistrationId);
 
               localforage.setItem('track', flightData);
-              showTrackMenu();
             },
             function(e) {
               showPushError();
@@ -204,11 +203,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         elt.model = flight;
         document.getElementById('track-content').appendChild(elt);
       });
-    }
-
-    var showTrackMenu = function() {
-      var trackMenu = document.getElementById('track-menu');
-      trackMenu.hidden = trackMenu.previousElementSibling.hidden = false;
     }
     */
 
