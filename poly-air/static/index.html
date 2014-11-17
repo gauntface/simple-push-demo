@@ -50,6 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/core-icons/maps-icons.html">
   <link rel="import" href="components/core-icons/social-icons.html">
   <link rel="import" href="components/core-menu/core-menu.html">
+  <link rel="import" href="components/core-pages/core-pages.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
   <link rel="import" href="components/font-roboto/roboto.html">
   <link rel="import" href="components/more-routing/more-route-selector.html">
@@ -126,6 +127,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       template.goTo = function(e, detail, sender) {
         var href = e.srcElement.getAttribute("href");
+        log(href);
         if (!href) {
           return;
         }
@@ -227,8 +229,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <core-toolbar class="core-header" id="panel-head">
           Welcome Back
         </core-toolbar>
-        <core-menu selected="{{orderedIndex}}" on-tap="{{goTo}}"
-          flex id="panel-list" class="content">
+        <core-menu on-tap="{{goTo}}" flex id="panel-list" class="content">
           <paper-item href="/booking"
             icon="add" label="Book a trip"></paper-item>
           <hr>
@@ -265,9 +266,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
           <section>
             <!-- /checkin -->
-            <paper-input class="narrow" required label="Booking reference"></paper-input>
+            <paper-input class="narrow" required label="Booking reference">
+            </paper-input>
             <br>
-            <paper-input class="narrow" required label="Last name"></paper-input>
+            <paper-input class="narrow" required label="Last name">
+            </paper-input>
             <br>
             <paper-button on-tap="{{goTo}}" href="/confirmation"
                 raised class="colored">Submit</paper-button>
