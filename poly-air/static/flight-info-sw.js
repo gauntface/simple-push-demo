@@ -9,6 +9,17 @@ var version = 4;
 var coreCacheName = "poly-air-" + version.toString();
 var baseUrl = new URL("/", this.location.href) + "";
 
+var clobberCache = function(name) {
+  log("deleting cache: " + name);
+  return caches.delete(name);
+};
+
+var clobberAllCaches = function() {
+  return caches.keys().then(function(keys) {
+    return Promise.all(keys.map(clobberCache));
+  });
+};
+
 this.onerror = err;
 
 this.addEventListener("install", function(e) {
@@ -116,14 +127,12 @@ this.addEventListener("activate", function(e) {
   // Clobber old caches
   e.waitUntil(
     caches.keys().then(function(keys) {
-      var toClobber = keys.filter(function(k) {
-        return k != coreCacheName;
-      });
-
-      return Promise.all(toClobber.map(function(cacheName) {
-        log("deleting cache: " + cacheName);
-        return caches.delete(cacheName);
-      }));
+      return Promise.all(keys.filter(
+        function(k) {
+          return k != coreCacheName;
+        })
+        .map(clobberCache)
+      );
     })
   );
 });
