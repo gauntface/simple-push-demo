@@ -145,11 +145,12 @@ this.addEventListener("fetch", function(e) {
   var coreCache = null;
 
   // TODO: Make sure we aren't caching the posts to /push
-  if (requestUrl.pathname == "/push") {
+  var path = requestUrl.pathname;
+  if (path == "/push" || path == "/register_track") {
     if (!navigator.onLine) {
       // TODO(slightlyoff): figure out replay
     }
-    return;
+    return; // Don't try to cache live-service endpoints.
   }
 
   // Basic read-through caching.
