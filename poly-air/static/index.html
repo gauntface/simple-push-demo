@@ -188,13 +188,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             if (result == "granted") {
               resolve(result);
             } else {
+              // TODO: differentiate between "X" and explicitly blocking.
               reject(result);
             }
           });
         });
       };
 
-      template.startTracking = function() {
+      template.maybeStartTracking = function(evt, detail, sender) {
+        if (!sender.checked) {
+          // TODO: unregister push.
+          return;
+        }
+
         if (!navigator.push) {
           showPushError();
           return;
@@ -218,7 +224,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 }
               );
             },
-            err
+            function() {
+              sender.setAttribute("disabled", true);
+            }
           );
         }, err);
       }
@@ -319,8 +327,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <br>
             <div horizontal layout>
               <div flex>Notify me about flight delays</div>
-              <paper-toggle-button id="post-conf-toggle"
-                  on-tap="{{startTracking}}"></paper-toggle-button>
+              <paper-toggle-button id="booking-toggle"
+                  on-change="{{maybeStartTracking}}"></paper-toggle-button>
             </div>
           </section>
           <section>
@@ -369,19 +377,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </paper-item>
                 <core-icon icon="check" class="colored"></core-icon>
               </div>
-              <div class="notification-checkbox" horizontal layout>
-                <paper-checkbox></paper-checkbox>
-                <div>Notify me about flight status updates</div>
+              <div class="flight-tracking-toggle" horizontal layout>
+                <div flex>Send flight status updates</div>
+                <paper-toggle-button id="tracking-toggle"
+                    on-change="{{maybeStartTracking}}"></paper-toggle-button>
               </div>
-              <paper-button class="colored checkin" on-tap="{{startTracking}}">
-                <core-icon icon="check"></core-icon>
-                ok
-              </paper-button>
-              <paper-button class="checkin" href="/checkin"
-                on-tap="{{goTo}}">
-                <core-icon icon="clear"></core-icon>
-                cancel
-              </paper-button>
             </div>
           </section>
           <section>
