@@ -139,7 +139,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         MoreRouting.navigateTo(href);
         if (href === "/booking" || href === "/booking-confirmation") {
-          template.getPermissionToTrack();
+          // Do not copy this code! This is an intentionally bad example
+          // of how *not* to request permissions. The timing is wrong.
+          navigator.serviceWorker.ready.then(function(sw) {
+            requestNotificationPermission().then(log, err);
+          }, err);
         }
       };
 
@@ -216,13 +220,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             },
             err
           );
-        }, err);
-      }
-
-      template.getPermissionToTrack = function() {
-        navigator.serviceWorker.ready.then(function(sw) {
-          log(sw);
-          requestNotificationPermission();
         }, err);
       }
 
