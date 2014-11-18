@@ -5,7 +5,7 @@ var err = console.error.bind(console);
 importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
-var version = 10;
+var version = 11;
 var coreCacheName = "poly-air-" + version.toString();
 var baseUrl = new URL("/", this.location.href) + "";
 var protocol = (new URL("/", this.location.href)).protocol;
