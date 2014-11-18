@@ -5,7 +5,7 @@ var err = console.error.bind(console);
 importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
-var version = 2;
+var version = 10;
 var coreCacheName = "poly-air-" + version.toString();
 var baseUrl = new URL("/", this.location.href) + "";
 var protocol = (new URL("/", this.location.href)).protocol;
@@ -210,7 +210,7 @@ var notify = function(title, body, icon) {
 
 this.addEventListener("push", function(evt) {
   var data = evt.data.split(":");
-  log(data);
+  log(evt.data);
   var title = "No Title";
   var message = "No Message";
   var messageType = data[0];
