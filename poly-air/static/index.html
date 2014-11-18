@@ -124,6 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         "arrivalGate": "-",
       };
 
+      template.flight = flightData;
 
       template.goTo = function(e, detail, sender) {
         var href = e.srcElement.getAttribute("href");
@@ -211,7 +212,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       localforage.getItem("track").then(function(flight) {
-        template.flight = flight;
+        if (flight) {
+          template.flight = flight;
+        }
       });
 
     });
