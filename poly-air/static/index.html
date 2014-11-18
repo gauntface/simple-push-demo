@@ -90,9 +90,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       };
 
       var showNoSWMessage = showMessage.bind(null,
-          "Service Worker is not available. This demo isn't going to work.");
+          "Service Worker is not available. Demo won't work.");
       var showPushSuccess = showMessage.bind(null,
-          "Push registration succeeded. We will keep you posted.");
+          "Push registration succeeded. We'll keep you posted.");
       var showPushError = showMessage.bind(null,
           "Push registration failed. Sorry :(");
 
@@ -148,7 +148,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         e.shiftKey ? sender.selectPrevious(true) : sender.selectNext(true);
       };
       */
-
       var sendRegistration = function(registration) {
         log('sending ' + registration + ' to ' + location.hostname);
 
@@ -166,6 +165,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         xhr.send(formData);
       }
 
+      var requestNotificationPermission = function() {
+        return new Promise(function(resolve, reject) {
+          if (!Notification) {
+            reject("Notifications are not supported");
+          }
+
+          Notification.requestPermission(function(result) {
+            if (result == "granted") {
+              resolve(result);
+            } else {
+              reject(result);
+            }
+          });
+        });
+      };
+
       template.startTracking = function() {
         if (!navigator.push) {
           showPushError();
@@ -174,23 +189,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         navigator.serviceWorker.ready.then(function(sw) {
           log(sw);
-          navigator.push.register().then(
-            function(pushRegistration) {
-              showPushSuccess();
+          requestNotificationPermission().then(
+            function() {
+              return navigator.push.register().then(
+                function(pushRegistration) {
+                  showPushSuccess();
+                  log(pushRegistration.pushRegistrationId);
+                  sendRegistration(pushRegistration.pushRegistrationId);
 
-              log(pushRegistration.pushRegistrationId);
-              sendRegistration(pushRegistration.pushRegistrationId);
-
-              localforage.setItem('track', flightData);
+                  localforage.setItem("track", flightData);
+                },
+                function(e) {
+                  showPushError();
+                  log("Push registration failed: ", e);
+                }
+              );
             },
-            function(e) {
-              showPushError();
-              log('Push registration failed: ' + e);
-            }
+            err
           );
         }, err);
       }
-      localforage.getItem('track').then(function(flight) {
+
+      localforage.getItem("track").then(function(flight) {
         template.flight = flight;
       });
 
@@ -297,7 +317,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <core-icon icon="check"></core-icon>
               </paper-button>
             </paper-item>
-            <div class='notification-checkbox' horizontal layout>
+            <div class="notification-checkbox" horizontal layout>
               <paper-checkbox></paper-checkbox>
               <div>Notify me about flight status updates</div>
             </div>
