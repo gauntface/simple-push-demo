@@ -340,7 +340,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-input>
             <br>
             <paper-button on-tap="{{goTo}}" href="/confirmation"
-                raised class="colored">Submit</paper-button>
+                raised class="colored"
+                tabIndex="0">Submit</paper-button>
           </section>
           <section id="confirmation">
             <!-- /confirmation -->
@@ -364,12 +365,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div layout horizontal>
                 <paper-item icon="social:person" label="{{name}}" flex>
                 </paper-item>
-                <core-icon icon="check"></core-icon>
+                <core-icon icon="check" class="colored"></core-icon>
               </div>
               <div layout horizontal>
                 <paper-item icon="maps:my-location" label="{{seat}}" flex>
                 </paper-item>
-                <core-icon icon="check"></core-icon>
+                <core-icon icon="check" class="colored"></core-icon>
               </div>
               <div class="notification-checkbox" horizontal layout>
                 <paper-checkbox></paper-checkbox>
