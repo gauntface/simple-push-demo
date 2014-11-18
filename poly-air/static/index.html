@@ -139,7 +139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         MoreRouting.navigateTo(href);
         if (href === "/booking" || href === "/booking-confirmation") {
-          requestNotificationPermission();
+          template.getPermissionToTrack();
         }
       };
 
@@ -216,6 +216,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             },
             err
           );
+        }, err);
+      }
+      
+      template.getPermissionToTrack = function() {
+        navigator.serviceWorker.ready.then(function(sw) {
+          log(sw);
+          requestNotificationPermission();
         }, err);
       }
 
