@@ -138,6 +138,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
         MoreRouting.navigateTo(href);
+        if (href === "/booking" || href === "/booking-confirmation") {
+          requestNotificationPermission();
+        }
       };
 
       template.onRouteChanged = function(event, detail) {
@@ -283,14 +286,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-button on-tap="{{goTo}}" href="/pick-flight"
                 raised class="colored" tabIndex="0">Search</paper-button>
           </section>
-          <section id-"pick-flight">
+          <section id="pick-flight">
             <!-- /pick-flight -->
             <div class="section-heading">Select a flight</div>
             <paper-radio-group>
               <paper-radio-button name="flight-1"
                   label="Corellian Airlines YT-1300"></paper-radio-button>
               <div class="flight-choice">
-                Depart SFO at 12:00<br>Arrive LAX at 13:00
+                Depart SFO at 12:03<br>Arrive LAX at 13:00
               </div>
               <paper-radio-button name="flight-2"
                   label="Yavin Airlines Y-Wing"></paper-radio-button>
@@ -302,7 +305,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-button on-tap="{{goTo}}" href="/booking-confirmation"
                 raised class="colored">Book</paper-button>
           </section>
-          <section id-"booking-confirmation">
+          <section id="booking-confirmation">
             <!-- /booking-confirmation -->
             <div class="section-heading">Booking confirmation</div>
             <br>
@@ -311,7 +314,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <br>
             <div horizontal layout>
               <div flex>Notify me about flight delays</div>
-              <paper-toggle-button></paper-toggle-button>
+              <paper-toggle-button id="post-conf-toggle"
+                  on-tap="{{startTracking}}"></paper-toggle-button>
             </div>
           </section>
           <section>
