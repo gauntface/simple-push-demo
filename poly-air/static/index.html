@@ -63,7 +63,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="components/paper-input/paper-input.html">
   <link rel="import" href="components/paper-item/paper-item.html">
+  <link rel="import" href="components/paper-radio-group/paper-radio-group.html">
   <link rel="import" href="components/paper-toast/paper-toast.html">
+  <link rel="import" href="components/paper-toggle-button/paper-toggle-button.html">
   <link rel="import" href="flight-panel.html">
 
   <link rel="stylesheet" href="theme.css" shim-shadowdom>
@@ -238,7 +240,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-routing driver="hash"></more-routing>
     <more-route-selector selectedIndex="{{orderedIndex}}"
-      routes="['/booking', '/pick-flight', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"
+      routes="['/booking', '/pick-flight', '/booking-confirmation', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"
       on-more-route-change="{{onRouteChanged}}"></more-route-selector>
 
     <core-drawer-panel>
@@ -291,7 +293,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
           <section id-"pick-flight">
             <!-- /pick-flight -->
-            <div class="section-heading">TODO: /pick-flight</div>
+            <div class="section-heading">Select a flight</div>
+            <paper-radio-group>
+              <paper-radio-button name="flight-1"
+                  label="Corellian Airlines YT-1300"></paper-radio-button>
+              <div class="flight-choice">
+                Depart SFO at 12:00<br>Arrive LAX at 13:00
+              </div>
+              <paper-radio-button name="flight-2"
+                  label="Yavin Airlines Y-Wing"></paper-radio-button>
+              <div class="flight-choice">
+                Depart SFO at 13:00<br>Arrive LAX at 14:00
+              </div>
+            </paper-radio-group>
+            <br><br>
+            <paper-button on-tap="{{goTo}}" href="/booking-confirmation"
+                raised class="colored">Book</paper-button>
+          </section>
+          <section id-"booking-confirmation">
+            <!-- /booking-confirmation -->
+            <div class="section-heading">Booking confirmation</div>
+            <br>
+            <div>Thanks for booking!</div>
+            <div>Reference: <b>SKYWLKR</b></div>
+            <br>
+            <div horizontal layout>
+              <div flex>Notify me about flight delays</div>
+              <paper-toggle-button></paper-toggle-button>
+            </div>
           </section>
           <section>
             <!-- /checkin -->

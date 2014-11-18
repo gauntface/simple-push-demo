@@ -131,3 +131,14 @@ section {
 .section-heading {
   font-size: x-large;
 }
+
+/* Flight option CSS. */
+
+.flight-choice {
+  margin-left: 30px;
+  margin-top: -15px;
+}
+
+.toggle-label {
+  margin-right: 5px;
+}
