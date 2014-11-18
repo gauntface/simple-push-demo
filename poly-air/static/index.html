@@ -237,7 +237,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <core-drawer-panel>
       <core-header-panel mode="waterfall-tall" flex drawer>
-        <core-toolbar class="core-header" id="panel-head">
+        <core-toolbar class="core-header" id="panel-head" on-tap="{{goTo}}"
+          href="/">
           Welcome Back
         </core-toolbar>
         <core-menu on-tap="{{goTo}}" flex id="panel-list" class="content">
@@ -316,6 +317,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
           <section>
             <!-- /checkin -->
+            <div class="section-heading">Check In</div>
             <paper-input class="narrow" required
                 value="{{bookingReference}}"
                 label="Booking reference">
