@@ -127,6 +127,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       };
 
       template.flight = flightData;
+      template.name = "";
+      template.bookingReference = "";
+      template.seat = "42 A";
 
       template.goTo = function(e, detail, sender) {
         var href = e.srcElement.getAttribute("href");
@@ -220,17 +223,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
     });
-
-    /*
-    var updateTrackedFlight = function() {
-      localforage.getItem('track').then(function(flight) {
-        var elt = document.createElement('flight-panel');
-        elt.model = flight;
-        document.getElementById('track-content').appendChild(elt);
-      });
-    }
-    */
-
   </script>
 
 </head>
@@ -289,7 +281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-input>
             <br>
             <paper-button on-tap="{{goTo}}" href="/pick-flight"
-                raised class="colored">Search</paper-button>
+                raised class="colored" tabIndex="0">Search</paper-button>
           </section>
           <section id-"pick-flight">
             <!-- /pick-flight -->
@@ -324,10 +316,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
           <section>
             <!-- /checkin -->
-            <paper-input class="narrow" required label="Booking reference">
+            <paper-input class="narrow" required
+                value="{{bookingReference}}"
+                label="Booking reference">
             </paper-input>
             <br>
-            <paper-input class="narrow" required label="Last name">
+            <paper-input class="narrow" required
+                value="{{name}}"
+                label="Name">
             </paper-input>
             <br>
             <paper-button on-tap="{{goTo}}" href="/confirmation"
@@ -351,29 +347,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                           arrivalTerminal="{{flight.arrivalTerminal}}"
                           arrivalGate="{{flight.arrivalGate}}">
             </flight-panel>
-            <paper-item icon="social:person" label="Mounir Lamouri">
-              <paper-button class="colored">
+            <div>
+              <div layout horizontal>
+                <paper-item icon="social:person" label="{{name}}" flex>
+                </paper-item>
                 <core-icon icon="check"></core-icon>
-              </paper-button>
-            </paper-item>
-            <paper-item icon="maps:my-location" label="42 A">
-              <paper-button class="colored">
+              </div>
+              <div layout horizontal>
+                <paper-item icon="maps:my-location" label="{{seat}}" flex>
+                </paper-item>
                 <core-icon icon="check"></core-icon>
+              </div>
+              <div class="notification-checkbox" horizontal layout>
+                <paper-checkbox></paper-checkbox>
+                <div>Notify me about flight status updates</div>
+              </div>
+              <paper-button class="colored checkin" on-tap="{{startTracking}}">
+                <core-icon icon="check"></core-icon>
+                ok
               </paper-button>
-            </paper-item>
-            <div class="notification-checkbox" horizontal layout>
-              <paper-checkbox></paper-checkbox>
-              <div>Notify me about flight status updates</div>
+              <paper-button class="checkin" href="/checkin"
+                on-tap="{{goTo}}">
+                <core-icon icon="clear"></core-icon>
+                cancel
+              </paper-button>
             </div>
-            <paper-button class="colored checkin" on-tap="{{startTracking}}">
-              <core-icon icon="check"></core-icon>
-              ok
-            </paper-button>
-            <paper-button class="checkin" href="/checkin"
-              on-tap="{{goTo}}">
-              <core-icon icon="clear"></core-icon>
-              cancel
-            </paper-button>
           </section>
           <section>
             <!-- /travel-info -->

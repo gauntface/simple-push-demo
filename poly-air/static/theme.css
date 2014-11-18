@@ -142,3 +142,7 @@ section {
 .toggle-label {
   margin-right: 5px;
 }
+
+#confirmation > * {
+  width: 320px;
+}
