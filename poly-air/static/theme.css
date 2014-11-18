@@ -116,9 +116,9 @@ paper-checkbox {
   padding-right: 10px;
 }
 
-.notification-checkbox {
-  margin-top: 15px;
-  padding-left: 20px;
+.flight-tracking-toggle {
+  padding-top: 10px;
+  padding-bottom: 25px;
 }
 
 paper-button.checkin {
