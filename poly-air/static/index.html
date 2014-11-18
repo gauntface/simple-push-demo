@@ -238,7 +238,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-routing driver="hash"></more-routing>
     <more-route-selector selectedIndex="{{orderedIndex}}"
-      routes="['/booking', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"
+      routes="['/booking', '/pick-flight', '/checkin', '/confirmation', '/travel-info', '/committers', '/track','/settings', '/help', '/']"
       on-more-route-change="{{onRouteChanged}}"></more-route-selector>
 
     <core-drawer-panel>
@@ -279,7 +279,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             main>
           <section>
             <!-- /booking -->
-            <div>Booking</div>
+            <div class="section-heading">Book a flight</div>
+            <paper-input class="narrow" required label="From">
+            </paper-input>
+            <br>
+            <paper-input class="narrow" required label="To">
+            </paper-input>
+            <br>
+            <paper-button on-tap="{{goTo}}" href="/pick-flight"
+                raised class="colored">Search</paper-button>
+          </section>
+          <section id-"pick-flight">
+            <!-- /pick-flight -->
+            <div class="section-heading">TODO: /pick-flight</div>
           </section>
           <section>
             <!-- /checkin -->
