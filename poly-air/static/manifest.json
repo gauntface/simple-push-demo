@@ -1,16 +1,16 @@
 {
+  "short_name": "PolyAir",
   "name": "PolyAir",
-  "url": "/",
-  "mode": "standalone",
-  "icons": [{
-      "src": "icon/lowres",
-      "density": "1",
-      "width": "64",
-      "type": "image/webp"
-    }, {
-      "src": "icon/hd",
-      "density": "2",
-      "width": "64"
-  }],
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "density": "4.0"
+    }
+  ],
+  "orientation": "portrait",
   "gcm_sender_id": "129757602160"
 }
