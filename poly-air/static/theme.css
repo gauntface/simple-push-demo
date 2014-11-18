@@ -123,3 +123,11 @@ paper-checkbox {
 paper-button.checkin {
   margin-top: 20px;
 }
+
+section {
+  padding: 10px;
+}
+
+.section-heading {
+  font-size: x-large;
+}
