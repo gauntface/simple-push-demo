@@ -179,11 +179,16 @@ this.addEventListener("fetch", function(e) {
 });
 
 var notify = function(title, body, icon) {
-  return new Notification(title, {
-    serviceWorker: true,
-    body: body,
-    icon: icon || "icons/icon-96.png"
-  });
+  if (self.Notification && self.Notification.permission == "granted") {
+    return new Notification(title, {
+      serviceWorker: true,
+      body: body,
+      icon: icon || "icons/icon-96.png"
+    });
+  } else {
+    err("failed to notify");
+    err("  notificaton permission set to:", self.Notification.permission);
+  }
 };
 
 this.addEventListener("push", function(evt) {
