@@ -113,6 +113,7 @@ Example:
 
     constrain: function(tokens) {
       var _tokens;
+      tokens = tokens || [''];
       // Enforce the min and max heights for a multiline input to avoid measurement
       if (this.maxRows > 0 && tokens.length > this.maxRows) {
         _tokens = tokens.slice(0, this.maxRows);

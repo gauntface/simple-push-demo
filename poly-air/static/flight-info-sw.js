@@ -5,9 +5,10 @@ var err = console.error.bind(console);
 importScripts("polyfills/serviceworker-cache-polyfill.js");
 importScripts("lib/localforage.js");
 
-var version = 4;
+var version = 1;
 var coreCacheName = "poly-air-" + version.toString();
 var baseUrl = new URL("/", this.location.href) + "";
+var protocol = (new URL("/", this.location.href)).protocol;
 
 var clobberCache = function(name) {
   log("deleting cache: " + name);
@@ -27,9 +28,7 @@ this.addEventListener("install", function(e) {
 
   e.waitUntil(caches.open(coreCacheName).then(function(core) {
     var resourceUrls = [
-      "/",
-      "//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en",
-      "//fonts.gstatic.com/s/robotodraft/v2/u0_CMoUf3y3-4Ss4ci-VwZ7-ASEDocFpVYx1Gz4aSTw.woff2",
+      "",
       "components/core-a11y-keys/core-a11y-keys.html",
       "components/core-ajax/core-ajax.html",
       "components/core-ajax/core-xhr.html",
@@ -41,6 +40,9 @@ this.addEventListener("install", function(e) {
       "components/core-animated-pages/transitions/slide-from-right.html",
       "components/core-drawer-panel/core-drawer-panel.css",
       "components/core-drawer-panel/core-drawer-panel.html",
+      "components/core-focusable/core-focusable.html",
+      "components/core-focusable/core-focusable.js",
+      "components/core-focusable/polymer-mixin.js",
       "components/core-header-panel/core-header-panel.css",
       "components/core-header-panel/core-header-panel.html",
       "components/core-icon-button/core-icon-button.css",
@@ -56,10 +58,14 @@ this.addEventListener("install", function(e) {
       "components/core-input/core-input.css",
       "components/core-input/core-input.html",
       "components/core-media-query/core-media-query.html",
+      "components/core-menu/core-menu.css",
+      "components/core-menu/core-menu.html",
       "components/core-meta/core-meta.html",
       "components/core-overlay/core-key-helper.html",
       "components/core-overlay/core-overlay-layer.html",
       "components/core-overlay/core-overlay.html",
+      "components/core-pages/core-pages.css",
+      "components/core-pages/core-pages.html",
       "components/core-scaffold/core-scaffold.html",
       "components/core-selection/core-selection.html",
       "components/core-selector/core-selector.html",
@@ -90,7 +96,9 @@ this.addEventListener("install", function(e) {
       "components/paper-fab/paper-fab.html",
       "components/paper-focusable/paper-focusable.html",
       "components/paper-icon-button/paper-icon-button.html",
-      "components/paper-input/paper-input.css",
+      "components/paper-input/paper-input-decorator.css",
+      "components/paper-input/paper-input-decorator.html",
+      "components/paper-input/paper-input.html",
       "components/paper-input/paper-input.html",
       "components/paper-item/paper-item.css",
       "components/paper-item/paper-item.html",
@@ -104,20 +112,26 @@ this.addEventListener("install", function(e) {
       "components/polymer/layout.html",
       "components/polymer/polymer.html",
       "components/polymer/polymer.js",
-      "components/polymer/polymer.js.map",
       "components/webcomponentsjs/webcomponents.min.js",
       "flight-panel.html",
       "icons/icon.svg",
+      "images/carbon_intake.png",
       "lib/localforage.js",
       "manifest.json",
+      "theme.css",
+      // "//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light,bolditalic,black,medium&lang=en",
+      // "//fonts.gstatic.com/s/robotodraft/v2/u0_CMoUf3y3-4Ss4ci-VwZ7-ASEDocFpVYx1Gz4aSTw.woff2",
     ];
 
     return core.addAll(resourceUrls.map(function(url) {
+      return baseUrl + url;
+      /*
       var finalUrl = baseUrl + url;
       if (url.indexOf("//") == 0) {
-        finalUrl = baseUrl.protocol + url;
+        return protocol + url;
       }
       return finalUrl;
+      */
     }));
   }));
 });

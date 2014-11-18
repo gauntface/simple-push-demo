@@ -35,6 +35,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <textarea id="textarea1"></textarea>
   </paper-autogrow-textarea>
 
+  <paper-autogrow-textarea id="autogrow2" rows="2" maxRows="4">
+    <textarea id="textarea2"></textarea>
+  </paper-autogrow-textarea>
+
   <script>
 
     var a1 = document.getElementById('autogrow1');
@@ -47,6 +51,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       target.dispatchEvent(e);
     };
 
+    function between(val, val1, val2) {
+      return assert.ok(val > val1 && val < val2);
+    }
+
     suite('basic', function() {
 
       teardown(function(done) {
@@ -55,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         a1.rows = 1;
         a1.maxRows = 0;
 
-        asyncPlatformFlush(function() {
+        flush(function() {
           done();
         });
       });
@@ -79,7 +87,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         t1.value = 'foo\nbar\nbaz';
         dispatchInputEvent(t1);
 
-        asyncPlatformFlush(function() {
+        flush(function() {
           var h2 = a1.offsetHeight;
           assert.ok(h2 > h1);
           assert.deepEqual(a1.getBoundingClientRect(), t1.getBoundingClientRect());
@@ -91,9 +99,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var h1 = a1.offsetHeight;
         a1.rows = 2;
 
-        asyncPlatformFlush(function() {
+        flush(function() {
           var h2 = a1.offsetHeight;
-          assert.equal(h2, 2 * h1);
+          between(h2, h1, 3 * h1);
           done();
         });
       });
@@ -105,9 +113,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         t1.value = 'foo\nbar\nbaz\nzot';
         dispatchInputEvent(t1);
 
-        asyncPlatformFlush(function() {
+        flush(function() {
           var h2 = a1.offsetHeight;
-          assert.equal(h2, 2 * h1);
+          assert.ok(h2 < 3 * h1);
           done();
         });
       });
