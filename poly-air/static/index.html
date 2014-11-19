@@ -185,10 +185,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }
 
           Notification.requestPermission(function(result) {
-            if (result == "granted") {
+            if (result === "granted") {
               resolve(result);
             } else {
-              // TODO: differentiate between "X" and explicitly blocking.
               reject(result);
             }
           });
@@ -225,7 +224,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               );
             },
             function() {
-              sender.setAttribute("disabled", true);
+              if (Notification.permission === "denied") {
+                sender.setAttribute("checked", false);
+                sender.setAttribute("disabled", true);
+                console.log("User DENIED permission request.");
+              } else if (Notification.permission === "default") {
+                sender.setAttribute("checked", false);
+                console.log("User IGNORED permission request.");
+              }
             }
           );
         }, err);
@@ -327,7 +333,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <br>
             <div horizontal layout>
               <div flex>Notify me about flight delays</div>
-              <paper-toggle-button id="booking-toggle"
+              <paper-toggle-button checked="false"
                   on-change="{{maybeStartTracking}}"></paper-toggle-button>
             </div>
           </section>
@@ -379,7 +385,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
               <div class="flight-tracking-toggle" horizontal layout>
                 <div flex>Send flight status updates</div>
-                <paper-toggle-button id="tracking-toggle"
+                <paper-toggle-button checked="false"
                     on-change="{{maybeStartTracking}}"></paper-toggle-button>
               </div>
             </div>
@@ -406,9 +412,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </section>
           <section>
             <!-- / -->
-            <div>Welcome to PolyAir!<br>
-              Getting you from here to there, with flair.
-            </div>
+            <div class="section-heading">Welcome to PolyAir!</div>
+            <div>Getting you from here to there, with flair.</div>
             <paper-fab icon="add" class="red"
                 on-tap="{{goTo}}" href="/booking"></paper-fab>
           </section>
