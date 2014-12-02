@@ -184,6 +184,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var requestNotificationPermission = function() {
         return new Promise(function(resolve, reject) {
           if (!Notification) {
+            console.log('Try enabling Experimental web platform features chrome://flags/#enable-experimental-web-platform-features');
             reject("Notifications are not supported");
           }
 
@@ -204,14 +205,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         if (!navigator.push) {
+          console.log('navigator.push is not available');
           showPushError();
           return;
         }
 
         navigator.serviceWorker.ready.then(function(sw) {
           log(sw);
-          requestNotificationPermission().then(
-            function() {
+          requestNotificationPermission()
+            .then(function() {
               return navigator.push.register().then(
                 function(pushRegistration) {
                   showPushSuccess();
@@ -219,14 +221,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   sendRegistration(pushRegistration.pushRegistrationId);
 
                   localforage.setItem("track", flightData);
-                },
-                function(e) {
+                })
+                .catch(function(e) {
+                  console.log('navigator.push error');
                   showPushError();
                   log("Push registration failed: ", e);
-                }
-              );
-            },
-            function() {
+                });
+            })
+            .catch(function() {
               if (Notification.permission === "denied") {
                 sender.setAttribute("checked", false);
                 sender.setAttribute("disabled", true);
@@ -235,10 +237,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 sender.setAttribute("checked", false);
                 console.log("User IGNORED permission request.");
               }
-            }
-          );
-        }, err);
-      }
+            });
+        })
+        .catch(err);
+      };
 
       localforage.getItem("track").then(function(flight) {
         if (flight) {
