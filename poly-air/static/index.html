@@ -93,17 +93,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       var showNoSWMessage = showMessage.bind(null,
           "Service Worker is not available. Demo won't work.");
+      var showRegisterSWErrorMessage = showMessage.bind(null,
+          "Unable to register the Service Worker.");
       var showPushSuccess = showMessage.bind(null,
           "Push registration succeeded. We'll keep you posted.");
       var showPushError = showMessage.bind(null,
           "Push registration failed. Sorry :(");
 
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register("flight-info-sw.js").catch(
-          showNoSWMessage
-        );
+        navigator.serviceWorker.register("flight-info-sw.js")
+        .catch(showRegisterSWErrorMessage);
       } else {
+        console.log('No Service Worker');
         setTimeout(showNoSWMessage, 1000);
+        return;
       }
 
       // FIXME(slightlyoff): move out to better location
