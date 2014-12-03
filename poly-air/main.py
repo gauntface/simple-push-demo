@@ -58,10 +58,14 @@ class PushHandler(webapp2.RequestHandler):
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
               'Authorization': 'key=AIzaSyB_Syg3Rb1yyDeKmKVS_yzxeAhnEOhL2bE'
             })
-    logging.info('result')
-    self.response.headers.add_header("Access-Control-Allow-Origin", "*")
-    self.response.write('{ "success": true, ' +
+    logging.info('result - ' + result.content);
+    if result.status_code == 200:
+      self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+      self.response.write('{ "success": true, ' +
                           '"registration": "' + registration + '" }')
+    else:
+      self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+      self.response.write('{ "success": false }')
     logging.info('response.write')
 
 class PushRegistrationHandler(webapp2.RequestHandler):
