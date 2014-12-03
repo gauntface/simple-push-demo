@@ -1,18 +1,15 @@
 'use strict';
 
-var log = console.log.bind(console);
-var err = console.error.bind(console);
-
 importScripts('polyfills/serviceworker-cache-polyfill.js');
 importScripts('lib/localforage.js');
 
-var version = 11;
+var version = 13;
 var coreCacheName = 'poly-air-' + version.toString();
 var baseUrl = new URL('/', this.location.href) + '';
 var protocol = (new URL('/', this.location.href)).protocol;
 
 var clobberCache = function(name) {
-  log('deleting cache: ' + name);
+  console.log('deleting cache: ' + name);
   return caches.delete(name);
 };
 
@@ -22,10 +19,12 @@ var clobberAllCaches = function() {
   });
 };
 
-this.onerror = err;
+this.onerror = function(msg) {
+  console.error(msg);
+};
 
 this.addEventListener('install', function(e) {
-  log('oninstall');
+  console.log('oninstall');
 
   e.waitUntil(caches.open(coreCacheName).then(function(core) {
     var resourceUrls = [
@@ -141,7 +140,7 @@ this.addEventListener('install', function(e) {
 });
 
 this.addEventListener('activate', function(e) {
-  log('onactivate');
+  console.log('onactivate');
   // Clobber old caches
   e.waitUntil(
     caches.keys().then(function(keys) {
@@ -156,7 +155,7 @@ this.addEventListener('activate', function(e) {
 });
 
 this.addEventListener('fetch', function(e) {
-  // log('onfetch:', e.request.url);
+  // console.log('onfetch:', e.request.url);
 
   var request = e.request;
   var requestUrl = new URL(request.url);
@@ -184,15 +183,17 @@ this.addEventListener('fetch', function(e) {
         }
 
         // Wasn't in the cache, so add and return it
-        log('runtime caching: ' + requestUrl);
+        console.log('runtime caching: ' + requestUrl);
 
         return coreCache.add(request).then(
           function(response) {
-            log('added:', requestUrl);
+            console.log('added:', requestUrl);
             return coreCache.match(request);
           }
         );
-      }, err)
+      }, function(msg) {
+        console.error(msg);
+      })
   );
 });
 
@@ -204,15 +205,16 @@ var notify = function(title, body, icon) {
       icon: icon || 'icons/icon-96.png'
     });
   } else {
-    err('failed to notify');
-    err('  notificaton permission set to:', self.Notification.permission);
+    console.error('failed to notify');
+    console.error('  notificaton permission set to:',
+      self.Notification.permission);
   }
 };
 
 this.addEventListener('push', function(evt) {
   console.log('Push Event Received');
   var data = evt.data.split(':');
-  log(evt.data);
+  console.log(evt.data);
   var title = 'No Title';
   var message = 'No Message';
   var messageType = data[0];

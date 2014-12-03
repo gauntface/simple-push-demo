@@ -186,14 +186,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           if (!Notification) {
             console.log('Try enabling Experimental web platform features chrome://flags/#enable-experimental-web-platform-features');
             reject("Notifications are not supported");
+            return;
           }
 
           Notification.requestPermission(function(result) {
             if (result === "granted") {
+              console.log('Granted permission to display notifications');
               resolve(result);
             } else {
+              console.log('Granted permission to display notifications');
               reject(result);
             }
+            return;
           });
         });
       };
@@ -201,6 +205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       template.maybeStartTracking = function(evt, detail, sender) {
         if (!sender.checked) {
           // TODO: unregister push.
+          console.log('Sender.checked is incorrect value? ', sender);
           return;
         }
 
@@ -210,12 +215,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return;
         }
 
+        console.log('Navigator.push is available.');
+
         navigator.serviceWorker.ready.then(function(sw) {
           log(sw);
+          console.log('Requesting notification permission');
           requestNotificationPermission()
             .then(function() {
+              console.log('Registering push');
               return navigator.push.register().then(
                 function(pushRegistration) {
+                  console.log('Push registration has been successful');
                   showPushSuccess();
                   log(pushRegistration.pushRegistrationId);
                   sendRegistration(pushRegistration.pushRegistrationId);

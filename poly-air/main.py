@@ -16,6 +16,7 @@
 #
 import webapp2
 import urllib
+import logging
 import datetime
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
@@ -34,25 +35,34 @@ class ClearRegistrationsHandler(webapp2.RequestHandler):
 
 class PushHandler(webapp2.RequestHandler):
   def post(self):
+    logging.info('PushHandler')
     url = "https://android.googleapis.com/gcm/send"
 
     registration = db.GqlQuery("SELECT * FROM PushRegistration")[0].registration;
+
+    logging.info('registration = ' + registration)
 
     form_fields = {
       "registration_id": registration,
       "data.data": self.request.get('message')
     }
+
+    logging.info('form_fields')
+
     form_data = urllib.urlencode(form_fields)
+    logging.info('form_data')
     result = urlfetch.fetch(url=url,
                             payload=form_data,
                             method=urlfetch.POST,
                             headers={
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-              'Authorization': 'key=AIzaSyBYu0LnUCsurx72pU03tT5_DRV_oslWyuo'
+              'Authorization': 'key=AIzaSyB_Syg3Rb1yyDeKmKVS_yzxeAhnEOhL2bE'
             })
-
+    logging.info('result')
+    self.response.headers.add_header("Access-Control-Allow-Origin", "*")
     self.response.write('{ "success": true, ' +
                           '"registration": "' + registration + '" }')
+    logging.info('response.write')
 
 class PushRegistrationHandler(webapp2.RequestHandler):
   def post(self):
@@ -61,6 +71,7 @@ class PushRegistrationHandler(webapp2.RequestHandler):
     p = PushRegistration(registration = self.request.get("registration"));
     p.put()
 
+    self.response.headers.add_header("Access-Control-Allow-Origin", "*")
     self.response.write('{ "success": true }')
 
 class GetRegistrationsHandler(webapp2.RequestHandler):
