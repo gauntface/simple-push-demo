@@ -1,0 +1,39 @@
+application: simple-push-demo
+version: v2014-12-03
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /
+  static_files: frontend/index.html
+  secure: always
+  upload: frontend/index\.html
+
+- url: /push
+  secure: always
+  script: main.app
+
+- url: /register_track
+  secure: always
+  script: main.app
+
+- url: /clear_registrations
+  secure: always
+  script: main.app
+
+- url: /get_registrations
+  secure: always
+  script: main.app
+
+- url: /*
+  secure: always
+  static_dir: frontend/
+
+- url: .*
+  secure: always
+  script: main.app
+
+libraries:
+- name: webapp2
+  version: "2.5.2"

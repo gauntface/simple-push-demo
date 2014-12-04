@@ -1,9 +1,0 @@
-{
-  "name": "core-animation",
-  "private": true,
-  "dependencies": {
-    "polymer": "Polymer/polymer#^0.5.0",
-    "web-animations-next": "web-animations/web-animations-next#master"
-  },
-  "version": "0.5.0"
-}
