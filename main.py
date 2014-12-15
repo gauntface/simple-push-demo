@@ -24,6 +24,7 @@ from google.appengine.ext import db
 
 class PushRegistration(db.Model):
   registration = db.StringProperty(required=True)
+  endpoint = db.StringProperty(required=True)
 
 def clearRegistrations():
   for r in db.GqlQuery("SELECT * FROM PushRegistration"):
@@ -37,12 +38,12 @@ class ClearRegistrationsHandler(webapp2.RequestHandler):
 class PushHandler(webapp2.RequestHandler):
   def post(self):
     logging.info('PushHandler')
-    url = "https://android.googleapis.com/gcm/send"
 
-    registration = db.GqlQuery("SELECT * FROM PushRegistration")[0].registration;
+    registrationId = db.GqlQuery("SELECT * FROM PushRegistration")[0].registration;
+    endpoint = db.GqlQuery("SELECT * FROM PushRegistration")[0].endpoint;
 
     form_fields = {
-      "registration_id": registration,
+      "registration_id": registrationId,
       "data.data": json.dumps({
         "title": self.request.get('title'),
         "message": self.request.get('message')
@@ -51,12 +52,12 @@ class PushHandler(webapp2.RequestHandler):
 
     form_data = urllib.urlencode(form_fields)
     logging.info(form_data)
-    result = urlfetch.fetch(url=url,
+    result = urlfetch.fetch(url=endpoint,
                             payload=form_data,
                             method=urlfetch.POST,
                             headers={
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-              'Authorization': 'key=AIzaSyB_Syg3Rb1yyDeKmKVS_yzxeAhnEOhL2bE'
+              'Authorization': 'key=AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ'
             })
     
     if result.status_code == 200 and not result.content.startswith("Error") :
@@ -69,8 +70,13 @@ class PushHandler(webapp2.RequestHandler):
 class PushRegistrationHandler(webapp2.RequestHandler):
   def post(self):
     clearRegistrations();
+    
+    logging.warning(self.request.get("registration"))
+    logging.warning(self.request.get("endpoint"))
 
-    p = PushRegistration(registration = self.request.get("registration"));
+    p = PushRegistration(
+      registration = self.request.get("registration"),
+      endpoint = self.request.get("endpoint"));
     p.put()
 
     self.response.write('{ "success": true }')

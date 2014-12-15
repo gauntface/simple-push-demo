@@ -14,7 +14,9 @@
   "undef": true,
   "unused": "vars",
   "strict": true,
-  globals: {
-    "importScripts": true
+  "globals": {
+    "importScripts": true,
+    "self": true,
+    "Notification": true
   }
 }

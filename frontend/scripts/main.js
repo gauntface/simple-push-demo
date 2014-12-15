@@ -23,49 +23,36 @@ var PUSH_SERVER_URL = window.location.origin;
 var notificationElements;
 var pushPermissionElements;
 var requestPushElements;
+var revokePushElements;
 var pushBtn;
 var notificationBtn;
 var requestPushBtn;
+var revokePushBtn;
 var pushTitleInput;
 var pushMessageInput;
 
-function sendRegistration(registrationId) {
-  var formData = new FormData();
-  formData.append('registration', registrationId);
-
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function() {
-    // The API for our App Engine returns a success value
-    if (!JSON.parse(xhr.response).success) {
-      return;
-    }
-
-    pushBtn.disabled = true;
-    pushPermissionElements.classList.add('completed');
-    requestPushBtn.disabled = false;
-    requestPushElements.classList.remove('disabled');
-  };
-
-  xhr.onerror = xhr.onabort = function() {
-    window.alert('We were unable to register with our server. ' +
-      'Please check your internet connection and try again.');
-  };
-
-  xhr.open('POST', PUSH_SERVER_URL + '/register_track');
-  xhr.send(formData);
-};
-
+/**
+ *
+ * These methods are specific to setting up the UI
+ *
+ */
 function prepareViews() {
   notificationElements = document.querySelector('#notification-permission');
   pushPermissionElements = document.querySelector('#push-permission');
   requestPushElements = document.querySelector('#request-push');
+  revokePushElements = document.querySelector('#revoke-push');
 
   notificationBtn = notificationElements.querySelector('button');
   pushBtn = pushPermissionElements.querySelector('button');
   requestPushBtn = requestPushElements.querySelector('button');
+  revokePushBtn = revokePushElements.querySelector('button');
 
   pushTitleInput = requestPushElements.querySelector('.title');
   pushMessageInput = requestPushElements.querySelector('.message');
+
+  if (!(navigator.push && navigator.push.unregister)) {
+    revokePushElements.style.display = 'none';
+  }
 }
 
 function showError(title, message) {
@@ -80,6 +67,11 @@ function showError(title, message) {
   errorContainer.style.display = 'block';
 }
 
+/**
+ *
+ * The following methods deal with notifications
+ *
+ */
 function requestNotificationPermission() {
   if (!Notification) {
     showError('Ooops Notifications Not Supported', 'This is most likely ' +
@@ -102,29 +94,13 @@ function requestNotificationPermission() {
   });
 }
 
-function requestPushPermission() {
-  navigator.serviceWorker.ready.then(function(sw) {
-    if (!navigator.push) {
-      showError('Ooops Push Isn\'t Supported', 'This is most likely ' +
-        'down to the current browser doesn\'t have support for push. ' +
-        'Try Chrome M41.');
-      return;
-    }
-
-    navigator.push.register()
-      .then(function(pushRegistration) {
-        sendRegistration(pushRegistration.pushRegistrationId);
-      })
-      .catch(function(e) {
-        console.error('Unable to register for push', e);
-        showError('Ooops Push Couldn\'t Register', 'When we tried to ' +
-          'get the registration ID for GCM, something went wrong, not ' +
-          'sure why. Check the console to see the error.');
-      });
-  });
-}
-
-function requestPushMessage() {
+/**
+ *
+ * This method requests the server to send a push
+ * message
+ *
+ */ 
+function askServerToSendMessage() {
   var title = pushTitleInput.value;
   var message = pushMessageInput.value;
 
@@ -153,6 +129,78 @@ function requestPushMessage() {
   xhr.send(formData);
 }
 
+/**
+ *
+ * The following methods are involved in setting
+ * up push notifications
+ *
+ */
+function sendRegistration(endpoint, registrationId) {
+  console.log('sendRegistration endpoint = ', endpoint);
+  console.log('sendRegistration registrationId = ', registrationId);
+  var formData = new FormData();
+  formData.append('registration', registrationId);
+  formData.append('endpoint', endpoint);
+
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function() {
+    // The API for our App Engine returns a success value
+    if (!JSON.parse(xhr.response).success) {
+      return;
+    }
+
+    pushBtn.disabled = true;
+    pushPermissionElements.classList.add('completed');
+    requestPushBtn.disabled = false;
+    requestPushElements.classList.remove('disabled');
+    revokePushBtn.disabled = false;
+    revokePushElements.classList.remove('disabled');
+  };
+
+  xhr.onerror = xhr.onabort = function() {
+    window.alert('We were unable to register with our server. ' +
+      'Please check your internet connection and try again.');
+  };
+
+  xhr.open('POST', PUSH_SERVER_URL + '/register_track');
+  xhr.send(formData);
+}
+
+function requestPushPermission() {
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    serviceWorkerRegistration.pushManager.register()
+      .then(function(pushRegistration) {
+        sendRegistration(pushRegistration.pushEndpoint, pushRegistration.pushRegistrationId);
+      })
+      .catch(function(e) {
+        console.error('Unable to register for push', e);
+        showError('Ooops Push Couldn\'t Register', 'When we tried to ' +
+          'get the registration ID for GCM, something went wrong, not ' +
+          'sure why. Check the console to see the error.');
+      });
+  });
+}
+
+function revokePushPermission() {
+  navigator.serviceWorker.ready.then(function(sw) {
+    navigator.push.unregister()
+      .then(function(pushRegistration) {
+        console.log('Revoked push permissions', pushRegistration);
+
+        pushBtn.disabled = false;
+        pushPermissionElements.classList.remove('completed');
+        pushPermissionElements.classList.remove('disabled');
+
+        revokePushBtn.disabled = true;
+        revokePushElements.classList.add('disabled');
+      })
+      .catch(function(e) {
+        console.error('Error thrown while revoking push notifications. ' +
+          'Most likely because push was never registered', e);
+      });
+  });
+}
+
 window.addEventListener('load', function() {
   prepareViews();
 
@@ -163,13 +211,23 @@ window.addEventListener('load', function() {
     return;
   }
 
+  // Once we have a service worker, enable the buttons
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    if (!serviceWorkerRegistration.pushManager) {
+      showError('Ooops Push Isn\'t Supported', 'This is most likely ' +
+        'down to the current browser doesn\'t have support for push. ' +
+        'Try Chrome M41.');
+      return;
+    }
+
+    var buttonContainer = document.querySelector('.button-container');
+    buttonContainer.style.display = 'block';
+  });
+
   // Register the Service Worker
   navigator.serviceWorker.register('/sw.js')
     .then(function(err) {
       // Registration worked :)
-
-      var buttonContainer = document.querySelector('.button-container');
-      buttonContainer.style.display = 'block';
     })
     .catch(function(err) {
       // Registration failed :(
@@ -183,5 +241,7 @@ window.addEventListener('load', function() {
 
   pushBtn.addEventListener('click', requestPushPermission);
 
-  requestPushBtn.addEventListener('click', requestPushMessage);
+  requestPushBtn.addEventListener('click', askServerToSendMessage);
+
+  revokePushBtn.addEventListener('click', revokePushPermission);
 });
