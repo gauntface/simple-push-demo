@@ -30,5 +30,6 @@
       work with service worker"
     }
   },
-  "gcm_sender_id": "653317226796"
+  "gcm_sender_id": "653317226796",
+  "gcm_user_visible_only": true
 }
