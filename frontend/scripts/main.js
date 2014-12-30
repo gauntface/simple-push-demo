@@ -170,7 +170,7 @@ function requestPushPermission() {
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
     serviceWorkerRegistration.pushManager.register()
       .then(function(pushRegistration) {
-        sendRegistration(pushRegistration.pushEndpoint, pushRegistration.pushRegistrationId);
+        sendRegistration(pushRegistration.endpoint, pushRegistration.registrationId);
       })
       .catch(function(e) {
         console.error('Unable to register for push', e);

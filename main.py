@@ -62,7 +62,7 @@ class PushHandler(webapp2.RequestHandler):
     
     if result.status_code == 200 and not result.content.startswith("Error") :
       self.response.write('{ "success": true, ' +
-                          '"registration": "' + registration + '" }')
+                          '"registration": "' + registrationId + '" }')
     else:
       logging.info(result.content)
       self.response.write('{ "success": false }')
