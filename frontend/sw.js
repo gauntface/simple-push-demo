@@ -37,7 +37,6 @@ self.addEventListener('push', function(e) {
   var icon = 'images/touch/chrome-touch-icon-192x192.png';
 
   return new Notification(title, {
-    serviceWorker: true,
     body: message,
     icon: icon || 'images/touch/chrome-touch-icon-192x192.png'
   });
