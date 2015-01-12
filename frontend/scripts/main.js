@@ -232,7 +232,6 @@ function requestPushPermission() {
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
     serviceWorkerRegistration.pushManager.subscribe()
       .then(function(pushSubscription) {
-        console.log('Push Subscription Object = ', pushSubscription);
         sendSubscription(pushSubscription);
       })
       .catch(function(e) {
@@ -244,13 +243,15 @@ function requestPushPermission() {
   });
 }
 
-function revokePushPermission() {
+function revokePushSubscription() {
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
     serviceWorkerRegistration.pushManager.getSubscription().then(
       function(pushSubscription) {
+        // Check we have everything we need to unsubscribe
         if (!pushSubscription || !pushSubscription.unsubscribe) {
           return;
         }
+        
         pushSubscription.unsubscribe();
 
         changeState(STATE_NOTIFICATION_PERMISSION);
@@ -264,6 +265,7 @@ function revokePushPermission() {
 window.addEventListener('load', function() {
   prepareViews();
 
+  // Check service workers are supported
   if (!('serviceWorker' in navigator)) {
     showError('Ooops No Service Worker found', 'This is most likely down ' +
       'to the site being run in a browser without service worker support. ' +
@@ -271,8 +273,8 @@ window.addEventListener('load', function() {
     return;
   }
 
-  // Once we have a service worker, enable the buttons
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    // Check if this service worker supports push
     if (!serviceWorkerRegistration.pushManager) {
       showError('Ooops Push Isn\'t Supported', 'This is most likely ' +
         'down to the current browser doesn\'t have support for push. ' +
@@ -280,21 +282,26 @@ window.addEventListener('load', function() {
       return;
     }
 
+    // Check if we have permission for push messages already
     serviceWorkerRegistration.pushManager.hasPermission().then(
       function(pushPermissionStatus) {
+        // Once we have a service worker, and checked permission,
+        // enable the buttons
         var buttonContainer = document.querySelector('.button-container');
         buttonContainer.style.display = 'block';
 
+        // If we don't have permission then set the UI accordingly
         if (pushPermissionStatus !== 'granted') {
           changeState(STATE_NOTIFICATION_PERMISSION);
           return;
         }
 
         // We have permission, so let's update the subscription
+        // just to be safe
         serviceWorkerRegistration.pushManager.getSubscription().then(
           function(pushSubscription) {
+            // Check if we have an existing pushSubscription
             if (pushSubscription) {
-              // We should have notification permission
               sendSubscription(pushSubscription);
               changeState(STATE_ALLOW_PUSH_SEND);
             } else {
@@ -327,5 +334,5 @@ window.addEventListener('load', function() {
 
   requestPushBtn.addEventListener('click', askServerToSendMessage);
 
-  revokePushBtn.addEventListener('click', revokePushPermission);
+  revokePushBtn.addEventListener('click', revokePushSubscription);
 });
