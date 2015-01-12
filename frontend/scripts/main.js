@@ -31,6 +31,12 @@ var revokePushBtn;
 var pushTitleInput;
 var pushMessageInput;
 
+var STATE_NOTIFICATION_PERMISSION = 0;
+var STATE_PUSH_PERMISSION = 1;
+var STATE_ALLOW_PUSH_SEND = 2;
+
+var currentState = STATE_NOTIFICATION_PERMISSION;
+
 /**
  *
  * These methods are specific to setting up the UI
@@ -49,10 +55,72 @@ function prepareViews() {
 
   pushTitleInput = requestPushElements.querySelector('.title');
   pushMessageInput = requestPushElements.querySelector('.message');
+}
 
-  if (!(navigator.push && navigator.push.unregister)) {
-    revokePushElements.style.display = 'none';
+function changeState(newState) {
+  if (newState !== STATE_NOTIFICATION_PERMISSION &&
+    Notification.permission !== 'granted') {
+    changeState(STATE_NOTIFICATION_PERMISSION);
+    return;
   }
+
+  switch (newState) {
+    case STATE_NOTIFICATION_PERMISSION:
+      if (Notification.permission === 'granted') {
+        changeState(STATE_PUSH_PERMISSION);
+        return;
+      }
+      notificationBtn.disabled = false;
+      notificationElements.classList.remove('completed');
+      notificationElements.classList.remove('disabled');
+
+      pushBtn.disabled = true;
+      pushPermissionElements.classList.remove('completed');
+      pushPermissionElements.classList.add('disabled');
+
+      requestPushBtn.disabled = true;
+      pushTitleInput.disabled = true;
+      pushMessageInput.disabled = true;
+      requestPushElements.classList.add('disabled');
+
+      revokePushBtn.disabled = true;
+      revokePushElements.classList.add('disabled');
+      break;
+    case STATE_PUSH_PERMISSION:
+      notificationBtn.disabled = true;
+      notificationElements.classList.add('completed');
+
+      pushBtn.disabled = false;
+      pushPermissionElements.classList.remove('completed');
+      pushPermissionElements.classList.remove('disabled');
+
+      requestPushBtn.disabled = true;
+      pushTitleInput.disabled = true;
+      pushMessageInput.disabled = true;
+      requestPushElements.classList.add('disabled');
+
+      revokePushBtn.disabled = true;
+      revokePushElements.classList.add('disabled');
+      break;
+    case STATE_ALLOW_PUSH_SEND:
+      notificationBtn.disabled = true;
+      notificationElements.classList.add('completed');
+
+      pushBtn.disabled = true;
+      pushPermissionElements.classList.add('completed');
+      pushPermissionElements.classList.remove('disabled');
+
+      requestPushBtn.disabled = false;
+      pushTitleInput.disabled = false;
+      pushMessageInput.disabled = false;
+      requestPushElements.classList.remove('disabled');
+
+      revokePushBtn.disabled = false;
+      revokePushElements.classList.remove('disabled');
+      break;
+  }
+
+  currentState = newState;
 }
 
 function showError(title, message) {
@@ -83,14 +151,11 @@ function requestNotificationPermission() {
 
   Notification.requestPermission(function(result) {
     if (result !== 'granted') {
-      console.log('Permission wasn\'t granted. Allow a retry');
+      console.log('Permission wasn\'t granted. Allow a retry.');
       return;
     }
 
-    notificationBtn.disabled = true;
-    notificationElements.classList.add('completed');
-    pushBtn.disabled = false;
-    pushPermissionElements.classList.remove('disabled');
+    changeState(STATE_PUSH_PERMISSION);
   });
 }
 
@@ -135,11 +200,13 @@ function askServerToSendMessage() {
  * up push notifications
  *
  */
-function sendRegistration(endpoint, registrationId) {
+function sendSubscription(subscriptionObject) {
+  var endpoint = subscriptionObject.endpoint;
+  var subscriptionId = subscriptionObject.subscriptionId;
   console.log('sendRegistration endpoint = ', endpoint);
-  console.log('sendRegistration registrationId = ', registrationId);
+  console.log('sendRegistration subscriptionId = ', subscriptionId);
   var formData = new FormData();
-  formData.append('registration', registrationId);
+  formData.append('registration', subscriptionId);
   formData.append('endpoint', endpoint);
 
   var xhr = new XMLHttpRequest();
@@ -149,12 +216,7 @@ function sendRegistration(endpoint, registrationId) {
       return;
     }
 
-    pushBtn.disabled = true;
-    pushPermissionElements.classList.add('completed');
-    requestPushBtn.disabled = false;
-    requestPushElements.classList.remove('disabled');
-    revokePushBtn.disabled = false;
-    revokePushElements.classList.remove('disabled');
+    changeState(STATE_ALLOW_PUSH_SEND);
   };
 
   xhr.onerror = xhr.onabort = function() {
@@ -168,9 +230,10 @@ function sendRegistration(endpoint, registrationId) {
 
 function requestPushPermission() {
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-    serviceWorkerRegistration.pushManager.register()
-      .then(function(pushRegistration) {
-        sendRegistration(pushRegistration.endpoint, pushRegistration.registrationId);
+    serviceWorkerRegistration.pushManager.subscribe()
+      .then(function(pushSubscription) {
+        console.log('Push Subscription Object = ', pushSubscription);
+        sendSubscription(pushSubscription);
       })
       .catch(function(e) {
         console.error('Unable to register for push', e);
@@ -182,19 +245,16 @@ function requestPushPermission() {
 }
 
 function revokePushPermission() {
-  navigator.serviceWorker.ready.then(function(sw) {
-    navigator.push.unregister()
-      .then(function(pushRegistration) {
-        console.log('Revoked push permissions', pushRegistration);
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    serviceWorkerRegistration.pushManager.getSubscription().then(
+      function(pushSubscription) {
+        if (!pushSubscription || !pushSubscription.unsubscribe) {
+          return;
+        }
+        pushSubscription.unsubscribe();
 
-        pushBtn.disabled = false;
-        pushPermissionElements.classList.remove('completed');
-        pushPermissionElements.classList.remove('disabled');
-
-        revokePushBtn.disabled = true;
-        revokePushElements.classList.add('disabled');
-      })
-      .catch(function(e) {
+        changeState(STATE_NOTIFICATION_PERMISSION);
+      }.bind(this)).catch(function(e) {
         console.error('Error thrown while revoking push notifications. ' +
           'Most likely because push was never registered', e);
       });
@@ -220,14 +280,38 @@ window.addEventListener('load', function() {
       return;
     }
 
-    var buttonContainer = document.querySelector('.button-container');
-    buttonContainer.style.display = 'block';
+    serviceWorkerRegistration.pushManager.hasPermission().then(
+      function(pushPermissionStatus) {
+        var buttonContainer = document.querySelector('.button-container');
+        buttonContainer.style.display = 'block';
+
+        if (pushPermissionStatus !== 'granted') {
+          changeState(STATE_NOTIFICATION_PERMISSION);
+          return;
+        }
+
+        // We have permission, so let's update the subscription
+        serviceWorkerRegistration.pushManager.getSubscription().then(
+          function(pushSubscription) {
+            if (pushSubscription) {
+              // We should have notification permission
+              sendSubscription(pushSubscription);
+              changeState(STATE_ALLOW_PUSH_SEND);
+            } else {
+              changeState(STATE_NOTIFICATION_PERMISSION);
+            }
+          });
+      });
   });
 
   // Register the Service Worker
   navigator.serviceWorker.register('/sw.js')
-    .then(function(err) {
+    .then(function(registration) {
       // Registration worked :)
+      console.log('registration = ', registration);
+      //registration.onupdatefound = function(serviceWorker) {
+      //  console.log('onUpdatefound');
+      //};
     })
     .catch(function(err) {
       // Registration failed :(

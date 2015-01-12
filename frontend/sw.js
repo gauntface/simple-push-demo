@@ -41,3 +41,8 @@ self.addEventListener('push', function(e) {
     icon: icon || 'images/touch/chrome-touch-icon-192x192.png'
   });
 });
+
+self.addEventListener('pushsubscriptionlost', function(e) {
+  console.log(e);
+  
+});
