@@ -39,8 +39,16 @@ class PushHandler(webapp2.RequestHandler):
   def post(self):
     logging.info('PushHandler')
 
-    registrationId = db.GqlQuery("SELECT * FROM PushRegistration")[0].registration;
+    registrations = db.GqlQuery("SELECT * FROM PushRegistration");
+    if registrations.count() == 0 :
+      self.response.write('{ "success": false, "message": "No registration available to use" }')
+      return;
+
+    registrationId = registrations[0].registration;
     endpoint = db.GqlQuery("SELECT * FROM PushRegistration")[0].endpoint;
+
+    logging.info(registrationId)
+    logging.info(endpoint)
 
     form_fields = {
       "registration_id": registrationId,
@@ -51,7 +59,7 @@ class PushHandler(webapp2.RequestHandler):
     }
 
     form_data = urllib.urlencode(form_fields)
-    logging.info(form_data)
+
     result = urlfetch.fetch(url=endpoint,
                             payload=form_data,
                             method=urlfetch.POST,
