@@ -18,11 +18,6 @@ self.addEventListener('push', function(e) {
   if (!(self.Notification && self.Notification.permission === 'granted')) {
     console.error('Failed to display notification - not supported');
 
-    // Prove that we did actually get a push
-    var data = e.data.json();
-    console.log('Title = ' + data.title);
-    console.log('Message = ' + data.message);
-
     // Perhaps we don't have permission to show a notification
     if (self.Notification) {
       console.error('  notificaton permission set to:',
@@ -31,9 +26,12 @@ self.addEventListener('push', function(e) {
     return;
   }
 
-  var data = e.data.json();
-  var title = data.title || 'Why you no title?';
-  var message = data.message || 'Hello World!....I guess.';
+  var data = {};
+  if (e.data) {
+    data = e.data.json();
+  }
+  var title = data.title || 'No Payload with Message';
+  var message = data.message || 'This will change in future versions of Chrome.';
   var icon = 'images/touch/chrome-touch-icon-192x192.png';
 
   return new Notification(title, {
