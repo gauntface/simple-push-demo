@@ -34,13 +34,35 @@ self.addEventListener('push', function(e) {
   var message = data.message || 'This will change in future versions of Chrome.';
   var icon = 'images/touch/chrome-touch-icon-192x192.png';
 
-  return new Notification(title, {
+  var notification = new Notification(title, {
     body: message,
-    icon: icon || 'images/touch/chrome-touch-icon-192x192.png'
+    icon: icon,
+    tag: 'simple-push-demo-notification'
   });
+
+  // This should be swapped out by the notificationclick event
+  notification.addEventListener('click', function() {
+    if (clients.openWindow) {
+      console.log('Notification clicked, trying to call clients.openWindow');
+      clients.openWindow('https://gauntface.com/blog/2014/12/15/push-notifications-service-worker');
+    } else {
+      console.log('Notification clicked, but clients.openWindow is not currently supported');
+    }
+  });
+
+  return notification;
 });
 
 self.addEventListener('pushsubscriptionlost', function(e) {
   console.log(e);
-  
+});
+
+self.addEventListener('notificationclick', function(e) {
+  console.log('Notification click yo.');
+
+  if (clients.openWindow) {
+    clients.openWindow('https://gauntface.com/blog/2014/12/15/push-notifications-service-worker');
+  } else {
+    console.log('Notification clicked, but clients.openWindow is not currently supported');
+  }
 });
