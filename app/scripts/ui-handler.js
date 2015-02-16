@@ -7,7 +7,7 @@ function UIHandler() {
   var sendPushOptions = document.querySelector('.js-send-push-options');
 
   var xhrPushButton = document.querySelector('.js-xhr-button');
-  var wrappedButton = new MaterialButton(xhrPushButton);
+  new MaterialButton(xhrPushButton);
 
   this.getPushSwitchElement = function() {
     return enablePushSwitch;

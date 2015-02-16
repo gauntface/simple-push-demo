@@ -17,6 +17,10 @@
   "globals": {
     "importScripts": true,
     "self": true,
-    "Notification": true
+    "Notification": true,
+    "fetch": true,
+    "clients": true,
+    "MaterialButton": true,
+    "MaterialSwitch": true
   }
 }

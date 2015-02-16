@@ -20,41 +20,45 @@
  */
 
 var API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
-var PUSH_SERVER_URL = 'https://simple-push-demo-backend.appspot.com/';
+var PUSH_SERVER_URL = 'https://simple-push-demo-backend.appspot.com';
 
 function onPushSubscription(pushSubscription) {
   // Here we would normally send the endpoint
   // and subscription ID to our server.
-  // In this demo we just use these values to
-  // XHR a push message.
+  // In this demo we just use send these values to
+  // our server via XHR which sends a push message.
   window.PushDemo.ui.showGCMPushOptions(true);
   window.PushDemo.ui.setPushSwitchDisabled(false);
 
   var pushEndPoint = pushSubscription.endpoint;
   var subscriptionId = pushSubscription.subscriptionId;
 
-  var curlCommand = 'curl --header "Authorization: key=' + API_KEY +
-      '" --header Content-Type:"application/json" ' + pushEndPoint + 
-      ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
-
-  var curlCodeElement = document.querySelector('.js-curl-code');
-  curlCodeElement.innerHTML = curlCommand;
-
+  // Code to handle the XHR
   var sendPushViaXHRButton = document.querySelector('.js-xhr-button');
   sendPushViaXHRButton.addEventListener('click', function(e) {
+    console.log('Send the push');
     var formData = new FormData();
     formData.append('subscriptionId', subscriptionId);
     formData.append('endpoint', pushEndPoint);
 
     fetch(PUSH_SERVER_URL + '/send_push', {
         method: 'post',
-        body: formData
+        body: formData,
+        mode: 'cors'
       }).then(function(response) {
         console.log('Response = ', response);
       }).catch(function(err) {
         console.log('Fetch Error :-S', err);
       });
   });
+
+  // The curl command to trigger a push message straight from GCM
+  var curlCommand = 'curl --header "Authorization: key=' + API_KEY +
+      '" --header Content-Type:"application/json" ' + pushEndPoint + 
+      ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
+
+  var curlCodeElement = document.querySelector('.js-curl-code');
+  curlCodeElement.innerHTML = curlCommand;
 }
 
 function subscribeToPushManager() {
@@ -77,9 +81,17 @@ function subscribeToPushManager() {
 }
 
 function enabledPushMessages() {
+  // Disable the switch so it can't be changed while
+  // we process permissions
   window.PushDemo.ui.setPushSwitchDisabled(true);
+
+  // Request permission to show notifications
   Notification.requestPermission(function(result) {
+    // If the permission isn't granted change state of switch
     window.PushDemo.ui.setPushChecked(result === 'granted');
+
+    // If the permission wsa denied, show a message explaining
+    // it's permanent 
     if (result === 'denied') {
       window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
         'Unfortunately you just permanently blocked notifications. Please unblock / ' +
@@ -115,7 +127,9 @@ function disablePushMessages() {
   });
 }
 
+// Once the service worker is registered set the initial state
 function onServiceWorkerRegistered() {
+  // Make sure we can show notifications
   if (!('Notification' in window)) {
     window.PushDemo.ui.showError('Ooops Notifications Not Supported', 
       'This is most likely ' +
@@ -134,6 +148,7 @@ function onServiceWorkerRegistered() {
     return;
   }
 
+  // Check if push is supported and what the current state is
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
     // Check if this service worker supports push
     if (!serviceWorkerRegistration.pushManager) {
@@ -160,27 +175,28 @@ function onServiceWorkerRegistered() {
         window.PushDemo.ui.setPushSwitchDisabled(false);
 
         if (pushPermissionStatus === 'granted') {
-          // Let's update our subscription ID.
+          // Let's update our subscription details.
           // This is required for this demo, you 
-          // may just want to assume the subscriptionId
+          // will most likely want to assume the subscriptionId
           // and endpoint are saved on your server and you don't
           // need to do anything
-          navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-            serviceWorkerRegistration.pushManager.getSubscription()
-              .then(function(subscription) {
-                if (!subscription) {
-                  // NOOP
-                  return;
-                }
-
-                // Set the initial state of the push switch
-                window.PushDemo.ui.setPushChecked(true);
-                onPushSubscription(subscription);
-              })
-              .catch(function(e) {
+          serviceWorkerRegistration.pushManager.getSubscription()
+            .then(function(subscription) {
+              if (!subscription) {
                 // NOOP
-              });
-          });
+                return;
+              }
+
+              // Set the initial state of the push switch
+              window.PushDemo.ui.setPushChecked(true);
+
+              // Update the current state with the 
+              // subscriptionid and endpoint
+              onPushSubscription(subscription);
+            })
+            .catch(function(e) {
+              // NOOP
+            });
         }
 
         // TODO: Should we update the subscriptionID just in case?
@@ -190,6 +206,8 @@ function onServiceWorkerRegistered() {
 }
 
 window.addEventListener('UIReady', function() {
+  // When the toggle switch changes, enabled / disable push
+  // messaging
   var enablePushSwitch = document.querySelector('.js-enable-push');
   enablePushSwitch.addEventListener('change', function(e) {
     if (e.target.checked) {
@@ -199,6 +217,7 @@ window.addEventListener('UIReady', function() {
     }
   });
 
+  // Check that service workers are supported
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js', {
       scope: './'
