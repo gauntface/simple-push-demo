@@ -6,33 +6,21 @@ threadsafe: yes
 
 handlers:
 - url: /
-  static_files: frontend/index.html
+  static_files: frontend/dist/index.html
   secure: always
-  upload: frontend/index\.html
+  upload: frontend/dist/index\.html
 
-- url: /push
+- url: /send_push
   secure: always
-  script: main.app
-
-- url: /register_track
-  secure: always
-  script: main.app
-
-- url: /clear_registrations
-  secure: always
-  script: main.app
-
-- url: /get_registrations
-  secure: always
-  script: main.app
+  script: backend.main.app
 
 - url: /*
   secure: always
-  static_dir: frontend/
+  static_dir: frontend/dist/
 
 - url: .*
   secure: always
-  script: main.app
+  script: backend.main.app
 
 libraries:
 - name: webapp2

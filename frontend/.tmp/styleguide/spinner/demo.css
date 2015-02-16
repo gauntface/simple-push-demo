@@ -1,0 +1,964 @@
+@charset "UTF-8";
+/*
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+html {
+  color: #222;
+  font-size: 1em;
+  line-height: 1.4; }
+
+/*
+ * Remove text-shadow in selection highlight: h5bp.com/i
+ * These selection rule sets have to be separate.
+ * Customize the background color to match your design.
+ */
+::-moz-selection {
+  background: #b3d4fc;
+  text-shadow: none; }
+
+::selection {
+  background: #b3d4fc;
+  text-shadow: none; }
+
+/*
+ * A better looking default horizontal rule
+ */
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0; }
+
+/*
+ * Remove the gap between images, videos, audio and canvas and the bottom of
+ * their containers: h5bp.com/i/440
+ */
+audio, canvas, img, svg, video {
+  vertical-align: middle; }
+
+/*
+ * Remove default fieldset styles.
+ */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0; }
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+textarea {
+  resize: vertical; }
+
+/* ==========================================================================
+   Browse Happy prompt
+   ========================================================================== */
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0; }
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+/*
+ * Hide visually and from screen readers: h5bp.com/u
+ */
+.hidden {
+  display: none !important;
+  visibility: hidden; }
+
+/*
+ * Hide only visually, but have it available for screen readers: h5bp.com/v
+ */
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px; }
+
+/*
+ * Extends the .visuallyhidden class to allow the element to be focusable
+ * when navigated to via the keyboard: h5bp.com/p
+ */
+.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus {
+  clip: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  position: static;
+  width: auto; }
+
+/*
+ * Hide visually and from screen readers, but maintain layout
+ */
+.invisible {
+  visibility: hidden; }
+
+/*
+ * Clearfix: contain floats
+ *
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    `contenteditable` attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that receive the `clearfix` class.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+.clearfix:before, .clearfix:after {
+  content: " ";
+  /* 1 */
+  display: table;
+  /* 2 */ }
+
+.clearfix:after {
+  clear: both; }
+
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid the additional HTTP request: h5bp.com/r
+   ========================================================================== */
+@media print {
+  *, *:before, *:after {
+    background: transparent !important;
+    color: #000 !important;
+    /* Black prints faster: h5bp.com/s */
+    box-shadow: none !important;
+    text-shadow: none !important; }
+  a, a:visited {
+    text-decoration: underline; }
+  a[href]:after {
+    content: " (" attr(href) ")"; }
+  abbr[title]:after {
+    content: " (" attr(title) ")"; }
+  /*
+     * Don't show links that are fragment identifiers,
+     * or use the `javascript:` pseudo protocol
+     */
+  a[href^="#"]:after, a[href^="javascript:"]:after {
+    content: ""; }
+  pre, blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid; }
+  thead {
+    display: table-header-group;
+    /* h5bp.com/t */ }
+  tr, img {
+    page-break-inside: avoid; }
+  img {
+    max-width: 100% !important; }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3; }
+  h2, h3 {
+    page-break-after: avoid; } }
+
+/* We're splitting fonts into "preferred" and "performance" in order to optimize
+   page loading. For important text, such as the body, we want it to load
+   immediately and not wait for the web font load, whereas for other sections,
+   such as headers and titles, we're OK with things taking a bit longer to load.
+   We do have some optional classes and parameters in the mixins, in case you
+   definitely want to make sure you're using the preferred font and don't mind
+   the performance hit.
+   We should be able to improve on this once CSS Font Loading L3 becomes more
+   widely available.
+*/
+html, body {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px; }
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+  padding: 0; }
+
+/**
+ * Styles for HTML elements
+ */
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  opacity: 0.54;
+  font-size: 0.6em; }
+
+h1 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em; }
+
+h2 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 45px;
+  font-weight: 400;
+  line-height: 48px; }
+
+h3 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 40px; }
+
+h4 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  -moz-osx-font-smoothing: grayscale; }
+
+h5 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em; }
+
+h6 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em; }
+
+p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  margin: 0 0 16px 0; }
+
+a {
+  font-weight: bold; }
+
+blockquote {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 24px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0.08em; }
+  blockquote:before {
+    content: '“';
+    opacity: 0.54; }
+  blockquote:after {
+    content: '”';
+    opacity: 0.54; }
+
+mark {
+  background-color: #f4ff81; }
+
+dt {
+  font-weight: 700; }
+
+/**
+ * Class Name Styles
+ */
+.wsk-typography--display-4 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 112px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.04em; }
+
+.wsk-typography--display-4--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 112px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  opacity: 0.54; }
+
+.wsk-typography--display-3 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em; }
+
+.wsk-typography--display-3--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  opacity: 0.54; }
+
+.wsk-typography--display-2 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 45px;
+  font-weight: 400;
+  line-height: 48px; }
+
+.wsk-typography--display-2--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 45px;
+  font-weight: 400;
+  line-height: 48px;
+  opacity: 0.54; }
+
+.wsk-typography--display-1 {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 40px; }
+
+.wsk-typography--display-1--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 40px;
+  opacity: 0.54; }
+
+.wsk-typography--headline {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  -moz-osx-font-smoothing: grayscale; }
+
+.wsk-typography--headline--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  -moz-osx-font-smoothing: grayscale;
+  opacity: 0.87; }
+
+.wsk-typography--title {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em; }
+
+.wsk-typography--title--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  opacity: 0.87; }
+
+.wsk-typography--subhead {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--subhead--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--body-2 {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 24px;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--Body-2--colorContrast {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--body-1 {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--body-1--colorContrast {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--body-2--forcePreferredFont {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--Body-2--forcePreferredFont--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--body-1--forcePreferredFont {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--body-1--forcePreferredFont--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--caption {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em; }
+
+.wsk-typography--caption--forcePreferredFont {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em; }
+
+.wsk-typography--caption--colorContrast {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  opacity: 0.54; }
+
+.wsk-typography--caption--forcePreferredFont--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  opacity: 0.54; }
+
+.wsk-typography--menu {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--menu--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--button {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0.04em; }
+
+.wsk-typography--button--colorContrast {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  opacity: 0.87; }
+
+.wsk-typography--textLeft {
+  text-align: left; }
+
+.wsk-typography--textRight {
+  text-align: right; }
+
+.wsk-typography--textCenter {
+  text-align: center; }
+
+.wsk-typography--textJustify {
+  text-align: justify; }
+
+.wsk-typography--textNowrap {
+  white-space: nowrap; }
+
+.wsk-typography--textLowercase {
+  text-transform: lowercase; }
+
+.wsk-typography--textUppercase {
+  text-transform: uppercase; }
+
+.wsk-typography--textCapitalize {
+  text-transform: capitalize; }
+
+.wsk-typography--tableStriped > tbody > tr:nth-child(odd) > td, .wsk-typography--tableStriped > tbody > tr:nth-child(odd) > th {
+  background-color: #f9f9f9; }
+
+.wsk-typography--tableStriped > tbody > tr:nth-child(odd) > td, .wsk-typography--tableStriped > tbody > tr:nth-child(odd) > th {
+  background-color: #f9f9f9; }
+
+/**
+*
+* Material design color palettes.
+* @see http://www.google.com/design/spec/style/color.html
+*
+**/
+/* ==========  Color Palettes  ========== */
+html, body {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0; }
+
+body {
+  padding: 24px;
+  box-sizing: border-box;
+  background: #FFF; }
+
+body > h2 {
+  margin-top: 24px;
+  margin-bottom: 12px; }
+
+.PreviewBlock {
+  background: #f5f5f5;
+  padding: 20px; }
+
+/**
+*
+* Material design color palettes.
+* @see http://www.google.com/design/spec/style/color.html
+*
+**/
+/* ==========  Color Palettes  ========== */
+/* ==========  Color & Themes  ========== */
+/* ==========  Typography  ========== */
+/* ==========  Components  ========== */
+/* ==========  Standard Buttons  ========== */
+/* ==========  Icon Toggles  ========== */
+/* ==========  Radio Buttons  ========== */
+/* ==========  Ripple effect  ========== */
+/* ==========  Layout  ========== */
+/* ==========  Content Tabs  ========== */
+/* ==========  Checkboxes  ========== */
+/* ==========  Switches  ========== */
+/* ==========  Spinner  ========== */
+/* ==========  Text fields  ========== */
+/* ==========  Card  ========== */
+/* Heading back */
+/* ==========  Sliders ========== */
+/* ==========  List ========== */
+/* ==========  Item ========== */
+/* ==========  Dropdown menu ========== */
+/* ==========  Tooltips  ========== */
+/* ==========  Footer  ========== */
+.wsk-spinner {
+  display: inline-block;
+  position: relative;
+  width: 28px;
+  height: 28px; }
+  .wsk-spinner:not(.is-upgraded):after {
+    content: "Loading..."; }
+  .wsk-spinner.is-upgraded.is-active {
+    -webkit-animation: wsk-spinner__container-rotate 1568.2352941176ms linear infinite;
+            animation: wsk-spinner__container-rotate 1568.2352941176ms linear infinite; }
+
+@-webkit-keyframes wsk-spinner__container-rotate {
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
+
+@keyframes wsk-spinner__container-rotate {
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
+
+.wsk-spinner__layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0; }
+
+.wsk-spinner__layer-1 {
+  border-color: #4285f4; }
+  .wsk-spinner--single-color .wsk-spinner__layer-1 {
+    border-color: #2196f3; }
+  .wsk-spinner.is-active .wsk-spinner__layer-1 {
+    -webkit-animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-1-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+            animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-1-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+
+.wsk-spinner__layer-2 {
+  border-color: #db4437; }
+  .wsk-spinner--single-color .wsk-spinner__layer-2 {
+    border-color: #2196f3; }
+  .wsk-spinner.is-active .wsk-spinner__layer-2 {
+    -webkit-animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-2-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+            animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-2-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+
+.wsk-spinner__layer-3 {
+  border-color: #f4b400; }
+  .wsk-spinner--single-color .wsk-spinner__layer-3 {
+    border-color: #2196f3; }
+  .wsk-spinner.is-active .wsk-spinner__layer-3 {
+    -webkit-animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-3-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+            animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-3-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+
+.wsk-spinner__layer-4 {
+  border-color: #0f9d58; }
+  .wsk-spinner--single-color .wsk-spinner__layer-4 {
+    border-color: #2196f3; }
+  .wsk-spinner.is-active .wsk-spinner__layer-4 {
+    -webkit-animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-4-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+            animation: wsk-spinner__fill-unfill-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both, wsk-spinner__layer-4-fade-in-out 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+
+@-webkit-keyframes wsk-spinner__fill-unfill-rotate {
+  12.5% {
+    -webkit-transform: rotate(135deg);
+            transform: rotate(135deg); }
+
+  25% {
+    -webkit-transform: rotate(270deg);
+            transform: rotate(270deg); }
+
+  37.5% {
+    -webkit-transform: rotate(405deg);
+            transform: rotate(405deg); }
+
+  50% {
+    -webkit-transform: rotate(540deg);
+            transform: rotate(540deg); }
+
+  62.5% {
+    -webkit-transform: rotate(675deg);
+            transform: rotate(675deg); }
+
+  75% {
+    -webkit-transform: rotate(810deg);
+            transform: rotate(810deg); }
+
+  87.5% {
+    -webkit-transform: rotate(945deg);
+            transform: rotate(945deg); }
+
+  to {
+    -webkit-transform: rotate(1080deg);
+            transform: rotate(1080deg); } }
+
+@keyframes wsk-spinner__fill-unfill-rotate {
+  12.5% {
+    -webkit-transform: rotate(135deg);
+            transform: rotate(135deg); }
+
+  25% {
+    -webkit-transform: rotate(270deg);
+            transform: rotate(270deg); }
+
+  37.5% {
+    -webkit-transform: rotate(405deg);
+            transform: rotate(405deg); }
+
+  50% {
+    -webkit-transform: rotate(540deg);
+            transform: rotate(540deg); }
+
+  62.5% {
+    -webkit-transform: rotate(675deg);
+            transform: rotate(675deg); }
+
+  75% {
+    -webkit-transform: rotate(810deg);
+            transform: rotate(810deg); }
+
+  87.5% {
+    -webkit-transform: rotate(945deg);
+            transform: rotate(945deg); }
+
+  to {
+    -webkit-transform: rotate(1080deg);
+            transform: rotate(1080deg); } }
+
+/**
+* HACK: Even though the intention is to have the current .wsk-spinner__layer-N
+* at `opacity: 1`, we set it to `opacity: 0.99` instead since this forces Chrome
+* to do proper subpixel rendering for the elements being animated. This is
+* especially visible in Chrome 39 on Ubuntu 14.04. See:
+*
+* - https://github.com/Polymer/paper-spinner/issues/9
+* - https://code.google.com/p/chromium/issues/detail?id=436255
+*/
+@-webkit-keyframes wsk-spinner__layer-1-fade-in-out {
+  from {
+    opacity: 0.99; }
+
+  25% {
+    opacity: 0.99; }
+
+  26% {
+    opacity: 0; }
+
+  89% {
+    opacity: 0; }
+
+  90% {
+    opacity: 0.99; }
+
+  100% {
+    opacity: 0.99; } }
+@keyframes wsk-spinner__layer-1-fade-in-out {
+  from {
+    opacity: 0.99; }
+
+  25% {
+    opacity: 0.99; }
+
+  26% {
+    opacity: 0; }
+
+  89% {
+    opacity: 0; }
+
+  90% {
+    opacity: 0.99; }
+
+  100% {
+    opacity: 0.99; } }
+
+@-webkit-keyframes wsk-spinner__layer-2-fade-in-out {
+  from {
+    opacity: 0; }
+
+  15% {
+    opacity: 0; }
+
+  25% {
+    opacity: 0.99; }
+
+  50% {
+    opacity: 0.99; }
+
+  51% {
+    opacity: 0; } }
+
+@keyframes wsk-spinner__layer-2-fade-in-out {
+  from {
+    opacity: 0; }
+
+  15% {
+    opacity: 0; }
+
+  25% {
+    opacity: 0.99; }
+
+  50% {
+    opacity: 0.99; }
+
+  51% {
+    opacity: 0; } }
+
+@-webkit-keyframes wsk-spinner__layer-3-fade-in-out {
+  from {
+    opacity: 0; }
+
+  40% {
+    opacity: 0; }
+
+  50% {
+    opacity: 0.99; }
+
+  75% {
+    opacity: 0.99; }
+
+  76% {
+    opacity: 0; } }
+
+@keyframes wsk-spinner__layer-3-fade-in-out {
+  from {
+    opacity: 0; }
+
+  40% {
+    opacity: 0; }
+
+  50% {
+    opacity: 0.99; }
+
+  75% {
+    opacity: 0.99; }
+
+  76% {
+    opacity: 0; } }
+
+@-webkit-keyframes wsk-spinner__layer-4-fade-in-out {
+  from {
+    opacity: 0; }
+
+  65% {
+    opacity: 0; }
+
+  75% {
+    opacity: 0.99; }
+
+  90% {
+    opacity: 0.99; }
+
+  100% {
+    opacity: 0; } }
+
+@keyframes wsk-spinner__layer-4-fade-in-out {
+  from {
+    opacity: 0; }
+
+  65% {
+    opacity: 0; }
+
+  75% {
+    opacity: 0.99; }
+
+  90% {
+    opacity: 0.99; }
+
+  100% {
+    opacity: 0; } }
+
+/**
+* Patch the gap that appear between the two adjacent
+* div.wsk-spinner__circle-clipper while the spinner is rotating
+* (appears on Chrome 38, Safari 7.1, and IE 11).
+*
+* Update: the gap no longer appears on Chrome when .wsk-spinner__layer-N's
+* opacity is 0.99, but still does on Safari and IE.
+*/
+.wsk-spinner__gap-patch {
+  position: absolute;
+  box-sizing: border-box;
+  top: 0;
+  left: 45%;
+  width: 10%;
+  height: 100%;
+  overflow: hidden;
+  border-color: inherit; }
+  .wsk-spinner__gap-patch .wsk-spinner__circle {
+    width: 1000%;
+    left: -450%; }
+
+.wsk-spinner__circle-clipper {
+  display: inline-block;
+  position: relative;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  border-color: inherit; }
+  .wsk-spinner__circle-clipper .wsk-spinner__circle {
+    width: 200%; }
+
+.wsk-spinner__circle {
+  box-sizing: border-box;
+  height: 100%;
+  border-width: 3px;
+  border-style: solid;
+  border-color: inherit;
+  border-bottom-color: transparent !important;
+  border-radius: 50%;
+  -webkit-animation: none;
+          animation: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0; }
+  .wsk-spinner__left .wsk-spinner__circle {
+    border-right-color: transparent !important;
+    -webkit-transform: rotate(129deg);
+        -ms-transform: rotate(129deg);
+            transform: rotate(129deg); }
+    .wsk-spinner.is-active .wsk-spinner__left .wsk-spinner__circle {
+      -webkit-animation: wsk-spinner__left-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+              animation: wsk-spinner__left-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+  .wsk-spinner__right .wsk-spinner__circle {
+    left: -100%;
+    border-left-color: transparent !important;
+    -webkit-transform: rotate(-129deg);
+        -ms-transform: rotate(-129deg);
+            transform: rotate(-129deg); }
+    .wsk-spinner.is-active .wsk-spinner__right .wsk-spinner__circle {
+      -webkit-animation: wsk-spinner__right-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+              animation: wsk-spinner__right-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both; }
+
+@-webkit-keyframes wsk-spinner__left-spin {
+  from {
+    -webkit-transform: rotate(130deg);
+            transform: rotate(130deg); }
+
+  50% {
+    -webkit-transform: rotate(-5deg);
+            transform: rotate(-5deg); }
+
+  to {
+    -webkit-transform: rotate(130deg);
+            transform: rotate(130deg); } }
+
+@keyframes wsk-spinner__left-spin {
+  from {
+    -webkit-transform: rotate(130deg);
+            transform: rotate(130deg); }
+
+  50% {
+    -webkit-transform: rotate(-5deg);
+            transform: rotate(-5deg); }
+
+  to {
+    -webkit-transform: rotate(130deg);
+            transform: rotate(130deg); } }
+
+@-webkit-keyframes wsk-spinner__right-spin {
+  from {
+    -webkit-transform: rotate(-130deg);
+            transform: rotate(-130deg); }
+
+  50% {
+    -webkit-transform: rotate(5deg);
+            transform: rotate(5deg); }
+
+  to {
+    -webkit-transform: rotate(-130deg);
+            transform: rotate(-130deg); } }
+
+@keyframes wsk-spinner__right-spin {
+  from {
+    -webkit-transform: rotate(-130deg);
+            transform: rotate(-130deg); }
+
+  50% {
+    -webkit-transform: rotate(5deg);
+            transform: rotate(5deg); }
+
+  to {
+    -webkit-transform: rotate(-130deg);
+            transform: rotate(-130deg); } }
