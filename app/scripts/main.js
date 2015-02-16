@@ -36,15 +36,13 @@ function onPushSubscription(pushSubscription) {
   // Code to handle the XHR
   var sendPushViaXHRButton = document.querySelector('.js-xhr-button');
   sendPushViaXHRButton.addEventListener('click', function(e) {
-    console.log('Send the push');
     var formData = new FormData();
     formData.append('subscriptionId', subscriptionId);
     formData.append('endpoint', pushEndPoint);
 
     fetch(PUSH_SERVER_URL + '/send_push', {
         method: 'post',
-        body: formData,
-        mode: 'cors'
+        body: formData
       }).then(function(response) {
         console.log('Response = ', response);
       }).catch(function(err) {

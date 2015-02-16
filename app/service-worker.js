@@ -28,10 +28,16 @@ self.addEventListener('push', function(event) {
         var icon = data.query.results.channel.image.url || 
           'images/touch/chrome-touch-icon-192x192.png';
 
+        // Add this to the data of the notification
+        var urlToOpen = data.query.results.channel.link;
+
         return self.registration.showNotification(title, {
           body: message,
           icon: icon,
-          tag: 'simple-push-demo-notification'
+          tag: 'simple-push-demo-notification',
+          data: {
+            url: urlToOpen
+          }
         });
       });
     }).catch(function(e) {
@@ -45,11 +51,15 @@ self.addEventListener('pushsubscriptionlost', function(e) {
 });
 
 self.addEventListener('notificationclick', function(e) {
-  console.log('On notification click.');
+  console.log('On notification click: ', e);
 
-  if (clients.openWindow) {
-    clients.openWindow('https://gauntface.com/blog/2014/12/15/push-notifications-service-worker');
-  } else {
-    console.log('Notification clicked, but clients.openWindow is not currently supported');
-  }
+  // At the time of implementation e.notification.data wasn't implemented
+  var urlToOpen = e.notification.data ? e.notification.data.url :
+    'https://gauntface.com/blog/2014/12/15/push-notifications-service-worker';
+  
+  // At the moment you cannot open third party URL's, a simple trick
+  // is to redirect to the desired URL from a URL on your domain
+  var redirectUrl = self.location.origin + '/redirect.html?redirect=' +
+    urlToOpen;
+  clients.openWindow(redirectUrl);
 });
