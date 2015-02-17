@@ -1,6 +1,21 @@
 'use strict';
 
+importScripts('/scripts/indexdbwrapper.js');
+
 var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22london%2C%20uk%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
+var KEY_VALUE_STORE_NAME = 'key-value-store';
+
+var idb;
+
+// avoid opening idb until first call
+function getIdb() {
+  if (!idb) {
+    idb = new IndexDBWrapper('key-value-store', 1, function(db) {
+      db.createObjectStore(KEY_VALUE_STORE_NAME);
+    });
+  }
+  return idb;
+}
 
 // This file is intentionally without code.
 // It's present so that service worker registration will work when serving from the 'app' directory.
@@ -27,39 +42,51 @@ self.addEventListener('push', function(event) {
           ' at the moment';
         var icon = data.query.results.channel.image.url || 
           'images/touch/chrome-touch-icon-192x192.png';
+        var notificationTag = 'simple-push-demo-notification';
 
         // Add this to the data of the notification
         var urlToOpen = data.query.results.channel.link;
+        
+        // Since Chrome doesn't support data at the moment
+        // Store the URL in IndexDB
+        getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
 
         return self.registration.showNotification(title, {
           body: message,
           icon: icon,
-          tag: 'simple-push-demo-notification',
+          tag: notificationTag,
           data: {
             url: urlToOpen
           }
         });
       });
-    }).catch(function(e) {
-      console.log('Unable to retrieve data');
+    }).catch(function(err) {
+      console.error('Unable to retrieve data', err);
     })
   );
 });
 
-self.addEventListener('pushsubscriptionlost', function(e) {
-  console.log('Push subscription lost' + e);
+self.addEventListener('pushsubscriptionlost', function(event) {
+  console.log('Push subscription lost' + event);
 });
 
-self.addEventListener('notificationclick', function(e) {
-  console.log('On notification click: ', e);
+self.addEventListener('notificationclick', function(event) {
+  console.log('On notification click: ', event);
 
-  // At the time of implementation e.notification.data wasn't implemented
-  var urlToOpen = e.notification.data ? e.notification.data.url :
-    'https://gauntface.com/blog/2014/12/15/push-notifications-service-worker';
-  
-  // At the moment you cannot open third party URL's, a simple trick
-  // is to redirect to the desired URL from a URL on your domain
-  var redirectUrl = self.location.origin + '/redirect.html?redirect=' +
-    urlToOpen;
-  clients.openWindow(redirectUrl);
+  if (event.notification.data) {
+    // At the moment you cannot open third party URL's, a simple trick
+    // is to redirect to the desired URL from a URL on your domain
+    var redirectUrl = self.location.origin + '/redirect.html?redirect=' +
+      event.notification.data.url;
+    clients.openWindow(redirectUrl);
+  } else {
+    event.waitUntil(getIdb().get(KEY_VALUE_STORE_NAME, event.notification.tag).then(function(url) {
+      console.log('url = ' + url);
+      // At the moment you cannot open third party URL's, a simple trick
+      // is to redirect to the desired URL from a URL on your domain
+      var redirectUrl = self.location.origin + '/redirect.html?redirect=' +
+        url;
+      return clients.openWindow(redirectUrl);
+    }));
+  }
 });
