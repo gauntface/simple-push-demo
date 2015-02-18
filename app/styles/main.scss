@@ -24,6 +24,8 @@ body {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   position: relative;
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   font-weight: 300;
@@ -39,7 +41,7 @@ header {
 }
 
 header h1 {
-  max-width: 320px;
+  max-width: 480px;
 
   margin: 0 auto;
   padding-top: 140px;
@@ -49,8 +51,14 @@ header h1 {
 }
 
 main {
+  display: flex;
+  flex-direction: column;
+  
+  flex: 1;
+
   max-width: 480px;
   min-width: 64px;
+  width: 100%;
 
   padding: 32px;
   margin: 0 auto;
@@ -73,6 +81,7 @@ a {
   word-break: break-all;
 
   padding: 16px;
+  box-sizing: border-box;
 
   background-color: #eeeeee;
   color: #222222;
@@ -84,6 +93,7 @@ a {
 
 .content-overlap-wrapper {
   position: relative;
+  flex: 1;
 }
 
 .send-push-options {
