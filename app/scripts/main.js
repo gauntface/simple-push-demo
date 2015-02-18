@@ -183,14 +183,9 @@ function onServiceWorkerRegistered() {
         return;
       }
 
-      // Let's update our subscription details.
-      // This is required for this demo, you 
-      // will most likely want to assume the subscriptionId
-      // and endpoint are saved on your server and you don't
-      // need to do anything
+      // Let's see if we have a subscription already
       serviceWorkerRegistration.pushManager.getSubscription()
         .then(function(subscription) {
-          console.log('Push Subscription = ', subscription);
           window.PushDemo.ui.setPushSwitchDisabled(false);
           if (!subscription) {
             // NOOP
