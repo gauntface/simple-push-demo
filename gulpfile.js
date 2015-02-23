@@ -218,7 +218,7 @@ gulp.task('default', ['clean'], function(cb) {
   runSequence(
     'styles',
     ['jshint', 'html', 'scripts', 'images', 'styleguide-images', 'fonts', 'copy'],
-    'generate-service-worker',
+    //'generate-service-worker',
     cb);
 });
 
