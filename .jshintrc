@@ -21,6 +21,7 @@
     "fetch": true,
     "clients": true,
     "MaterialButton": true,
-    "MaterialSwitch": true
+    "MaterialSwitch": true,
+    "componentHandler": true
   }
 }
