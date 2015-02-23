@@ -32,7 +32,7 @@ UIHandler.prototype.showError = function(title, message) {
   errorContainer.style.opacity = 1;
 
   var sendPushElement = this.getSendPushOptionsElement();
-  sendPushElement.style.display = "none";
+  sendPushElement.style.display = 'none';
 };
 
 UIHandler.prototype.showOnlyError = function() {
