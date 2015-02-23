@@ -24,9 +24,6 @@ body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  position: relative;
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   font-weight: 300;
   background-color: #fff;
@@ -51,11 +48,6 @@ header h1 {
 }
 
 main {
-  display: flex;
-  flex-direction: column;
-  
-  flex: 1;
-
   max-width: 480px;
   min-width: 64px;
   width: 100%;
@@ -92,13 +84,10 @@ a {
 }
 
 .content-overlap-wrapper {
-  position: relative;
   flex: 1;
 }
 
 .send-push-options {
-  position: absolute;
-
   margin-top: 36px;
 
   opacity: 0;
@@ -107,5 +96,7 @@ a {
 }
 
 .error-message-container {
-  position: absolute;
+  opacity: 0;
+
+  transition:opacity 0.5s;
 }

@@ -29,7 +29,10 @@ UIHandler.prototype.showError = function(title, message) {
   var messageElement = errorContainer.querySelector('.js-error-message');
   titleElement.innerHTML = title;
   messageElement.innerHTML = message;
-  errorContainer.style.display = 'block';
+  errorContainer.style.opacity = 1;
+
+  var sendPushElement = this.getSendPushOptionsElement();
+  sendPushElement.style.display = "none";
 };
 
 UIHandler.prototype.showOnlyError = function() {
