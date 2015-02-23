@@ -219,6 +219,7 @@ gulp.task('default', ['clean'], function(cb) {
     'styles',
     ['jshint', 'html', 'scripts', 'images', 'styleguide-images', 'fonts', 'copy'],
     //'generate-service-worker',
+    'cheat-task',
     cb);
 });
 
@@ -276,6 +277,15 @@ gulp.task('generate-service-worker', function(callback) {
       callback();
     });
   });
+});
+
+// This is to get around some bugs in WSK: 
+// https://github.com/google/web-starter-kit/issues/639
+gulp.task('cheat-task', function(callback) {
+  return gulp.src([
+    'app/scripts/indexdbwrapper.js'
+  ]).pipe(gulp.dest('dist/scripts'))
+    .pipe($.size({title: 'copy'}));
 });
 
 // Load custom tasks from the `tasks` directory
