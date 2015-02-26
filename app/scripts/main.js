@@ -60,45 +60,33 @@ function onPushSubscription(pushSubscription) {
 }
 
 function subscribeToPushManager() {
-  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-    serviceWorkerRegistration.pushManager.subscribe()
-      .then(onPushSubscription)
-      .catch(function(e) {
-        window.PushDemo.ui.showError('Ooops Push Couldn\'t Register', 
-          '<p>When we tried to ' +
-          'get the subscription ID for GCM, something went wrong, not ' +
-          'sure why.</p>' +
-          '<p>You sure you have defined "gcm_sender_id" and ' +
-          '"gcm_user_visible_only" in the manifest</p>' +
-          '<p>Error message: ' +
-          e.message +
-          '</p>');
-        window.PushDemo.ui.setPushSwitchDisabled(false);
-      });
-  });
-}
-
-function enabledPushMessages() {
   // Disable the switch so it can't be changed while
   // we process permissions
   window.PushDemo.ui.setPushSwitchDisabled(true);
 
-  // Request permission to show notifications
-  Notification.requestPermission(function(result) {
-    // If the permission isn't granted change state of switch
-    window.PushDemo.ui.setPushChecked(result === 'granted');
-
-    // If the permission was denied, show a message explaining
-    // it's permanent 
-    if (result === 'denied') {
-      window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
-        'Unfortunately you just permanently blocked notifications. Please unblock / ' +
-        'allow them to switch on push notifications.');
-      return;
-    }
-
-    // Notifications are enabled, now to get permission for push
-    subscribeToPushManager();
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    serviceWorkerRegistration.pushManager.subscribe()
+      .then(onPushSubscription)
+      .catch(function(e) {
+        if (Notification.permission === 'denied') {
+          window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
+            'Unfortunately you just permanently blocked notifications. Please unblock / ' +
+            'allow them to switch on push notifications.');
+          window.PushDemo.ui.setPushSwitchDisabled(true);
+        } else {
+          window.PushDemo.ui.showError('Ooops Push Couldn\'t Register', 
+            '<p>When we tried to ' +
+            'get the subscription ID for GCM, something went wrong, not ' +
+            'sure why.</p>' +
+            '<p>You sure you have defined "gcm_sender_id" and ' +
+            '"gcm_user_visible_only" in the manifest</p>' +
+            '<p>Error message: ' +
+            e.message +
+            '</p>');
+          window.PushDemo.ui.setPushSwitchDisabled(false);
+        }
+        window.PushDemo.ui.setPushChecked(false);
+      });
   });
 }
 
@@ -204,7 +192,9 @@ function onServiceWorkerRegistered() {
         });
     });
   } else {
-    window.PushDemo.ui.setPushSwitchDisabled(false);
+    navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+      window.PushDemo.ui.setPushSwitchDisabled(false);
+    });
   }
 }
 
@@ -214,7 +204,7 @@ window.addEventListener('UIReady', function() {
   var enablePushSwitch = document.querySelector('.js-enable-push');
   enablePushSwitch.addEventListener('change', function(e) {
     if (e.target.checked) {
-      enabledPushMessages();
+      subscribeToPushManager();
     } else {
       disablePushMessages();
     }

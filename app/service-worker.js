@@ -67,8 +67,28 @@ self.addEventListener('push', function(event) {
   );
 });
 
-self.addEventListener('pushsubscriptionlost', function(event) {
-  console.log('Push subscription lost' + event);
+self.addEventListener('pushsubscriptionchange', function(event) {
+  console.log('Push subscription change');
+  self.registration.pushManager.getSubscription()
+    .then(function(subscription) {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+
+      if (Notification.permission === 'granted') {
+        self.registration.pushManager.subscribe()
+          .then(function(pushSubscription) {
+            console.log('A new push subscription', pushSubscription);
+            // Update server with new subscriptionId and endpoint
+          })
+          .catch(function(e) {
+            console.warn('Unable to subscribe the user to push messaging');
+          });
+      }
+    })
+    .catch(function(e) {
+      console.error('Unable to get subscriptions', e);
+    });
 });
 
 self.addEventListener('notificationclick', function(event) {
@@ -77,7 +97,7 @@ self.addEventListener('notificationclick', function(event) {
   if (event.notification.data) {
     // At the moment you cannot open third party URL's, a simple trick
     // is to redirect to the desired URL from a URL on your domain
-    var redirectUrl = self.location.origin + '/redirect.html?redirect=' +
+    var redirectUrl = '/redirect.html?redirect=' +
       event.notification.data.url;
     clients.openWindow(redirectUrl);
   } else {
@@ -85,7 +105,7 @@ self.addEventListener('notificationclick', function(event) {
       console.log('url = ' + url);
       // At the moment you cannot open third party URL's, a simple trick
       // is to redirect to the desired URL from a URL on your domain
-      var redirectUrl = self.location.origin + '/redirect.html?redirect=' +
+      var redirectUrl = '/redirect.html?redirect=' +
         url;
       return clients.openWindow(redirectUrl);
     }));
