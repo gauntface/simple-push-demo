@@ -64,6 +64,7 @@ function subscribeToPushManager() {
   // we process permissions
   window.PushDemo.ui.setPushSwitchDisabled(true);
 
+  // We need the service worker registration to access the push manager
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
     serviceWorkerRegistration.pushManager.subscribe()
       .then(onPushSubscription)
@@ -119,8 +120,6 @@ function disablePushMessages() {
           // Set the state of the push switch
           window.PushDemo.ui.setPushChecked(true);
         });
-
-        
       }.bind(this)).catch(function(e) {
         console.error('Error thrown while revoking push notifications. ' +
           'Most likely because push was never registered', e);

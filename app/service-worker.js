@@ -17,6 +17,10 @@ function getIdb() {
   return idb;
 }
 
+function sendToServer() {
+  // TODO: implment ;)
+}
+
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
@@ -52,14 +56,15 @@ self.addEventListener('push', function(event) {
         // Store the URL in IndexDB
         getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
 
-        return self.registration.showNotification(title, {
+        /**return self.registration.showNotification(title, {
           body: message,
           icon: icon,
           tag: notificationTag,
           data: {
             url: urlToOpen
           }
-        });
+        });**/
+        return;
       });
     }).catch(function(err) {
       console.error('Unable to retrieve data', err);
@@ -68,27 +73,21 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('pushsubscriptionchange', function(event) {
-  console.log('Push subscription change');
-  self.registration.pushManager.getSubscription()
-    .then(function(subscription) {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
+  if (Notification.permission !== 'granted') {
+    // We need to ask the user to enable notifications
 
-      if (Notification.permission === 'granted') {
-        self.registration.pushManager.subscribe()
-          .then(function(pushSubscription) {
-            console.log('A new push subscription', pushSubscription);
-            // Update server with new subscriptionId and endpoint
-          })
-          .catch(function(e) {
-            console.warn('Unable to subscribe the user to push messaging');
-          });
-      }
-    })
-    .catch(function(e) {
-      console.error('Unable to get subscriptions', e);
-    });
+    // You may want to remove any previous subscription details
+    // from your server since the user won't receive any of the
+    // push messages
+    return;
+  }
+  event.waitUntil(self.registration.pushManager.subscribe().then(function(subscription) {
+      // TODO: Send subscriptionId and endpoint to your server
+      // so that you can send a push message at a later date
+      return sendToServer(subscription);
+    }).catch(function(error) {
+      console.warn('Unable to subscribe user to push notifications');
+    }));
 });
 
 self.addEventListener('notificationclick', function(event) {
