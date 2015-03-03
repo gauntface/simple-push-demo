@@ -56,15 +56,14 @@ self.addEventListener('push', function(event) {
         // Store the URL in IndexDB
         getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
 
-        /**return self.registration.showNotification(title, {
+        return self.registration.showNotification(title, {
           body: message,
           icon: icon,
           tag: notificationTag,
           data: {
             url: urlToOpen
           }
-        });**/
-        return;
+        });
       });
     }).catch(function(err) {
       console.error('Unable to retrieve data', err);
