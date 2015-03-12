@@ -6,6 +6,7 @@ var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/v1/public/yql?q=se
 var KEY_VALUE_STORE_NAME = 'key-value-store';
 
 var idb;
+var usePlainNotification = true;
 
 // avoid opening idb until first call
 function getIdb() {
@@ -23,6 +24,22 @@ function sendToServer() {
 
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
+
+  if (usePlainNotification) {
+    var title = 'Push Notifcations';
+    var message = 'On the Open Web - Whoop Whoop';
+    var icon = 'images/successkid.jpg';
+    var notificationTag = 'simple-push-demo-notification';
+
+    event.waitUntil(
+      self.registration.showNotification(title, {
+        body: message,
+        icon: icon,
+        tag: notificationTag
+      })
+    );
+    return;
+  }
 
   // Since this is no payload data with the first version
   // of Push notifications, here we'll grab some data from
