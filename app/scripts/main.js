@@ -20,7 +20,7 @@
  */
 
 var API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
-var PUSH_SERVER_URL = 'https://simple-push-demo-backend.appspot.com';
+var PUSH_SERVER_URL = 'https://simple-push-demo.appspot.com';
 
 function onPushSubscription(pushSubscription) {
   // Here we would normally send the endpoint
