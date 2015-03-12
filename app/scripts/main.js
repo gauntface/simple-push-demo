@@ -126,9 +126,11 @@ function unsubscribeDevice() {
             console.error('We were unable to unregister from push');
           }
 
+          window.PushDemo.ui.setPushSwitchDisabled(false);
           window.PushDemo.ui.showGCMPushOptions(false);
         }).catch(function(e) {
           console.log('Unsubscribtion error: ', e);
+          window.PushDemo.ui.setPushSwitchDisabled(false);
           window.PushDemo.ui.showGCMPushOptions(true);
 
           // Set the state of the push switch
