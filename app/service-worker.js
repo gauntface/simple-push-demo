@@ -6,7 +6,7 @@ var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/v1/public/yql?q=se
 var KEY_VALUE_STORE_NAME = 'key-value-store';
 
 var idb;
-var usePlainNotification = true;
+var usePlainNotification = false;
 
 // avoid opening idb until first call
 function getIdb() {
@@ -62,9 +62,7 @@ self.addEventListener('push', function(event) {
         }
 
         var title = 'What\'s the weather like in London?';
-        var message = 'Well, we have ' +
-          data.query.results.channel.item.condition.text.toLowerCase() +
-          ' at the moment';
+        var message = data.query.results.channel.item.condition.text;
         var icon = data.query.results.channel.image.url ||
           'images/touch/chrome-touch-icon-192x192.png';
         var notificationTag = 'simple-push-demo-notification';
