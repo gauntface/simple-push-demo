@@ -31,27 +31,30 @@ self.addEventListener('push', function(event) {
     fetch(YAHOO_WEATHER_API_ENDPOINT).then(function(response) {
       if (response.status !== 200) {
         console.log('Looks like there was a problem. Status Code: ' + response.status);
-        return;
+        
+        // Throw an error so the promise is rejected and catch() is executed
+        throw new Error();
       }
 
       // Examine the text in the response
       return response.json().then(function(data) {
         console.log('Data = ', JSON.stringify(data));
         if (data.query.count === 0) {
-          return;
+          // Throw an error so the promise is rejected and catch() is executed
+          throw new Error();
         }
-        
+
         var title = 'What\'s the weather like in London?';
         var message = 'Well, we have ' +
           data.query.results.channel.item.condition.text.toLowerCase() +
           ' at the moment';
-        var icon = data.query.results.channel.image.url || 
+        var icon = data.query.results.channel.image.url ||
           'images/touch/chrome-touch-icon-192x192.png';
         var notificationTag = 'simple-push-demo-notification';
 
         // Add this to the data of the notification
         var urlToOpen = data.query.results.channel.link;
-        
+
         // Since Chrome doesn't support data at the moment
         // Store the URL in IndexDB
         getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
@@ -67,26 +70,19 @@ self.addEventListener('push', function(event) {
       });
     }).catch(function(err) {
       console.error('Unable to retrieve data', err);
+
+      var title = 'An error occured';
+      var message = 'We were unable to get the information for this push message';
+      var icon = 'images/touch/chrome-touch-icon-192x192.png';
+      var notificationTag = 'simple-push-demo-notification';
+
+      return self.registration.showNotification(title, {
+          body: message,
+          icon: icon,
+          tag: notificationTag
+        });
     })
   );
-});
-
-self.addEventListener('pushsubscriptionchange', function(event) {
-  if (Notification.permission !== 'granted') {
-    // We need to ask the user to enable notifications
-
-    // You may want to remove any previous subscription details
-    // from your server since the user won't receive any of the
-    // push messages
-    return;
-  }
-  event.waitUntil(self.registration.pushManager.subscribe().then(function(subscription) {
-      // TODO: Send subscriptionId and endpoint to your server
-      // so that you can send a push message at a later date
-      return sendToServer(subscription);
-    }).catch(function(error) {
-      console.warn('Unable to subscribe user to push notifications');
-    }));
 });
 
 self.addEventListener('notificationclick', function(event) {

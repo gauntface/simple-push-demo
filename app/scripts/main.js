@@ -59,7 +59,7 @@ function onPushSubscription(pushSubscription) {
   curlCodeElement.innerHTML = curlCommand;
 }
 
-function subscribeToPushManager() {
+function subscribeDevice() {
   // Disable the switch so it can't be changed while
   // we process permissions
   window.PushDemo.ui.setPushSwitchDisabled(true);
@@ -79,8 +79,8 @@ function subscribeToPushManager() {
             '<p>When we tried to ' +
             'get the subscription ID for GCM, something went wrong, not ' +
             'sure why.</p>' +
-            '<p>You sure you have defined "gcm_sender_id" and ' +
-            '"gcm_user_visible_only" in the manifest</p>' +
+            '<p>Have you defined "gcm_sender_id" and ' +
+            '"gcm_user_visible_only" in the manifest?</p>' +
             '<p>Error message: ' +
             e.message +
             '</p>');
@@ -91,15 +91,31 @@ function subscribeToPushManager() {
   });
 }
 
-function disablePushMessages() {
+function unsubscribeDevice() {
+  // Disable the switch so it can't be changed while
+  // we process permissions
+  window.PushDemo.ui.setPushSwitchDisabled(true);
+
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
     serviceWorkerRegistration.pushManager.getSubscription().then(
       function(pushSubscription) {
         // Check we have everything we need to unsubscribe
-        if (!pushSubscription || !pushSubscription.unsubscribe) {
+        if (!pushSubscription) {
+          // Disable the switch so it can't be changed while
+          // we process permissions
+          window.PushDemo.ui.setPushSwitchDisabled(false);
+
+          // Set the state of the push switch
+          window.PushDemo.ui.setPushChecked(false);
+
+          window.PushDemo.ui.showGCMPushOptions(false);
           return;
         }
-        
+         
+        // TODO: Remove the device details from the server
+        // i.e. the pushSubscription.subscriptionId and 
+        // pushSubscription.endpoint
+
         pushSubscription.unsubscribe().then(function(successful) {
           console.log('Unsubscribed from push: ', successful);
           if (!successful) {
@@ -109,8 +125,6 @@ function disablePushMessages() {
             // This just may be in a bad state when the user returns
             console.error('We were unable to unregister from push');
           }
-
-          // TODO: Remove the subscription ID on your server
 
           window.PushDemo.ui.showGCMPushOptions(false);
         }).catch(function(e) {
@@ -128,7 +142,7 @@ function disablePushMessages() {
 }
 
 // Once the service worker is registered set the initial state
-function onServiceWorkerRegistered() {
+function initialiseState() {
   // Make sure we can show notifications
   if (!('Notification' in window)) {
     window.PushDemo.ui.showError('Ooops Notifications Not Supported', 
@@ -139,8 +153,16 @@ function onServiceWorkerRegistered() {
       'Checkout chrome://flags/#enable-experimental-web-platform-features');
     return;
   }
-
-  console.log('Notification.permission = ', Notification.permission);
+  // Are Notifications supported in the service worker?
+  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+    window.PushDemo.ui.showError('Ooops Notifications Not Supported',
+      'This is most likely ' +
+      'down to the experimental web features not being enabled in ' +
+      'chrome://flags or you\'re using a version of Chrome older than version 42.' +
+      'Showing a notification is required when you receive a push message in Chrome.' +
+      'Checkout chrome://flags/#enable-experimental-web-platform-features');
+    return;
+  }
 
   // If the notification permission is denied, it's a permanent block
   if (Notification.permission === 'denied') {
@@ -150,51 +172,46 @@ function onServiceWorkerRegistered() {
     return;
   }
 
-  if (Notification.permission === 'granted') {
-    // Check if push is supported and what the current state is
-    navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-      // Check if this service worker supports push
-      if (!serviceWorkerRegistration.pushManager) {
-        window.PushDemo.ui.showError('Ooops Push Isn\'t Supported',
-          '<p>This could be a few things.</p>' +
-          '<ol>' +
-          '<li>Make sure you are using Chrome Canary / Chrome version 42+</li>' +
-          '<li>Make sure you have Experimental Web Platform features enabled ' + 
-          'in Chrome flags (chrome://flags/#enable-experimental-web-platform-features)</li>' +
-          '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" defined' +
-          ' in your manifest</li>' +
-          '</ol>' +
-          'If both of the above are true, then please message ' +
-          '<a href="https://twitter.com/gauntface">@gauntface</a> as the ' +
-          'demo is probably broken.');
-        return;
-      }
-
-      // Let's see if we have a subscription already
-      serviceWorkerRegistration.pushManager.getSubscription()
-        .then(function(subscription) {
-          window.PushDemo.ui.setPushSwitchDisabled(false);
-          if (!subscription) {
-            // NOOP
-            return;
-          }
-
-          // Set the initial state of the push switch
-          window.PushDemo.ui.setPushChecked(true);
-
-          // Update the current state with the
-          // subscriptionid and endpoint
-          onPushSubscription(subscription);
-        })
-        .catch(function(e) {
-          // NOOP
-        });
-    });
-  } else {
-    navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-      window.PushDemo.ui.setPushSwitchDisabled(false);
-    });
+  // Check if push messaging is supported
+  if (!('PushManager' in window)) {
+    window.PushDemo.ui.showError('Ooops Push Isn\'t Supported',
+      '<p>This could be a few things.</p>' +
+      '<ol>' +
+      '<li>Make sure you are using Chrome Canary / Chrome version 42+</li>' +
+      '<li>Make sure you have Experimental Web Platform features enabled ' +
+      'in Chrome flags (chrome://flags/#enable-experimental-web-platform-features)</li>' +
+      '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" defined' +
+      ' in your manifest</li>' +
+      '</ol>' +
+      'If both of the above are true, then please message ' +
+      '<a href="https://twitter.com/gauntface">@gauntface</a> as the ' +
+      'demo is probably broken.');
+    return;
   }
+
+  // Check if push is supported and what the current state is
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    console.log('serviceWorkerRegistration');
+    // Let's see if we have a subscription already
+    serviceWorkerRegistration.pushManager.getSubscription()
+      .then(function(subscription) {
+        window.PushDemo.ui.setPushSwitchDisabled(false);
+        if (!subscription) {
+          // NOOP
+          return;
+        }
+
+        // Set the initial state of the push switch
+        window.PushDemo.ui.setPushChecked(true);
+
+        // Update the current state with the
+        // subscriptionid and endpoint
+        onPushSubscription(subscription);
+      })
+      .catch(function(e) {
+        window.PushDemo.ui.setPushSwitchDisabled(false);
+      });
+  });
 }
 
 window.addEventListener('UIReady', function() {
@@ -203,9 +220,9 @@ window.addEventListener('UIReady', function() {
   var enablePushSwitch = document.querySelector('.js-enable-push');
   enablePushSwitch.addEventListener('change', function(e) {
     if (e.target.checked) {
-      subscribeToPushManager();
+      subscribeDevice();
     } else {
-      disablePushMessages();
+      unsubscribeDevice();
     }
   });
 
@@ -214,7 +231,7 @@ window.addEventListener('UIReady', function() {
     navigator.serviceWorker.register('/service-worker.js', {
       scope: './'
     })
-    .then(onServiceWorkerRegistered);
+    .then(initialiseState);
   } else {
     // Service Workers aren't supported so you should hide the push UI
     // If it's currently visible.

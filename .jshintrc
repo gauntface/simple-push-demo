@@ -23,6 +23,7 @@
     "MaterialButton": true,
     "MaterialSwitch": true,
     "componentHandler": true,
-    "indexedDB": true
+    "indexedDB": true,
+    "ServiceWorkerRegistration": true
   }
 }
