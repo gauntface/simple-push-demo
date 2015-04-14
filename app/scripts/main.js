@@ -52,7 +52,7 @@ function onPushSubscription(pushSubscription) {
 
   // The curl command to trigger a push message straight from GCM
   var curlCommand = 'curl --header "Authorization: key=' + API_KEY +
-      '" --header Content-Type:"application/json" ' + pushEndPoint + 
+      '" --header Content-Type:"application/json" ' + pushEndPoint +
       ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
 
   var curlCodeElement = document.querySelector('.js-curl-code');
@@ -69,13 +69,42 @@ function subscribeDevice() {
     serviceWorkerRegistration.pushManager.subscribe()
       .then(onPushSubscription)
       .catch(function(e) {
-        if (Notification.permission === 'denied') {
-          window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
-            'Unfortunately you just permanently blocked notifications. Please unblock / ' +
-            'allow them to switch on push notifications.');
-          window.PushDemo.ui.setPushSwitchDisabled(true);
-        } else {
-          window.PushDemo.ui.showError('Ooops Push Couldn\'t Register', 
+        // Check for a permission prompt issue
+        /**navigator.permissions.query({name: 'push'})
+          .then(function(permissionStatus) {
+            console.log('Push permission status = ', permissionStatus);
+            window.PushDemo.ui.setPushChecked(false);
+            if (permissionStatus.status === 'denied' ||
+              permissionStatus.status === 'prompt') {
+              // The use didn't except the permission prompt
+              return;
+            } else{
+              window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
+                '<p>When we tried to ' +
+                'get the subscription ID for GCM, something went wrong, not ' +
+                'sure why.</p>' +
+                '<p>Have you defined "gcm_sender_id" and ' +
+                '"gcm_user_visible_only" in the manifest?</p>' +
+                '<p>Error message: ' +
+                e.message +
+                '</p>');
+              window.PushDemo.ui.setPushSwitchDisabled(false);
+              window.PushDemo.ui.setPushChecked(false);
+            }
+          }).catch(function(err) {
+            window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
+              '<p>When we tried to ' +
+              'get the subscription ID for GCM, something went wrong, not ' +
+              'sure why.</p>' +
+              '<p>Have you defined "gcm_sender_id" and ' +
+              '"gcm_user_visible_only" in the manifest?</p>' +
+              '<p>Error message: ' +
+              err.message +
+              '</p>');
+            window.PushDemo.ui.setPushSwitchDisabled(false);
+            window.PushDemo.ui.setPushChecked(false);
+          });**/
+          window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
             '<p>When we tried to ' +
             'get the subscription ID for GCM, something went wrong, not ' +
             'sure why.</p>' +
@@ -85,8 +114,7 @@ function subscribeDevice() {
             e.message +
             '</p>');
           window.PushDemo.ui.setPushSwitchDisabled(false);
-        }
-        window.PushDemo.ui.setPushChecked(false);
+          window.PushDemo.ui.setPushChecked(false);
       });
   });
 }
@@ -111,9 +139,9 @@ function unsubscribeDevice() {
           window.PushDemo.ui.showGCMPushOptions(false);
           return;
         }
-         
+
         // TODO: Remove the device details from the server
-        // i.e. the pushSubscription.subscriptionId and 
+        // i.e. the pushSubscription.subscriptionId and
         // pushSubscription.endpoint
 
         pushSubscription.unsubscribe().then(function(successful) {
@@ -143,18 +171,33 @@ function unsubscribeDevice() {
   });
 }
 
+function permissionStatusChange(permissionStatus) {
+  console.log('permissionStatusChange = ', permissionStatus);
+  // If the notification permission is denied, it's a permanent block
+  switch (permissionStatus.status) {
+    case 'denied':
+      window.PushDemo.ui.showError('Ooops Push has been Blocked',
+        'Unfortunately the user permanently blocked push. Please unblock / ' +
+        'allow them to switch on push notifications.');
+
+      // Set the state of the push switch
+      window.PushDemo.ui.setPushChecked(false);
+      window.PushDemo.ui.setPushSwitchDisabled(true);
+      break;
+    case 'granted':
+      // Set the state of the push switch
+
+      window.PushDemo.ui.setPushSwitchDisabled(false);
+      break;
+    case 'prompt':
+      window.PushDemo.ui.setPushChecked(false);
+      window.PushDemo.ui.setPushSwitchDisabled(false);
+      break;
+  }
+}
+
 // Once the service worker is registered set the initial state
 function initialiseState() {
-  // Make sure we can show notifications
-  if (!('Notification' in window)) {
-    window.PushDemo.ui.showError('Ooops Notifications Not Supported', 
-      'This is most likely ' +
-      'down to the experimental web features not being enabled in ' +
-      'chrome://flags. ' +
-      'Showing a notification is required when you receive a push message in Chrome.' +
-      'Checkout chrome://flags/#enable-experimental-web-platform-features');
-    return;
-  }
   // Are Notifications supported in the service worker?
   if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
     window.PushDemo.ui.showError('Ooops Notifications Not Supported',
@@ -166,11 +209,11 @@ function initialiseState() {
     return;
   }
 
-  // If the notification permission is denied, it's a permanent block
-  if (Notification.permission === 'denied') {
-    window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
-      'Unfortunately notifications are permanently blocked. Please unblock / ' +
-      'allow them to switch on push notifications.');
+  // Is the Permissions API supported
+  if (!('permissions' in navigator)) {
+    window.PushDemo.ui.showError('Ooops the Permission API is Not Supported',
+      'The permission API is required to run this demo.' +
+      'Make sure you are running Chrome 43+.');
     return;
   }
 
@@ -191,29 +234,44 @@ function initialiseState() {
     return;
   }
 
-  // Check if push is supported and what the current state is
-  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-    console.log('serviceWorkerRegistration');
-    // Let's see if we have a subscription already
-    serviceWorkerRegistration.pushManager.getSubscription()
-      .then(function(subscription) {
-        window.PushDemo.ui.setPushSwitchDisabled(false);
-        if (!subscription) {
-          // NOOP
-          return;
-        }
+  navigator.permissions.query({name: 'push', userVisible: true})
+    .then(function(permissionStatus) {
+      // Set the initial state
+      permissionStatusChange(permissionStatus);
 
-        // Set the initial state of the push switch
-        window.PushDemo.ui.setPushChecked(true);
+      // Handle Permission State Changes
+      permissionStatus.onchange = function() {
+        console.log('onchange - anyjoy?');
+        permissionStatusChange(this);
+      };
 
-        // Update the current state with the
-        // subscriptionid and endpoint
-        onPushSubscription(subscription);
-      })
-      .catch(function(e) {
-        window.PushDemo.ui.setPushSwitchDisabled(false);
+      // Check if push is supported and what the current state is
+      navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+        console.log('serviceWorkerRegistration');
+        // Let's see if we have a subscription already
+        serviceWorkerRegistration.pushManager.getSubscription()
+          .then(function(subscription) {
+            if (!subscription) {
+              // NOOP
+              return;
+            }
+
+            // Set the initial state of the push switch
+            window.PushDemo.ui.setPushChecked(true);
+
+            // Update the current state with the
+            // subscriptionid and endpoint
+            onPushSubscription(subscription);
+          })
+          .catch(function(e) {
+            console.log('An error occured while calling getSubscription()', e);
+          });
       });
-  });
+    }).catch(function(err) {
+      window.PushDemo.ui.showError('Ooops Unable to check the permission',
+        'Unfortunately the permission for push notifications couldn\'t be ' +
+        'checked. Are you on Chrome 43+?');
+    });
 }
 
 window.addEventListener('UIReady', function() {

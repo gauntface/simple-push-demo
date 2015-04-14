@@ -48,6 +48,7 @@ UIHandler.prototype.setPushChecked = function(isChecked) {
 };
 
 UIHandler.prototype.setPushSwitchDisabled = function(isDisabled) {
+  console.log('Set disabled State = ' + isDisabled);
   var pushSwitch = this.getPushSwitchElement();
   pushSwitch.disabled = isDisabled;
   this.getWrappedPushSwitch().onChange_();
