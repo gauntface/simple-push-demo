@@ -70,9 +70,9 @@ function subscribeDevice() {
       .then(onPushSubscription)
       .catch(function(e) {
         // Check for a permission prompt issue
-        /**navigator.permissions.query({name: 'push'})
+        navigator.permissions.query({name: 'push'})
           .then(function(permissionStatus) {
-            console.log('Push permission status = ', permissionStatus);
+            console.log('subscribe() Error: Push permission status = ', permissionStatus);
             window.PushDemo.ui.setPushChecked(false);
             if (permissionStatus.status === 'denied' ||
               permissionStatus.status === 'prompt') {
@@ -103,18 +103,7 @@ function subscribeDevice() {
               '</p>');
             window.PushDemo.ui.setPushSwitchDisabled(false);
             window.PushDemo.ui.setPushChecked(false);
-          });**/
-          window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
-            '<p>When we tried to ' +
-            'get the subscription ID for GCM, something went wrong, not ' +
-            'sure why.</p>' +
-            '<p>Have you defined "gcm_sender_id" and ' +
-            '"gcm_user_visible_only" in the manifest?</p>' +
-            '<p>Error message: ' +
-            e.message +
-            '</p>');
-          window.PushDemo.ui.setPushSwitchDisabled(false);
-          window.PushDemo.ui.setPushChecked(false);
+          });
       });
   });
 }
