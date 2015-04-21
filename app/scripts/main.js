@@ -72,17 +72,31 @@ function subscribeDevice() {
       .then(onPushSubscription)
       .catch(function(e) {
         // Check for a permission prompt issue
-        navigator.permissions.query({name: 'push', userVisible: true})
-          .then(function(permissionStatus) {
-            console.log('subscribe() Error: Push permission status = ', permissionStatus);
-            window.PushDemo.ui.setPushChecked(false);
-            if (permissionStatus.status === 'denied') {
-              // The user blocked the permission prompt
-            } else if (permissionStatus.status === 'prompt') {
-              // The user didn't accept the permission prompt
-              window.PushDemo.ui.setPushSwitchDisabled(false);
-              return;
-            } else {
+        if ('permissions' in navigator) {
+          navigator.permissions.query({name: 'push', userVisible: true})
+            .then(function(permissionStatus) {
+              console.log('subscribe() Error: Push permission status = ', permissionStatus);
+              window.PushDemo.ui.setPushChecked(false);
+              if (permissionStatus.status === 'denied') {
+                // The user blocked the permission prompt
+              } else if (permissionStatus.status === 'prompt') {
+                // The user didn't accept the permission prompt
+                window.PushDemo.ui.setPushSwitchDisabled(false);
+                return;
+              } else {
+                window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
+                  '<p>When we tried to ' +
+                  'get the subscription ID for GCM, something went wrong, not ' +
+                  'sure why.</p>' +
+                  '<p>Have you defined "gcm_sender_id" and ' +
+                  '"gcm_user_visible_only" in the manifest?</p>' +
+                  '<p>Error message: ' +
+                  e.message +
+                  '</p>');
+                window.PushDemo.ui.setPushSwitchDisabled(false);
+                window.PushDemo.ui.setPushChecked(false);
+              }
+            }).catch(function(err) {
               window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
                 '<p>When we tried to ' +
                 'get the subscription ID for GCM, something went wrong, not ' +
@@ -90,12 +104,19 @@ function subscribeDevice() {
                 '<p>Have you defined "gcm_sender_id" and ' +
                 '"gcm_user_visible_only" in the manifest?</p>' +
                 '<p>Error message: ' +
-                e.message +
+                err.message +
                 '</p>');
               window.PushDemo.ui.setPushSwitchDisabled(false);
               window.PushDemo.ui.setPushChecked(false);
-            }
-          }).catch(function(err) {
+            });
+        } else {
+          // Use notification permission to do something
+          if (Notification.permission === 'denied') {
+            window.PushDemo.ui.showError('Ooops Notifications are Blocked',
+              'Unfortunately you just permanently blocked notifications. Please ' +
+              'unblock / allow them to switch on push notifications.');
+            window.PushDemo.ui.setPushSwitchDisabled(true);
+          } else {
             window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
               '<p>When we tried to ' +
               'get the subscription ID for GCM, something went wrong, not ' +
@@ -103,11 +124,12 @@ function subscribeDevice() {
               '<p>Have you defined "gcm_sender_id" and ' +
               '"gcm_user_visible_only" in the manifest?</p>' +
               '<p>Error message: ' +
-              err.message +
+              e.message +
               '</p>');
             window.PushDemo.ui.setPushSwitchDisabled(false);
-            window.PushDemo.ui.setPushChecked(false);
-          });
+          }
+          window.PushDemo.ui.setPushChecked(false);
+        }
       });
   });
 }
@@ -228,6 +250,40 @@ function setUpPushPermission() {
     });
 }
 
+function setUpNotificationPermission() {
+  // If the notification permission is denied, it's a permanent block
+  if (Notification.permission === 'denied') {
+    window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
+      'Unfortunately notifications are permanently blocked. Please unblock / ' +
+      'allow them to switch on push notifications.');
+    return;
+  }
+
+  // Check if push is supported and what the current state is
+  navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+    // Let's see if we have a subscription already
+    serviceWorkerRegistration.pushManager.getSubscription()
+      .then(function(subscription) {
+        if (!subscription) {
+          // NOOP
+          window.PushDemo.ui.setPushChecked(false);
+          window.PushDemo.ui.setPushSwitchDisabled(false);
+          return;
+        }
+
+        // Set the initial state of the push switch
+        window.PushDemo.ui.setPushChecked(true);
+
+        // Update the current state with the
+        // subscriptionid and endpoint
+        onPushSubscription(subscription);
+      })
+      .catch(function(e) {
+        console.log('An error occured while calling getSubscription()', e);
+      });
+  });
+}
+
 // Once the service worker is registered set the initial state
 function initialiseState() {
   // Are Notifications supported in the service worker?
@@ -263,7 +319,7 @@ function initialiseState() {
     setUpPushPermission();
     return;
   } else {
-
+    setUpNotificationPermission();
   }
 }
 
