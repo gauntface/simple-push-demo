@@ -70,7 +70,7 @@ function subscribeDevice() {
       .then(onPushSubscription)
       .catch(function(e) {
         // Check for a permission prompt issue
-        navigator.permissions.query({name: 'push'})
+        navigator.permissions.query({name: 'push', userVisible: true })
           .then(function(permissionStatus) {
             console.log('subscribe() Error: Push permission status = ', permissionStatus);
             window.PushDemo.ui.setPushChecked(false);
