@@ -48,7 +48,6 @@ self.addEventListener('push', function(event) {
     fetch(YAHOO_WEATHER_API_ENDPOINT).then(function(response) {
       if (response.status !== 200) {
         console.log('Looks like there was a problem. Status Code: ' + response.status);
-        
         // Throw an error so the promise is rejected and catch() is executed
         throw new Error();
       }
@@ -70,9 +69,11 @@ self.addEventListener('push', function(event) {
         // Add this to the data of the notification
         var urlToOpen = data.query.results.channel.link;
 
-        // Since Chrome doesn't support data at the moment
-        // Store the URL in IndexDB
-        getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
+        if (!Notification.prototype.hasOwnProperty('data')) {
+          // Since Chrome doesn't support data at the moment
+          // Store the URL in IndexDB
+          getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
+        }
 
         return self.registration.showNotification(title, {
           body: message,
@@ -87,7 +88,8 @@ self.addEventListener('push', function(event) {
       console.error('Unable to retrieve data', err);
 
       var title = 'An error occured';
-      var message = 'We were unable to get the information for this push message';
+      var message = 'We were unable to get the information for this ' +
+        'push message';
       var icon = 'images/touch/chrome-touch-icon-192x192.png';
       var notificationTag = 'simple-push-demo-notification';
 
@@ -103,15 +105,11 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   console.log('On notification click: ', event);
 
-  if (event.notification.data) {
-    // At the moment you cannot open third party URL's, a simple trick
-    // is to redirect to the desired URL from a URL on your domain
-    var redirectUrl = '/redirect.html?redirect=' +
-      event.notification.data.url;
-    clients.openWindow(redirectUrl);
+  if (Notification.prototype.hasOwnProperty('data')) {
+    var url = event.notification.data.url;
+    event.waitUntil(clients.openWindow(url));
   } else {
     event.waitUntil(getIdb().get(KEY_VALUE_STORE_NAME, event.notification.tag).then(function(url) {
-      console.log('url = ' + url);
       // At the moment you cannot open third party URL's, a simple trick
       // is to redirect to the desired URL from a URL on your domain
       var redirectUrl = '/redirect.html?redirect=' +

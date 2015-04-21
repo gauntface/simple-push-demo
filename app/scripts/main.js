@@ -30,6 +30,8 @@ function onPushSubscription(pushSubscription) {
   window.PushDemo.ui.showGCMPushOptions(true);
   window.PushDemo.ui.setPushSwitchDisabled(false);
 
+  console.log('pushSubscription: ', pushSubscription);
+
   var pushEndPoint = pushSubscription.endpoint;
   var subscriptionId = pushSubscription.subscriptionId;
 
@@ -70,15 +72,17 @@ function subscribeDevice() {
       .then(onPushSubscription)
       .catch(function(e) {
         // Check for a permission prompt issue
-        navigator.permissions.query({name: 'push'})
+        navigator.permissions.query({name: 'push', userVisible: true})
           .then(function(permissionStatus) {
             console.log('subscribe() Error: Push permission status = ', permissionStatus);
             window.PushDemo.ui.setPushChecked(false);
-            if (permissionStatus.status === 'denied' ||
-              permissionStatus.status === 'prompt') {
-              // The use didn't except the permission prompt
+            if (permissionStatus.status === 'denied') {
+              // The user blocked the permission prompt
+            } else if (permissionStatus.status === 'prompt') {
+              // The user didn't accept the permission prompt
+              window.PushDemo.ui.setPushSwitchDisabled(false);
               return;
-            } else{
+            } else {
               window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
                 '<p>When we tried to ' +
                 'get the subscription ID for GCM, something went wrong, not ' +
@@ -185,44 +189,7 @@ function permissionStatusChange(permissionStatus) {
   }
 }
 
-// Once the service worker is registered set the initial state
-function initialiseState() {
-  // Are Notifications supported in the service worker?
-  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-    window.PushDemo.ui.showError('Ooops Notifications Not Supported',
-      'This is most likely ' +
-      'down to the experimental web features not being enabled in ' +
-      'chrome://flags or you\'re using a version of Chrome older than version 42.' +
-      'Showing a notification is required when you receive a push message in Chrome.' +
-      'Checkout chrome://flags/#enable-experimental-web-platform-features');
-    return;
-  }
-
-  // Is the Permissions API supported
-  if (!('permissions' in navigator)) {
-    window.PushDemo.ui.showError('Ooops the Permission API is Not Supported',
-      'The permission API is required to run this demo.' +
-      'Make sure you are running Chrome 43+.');
-    return;
-  }
-
-  // Check if push messaging is supported
-  if (!('PushManager' in window)) {
-    window.PushDemo.ui.showError('Ooops Push Isn\'t Supported',
-      '<p>This could be a few things.</p>' +
-      '<ol>' +
-      '<li>Make sure you are using Chrome Canary / Chrome version 42+</li>' +
-      '<li>Make sure you have Experimental Web Platform features enabled ' +
-      'in Chrome flags (chrome://flags/#enable-experimental-web-platform-features)</li>' +
-      '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" defined' +
-      ' in your manifest</li>' +
-      '</ol>' +
-      'If both of the above are true, then please message ' +
-      '<a href="https://twitter.com/gauntface">@gauntface</a> as the ' +
-      'demo is probably broken.');
-    return;
-  }
-
+function setUpPushPermission() {
   navigator.permissions.query({name: 'push', userVisible: true})
     .then(function(permissionStatus) {
       // Set the initial state
@@ -230,13 +197,11 @@ function initialiseState() {
 
       // Handle Permission State Changes
       permissionStatus.onchange = function() {
-        console.log('onchange - anyjoy?');
         permissionStatusChange(this);
       };
 
       // Check if push is supported and what the current state is
       navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-        console.log('serviceWorkerRegistration');
         // Let's see if we have a subscription already
         serviceWorkerRegistration.pushManager.getSubscription()
           .then(function(subscription) {
@@ -261,6 +226,45 @@ function initialiseState() {
         'Unfortunately the permission for push notifications couldn\'t be ' +
         'checked. Are you on Chrome 43+?');
     });
+}
+
+// Once the service worker is registered set the initial state
+function initialiseState() {
+  // Are Notifications supported in the service worker?
+  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+    window.PushDemo.ui.showError('Ooops Notifications Not Supported',
+      'This is most likely ' +
+      'down to the experimental web features not being enabled in ' +
+      'chrome://flags or you\'re using a version of Chrome older than version 42.' +
+      'Showing a notification is required when you receive a push message in Chrome.' +
+      'Checkout chrome://flags/#enable-experimental-web-platform-features');
+    return;
+  }
+
+  // Check if push messaging is supported
+  if (!('PushManager' in window)) {
+    window.PushDemo.ui.showError('Ooops Push Isn\'t Supported',
+      '<p>This could be a few things.</p>' +
+      '<ol>' +
+      '<li>Make sure you are using Chrome Canary / Chrome version 42+</li>' +
+      '<li>Make sure you have Experimental Web Platform features enabled ' +
+      'in Chrome flags (chrome://flags/#enable-experimental-web-platform-features)</li>' +
+      '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" defined' +
+      ' in your manifest</li>' +
+      '</ol>' +
+      'If both of the above are true, then please message ' +
+      '<a href="https://twitter.com/gauntface">@gauntface</a> as the ' +
+      'demo is probably broken.');
+    return;
+  }
+
+  // Is the Permissions API supported
+  if ('permissions' in navigator) {
+    setUpPushPermission();
+    return;
+  } else {
+
+  }
 }
 
 window.addEventListener('UIReady', function() {

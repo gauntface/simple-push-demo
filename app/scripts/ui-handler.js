@@ -9,6 +9,27 @@ function UIHandler() {
   var xhrPushButton = document.querySelector('.js-xhr-button');
   new MaterialButton(xhrPushButton);
 
+  var copyCurlButton = document.querySelector('.js-copy-curl-button');
+  copyCurlButton.disabled = !document.queryCommandSupported('copy');
+  copyCurlButton.addEventListener(function(event) {
+    var curlCommandElement = document.querySelector('.js-curl-code');
+    var range = document.createRange();
+    range.selectNode(curlCommandElement);
+    window.getSelection().addRange(range);
+
+    try {
+      // Now that we've selected the anchor text, execute the copy command
+      document.execCommand('copy');
+    } catch (err) {
+      console.log('Oops, unable to copy');
+    }
+
+    // Remove the selections - NOTE: Should use
+    // removeRange(range) when it is supported
+    window.getSelection().removeAllRanges();
+  });
+  new MaterialButton(copyCurlButton);
+
   this.getPushSwitchElement = function() {
     return enablePushSwitch;
   };
