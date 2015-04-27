@@ -75,10 +75,15 @@ function subscribeDevice() {
         if ('permissions' in navigator) {
           navigator.permissions.query({name: 'push', userVisible: true})
             .then(function(permissionStatus) {
-              console.log('subscribe() Error: Push permission status = ', permissionStatus);
+              console.log('subscribe() Error: Push permission status = ',
+                permissionStatus);
               window.PushDemo.ui.setPushChecked(false);
               if (permissionStatus.status === 'denied') {
                 // The user blocked the permission prompt
+                window.PushDemo.ui.showError('Ooops Notifications are Blocked',
+                  'Unfortunately you just permanently blocked notifications. ' +
+                  'Please unblock / allow them to switch on push ' +
+                  'notifications.');
               } else if (permissionStatus.status === 'prompt') {
                 // The user didn't accept the permission prompt
                 window.PushDemo.ui.setPushSwitchDisabled(false);
@@ -86,8 +91,8 @@ function subscribeDevice() {
               } else {
                 window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
                   '<p>When we tried to ' +
-                  'get the subscription ID for GCM, something went wrong, not ' +
-                  'sure why.</p>' +
+                  'get the subscription ID for GCM, something went wrong,' +
+                  ' not sure why.</p>' +
                   '<p>Have you defined "gcm_sender_id" and ' +
                   '"gcm_user_visible_only" in the manifest?</p>' +
                   '<p>Error message: ' +
@@ -291,9 +296,10 @@ function initialiseState() {
     window.PushDemo.ui.showError('Ooops Notifications Not Supported',
       'This is most likely ' +
       'down to the experimental web features not being enabled in ' +
-      'chrome://flags or you\'re using a version of Chrome older than version 42.' +
-      'Showing a notification is required when you receive a push message in Chrome.' +
-      'Checkout chrome://flags/#enable-experimental-web-platform-features');
+      'chrome://flags or you\'re using a version of Chrome older than ' +
+      'version 42. Showing a notification is required when you receive a ' +
+      'push message in Chrome. Checkout ' +
+      'chrome://flags/#enable-experimental-web-platform-features');
     return;
   }
 
@@ -304,9 +310,10 @@ function initialiseState() {
       '<ol>' +
       '<li>Make sure you are using Chrome Canary / Chrome version 42+</li>' +
       '<li>Make sure you have Experimental Web Platform features enabled ' +
-      'in Chrome flags (chrome://flags/#enable-experimental-web-platform-features)</li>' +
-      '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" defined' +
-      ' in your manifest</li>' +
+      'in Chrome flags ' +
+      '(chrome://flags/#enable-experimental-web-platform-features)</li>' +
+      '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" ' +
+      'defined in your manifest</li>' +
       '</ol>' +
       'If both of the above are true, then please message ' +
       '<a href="https://twitter.com/gauntface">@gauntface</a> as the ' +

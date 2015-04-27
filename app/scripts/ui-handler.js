@@ -11,7 +11,7 @@ function UIHandler() {
 
   var copyCurlButton = document.querySelector('.js-copy-curl-button');
   copyCurlButton.disabled = !document.queryCommandSupported('copy');
-  copyCurlButton.addEventListener(function(event) {
+  copyCurlButton.addEventListener('click', function(event) {
     var curlCommandElement = document.querySelector('.js-curl-code');
     var range = document.createRange();
     range.selectNode(curlCommandElement);

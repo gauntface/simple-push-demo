@@ -6,7 +6,6 @@ var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/v1/public/yql?q=se
 var KEY_VALUE_STORE_NAME = 'key-value-store';
 
 var idb;
-var usePlainNotification = false;
 
 // avoid opening idb until first call
 function getIdb() {
@@ -18,28 +17,8 @@ function getIdb() {
   return idb;
 }
 
-function sendToServer() {
-  // TODO: implment ;)
-}
-
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
-
-  if (usePlainNotification) {
-    var title = 'Push Notifcations';
-    var message = 'On the Open Web - Whoop Whoop';
-    var icon = 'images/successkid.jpg';
-    var notificationTag = 'simple-push-demo-notification';
-
-    event.waitUntil(
-      self.registration.showNotification(title, {
-        body: message,
-        icon: icon,
-        tag: notificationTag
-      })
-    );
-    return;
-  }
 
   // Since this is no payload data with the first version
   // of Push notifications, here we'll grab some data from
@@ -47,14 +26,15 @@ self.addEventListener('push', function(event) {
   event.waitUntil(
     fetch(YAHOO_WEATHER_API_ENDPOINT).then(function(response) {
       if (response.status !== 200) {
-        console.log('Looks like there was a problem. Status Code: ' + response.status);
+        console.log('Looks like there was a problem. Status Code: ' +
+          response.status);
         // Throw an error so the promise is rejected and catch() is executed
         throw new Error();
       }
 
       // Examine the text in the response
       return response.json().then(function(data) {
-        console.log('Data = ', JSON.stringify(data));
+        // console.log('Data = ', JSON.stringify(data));
         if (data.query.count === 0) {
           // Throw an error so the promise is rejected and catch() is executed
           throw new Error();
@@ -75,14 +55,40 @@ self.addEventListener('push', function(event) {
           getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
         }
 
-        return self.registration.showNotification(title, {
-          body: message,
-          icon: icon,
-          tag: notificationTag,
-          data: {
-            url: urlToOpen
-          }
-        });
+        var notificationFilter = {
+          tag: 'simple-push-demo-notification'
+        };
+
+        if (self.registration.getNotifications) {
+          return self.registration.getNotifications(notificationFilter)
+            .then(function(notifications) {
+              var notificationOptions = {
+                body: message,
+                icon: icon,
+                tag: notificationTag,
+                data: {
+                  url: urlToOpen
+                }
+              };
+
+              if (notifications && notifications.length > 0) {
+                notificationOptions.body = 'You have ' + notifications.length +
+                  ' weather updates.';
+              }
+
+              return self.registration.showNotification(title,
+                notificationOptions);
+            });
+        } else {
+          return self.registration.showNotification(title, {
+            body: message,
+            icon: icon,
+            tag: notificationTag,
+            data: {
+              url: urlToOpen
+            }
+          });
+        }
       });
     }).catch(function(err) {
       console.error('Unable to retrieve data', err);
@@ -106,6 +112,7 @@ self.addEventListener('notificationclick', function(event) {
   console.log('On notification click: ', event);
 
   if (Notification.prototype.hasOwnProperty('data')) {
+    console.log('Using Data');
     var url = event.notification.data.url;
     event.waitUntil(clients.openWindow(url));
   } else {
