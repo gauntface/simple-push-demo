@@ -2,7 +2,11 @@
 
 importScripts('/scripts/indexdbwrapper.js');
 
-var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22london%2C%20uk%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
+var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/' +
+  'v1/public/yql?q=select%20*%20from%20weather.forecast%20where%' +
+  '20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where' +
+  '%20text%3D%22london%2C%20uk%22)&format=json&env=store%3A%2F%2' +
+  'Fdatatables.org%2Falltableswithkeys';
 var KEY_VALUE_STORE_NAME = 'key-value-store';
 
 var idb;
@@ -15,6 +19,21 @@ function getIdb() {
     });
   }
   return idb;
+}
+
+function showNotification(title, body, icon, data) {
+  var notificationOptions = {
+    body: body,
+    icon: icon ? icon : 'images/touch/chrome-touch-icon-192x192.png',
+    tag: 'simple-push-demo-notification',
+    data: data
+  };
+  if (self.registration.showNotification) {
+    self.registration.showNotification(title, notificationOptions);
+    return;
+  } else {
+    new Notification(title, notificationOptions);
+  }
 }
 
 self.addEventListener('push', function(event) {
@@ -59,35 +78,35 @@ self.addEventListener('push', function(event) {
           tag: 'simple-push-demo-notification'
         };
 
+        var notificationData = {
+          url: urlToOpen
+        };
+
         if (self.registration.getNotifications) {
           return self.registration.getNotifications(notificationFilter)
             .then(function(notifications) {
-              var notificationOptions = {
-                body: message,
-                icon: icon,
-                tag: notificationTag,
-                data: {
-                  url: urlToOpen
-                }
-              };
-
               if (notifications && notifications.length > 0) {
-                notificationOptions.body = 'You have ' + notifications.length +
+                // Start with one to account for the new notification
+                // we are adding
+                var notificationCount = 1;
+                for (var i = 0; i < notifications.length; i++) {
+                  var existingNotification = notifications[i];
+                  if (existingNotification.data &&
+                    existingNotification.data.notoficationCount) {
+                    notificationCount += existingNotification.data.notoficationCount;
+                  } else {
+                    notificationCount++;
+                  }
+                }
+                message = 'You have ' + notificationCount +
                   ' weather updates.';
+                notificationData.notificationCount = notificationCount;
               }
 
-              return self.registration.showNotification(title,
-                notificationOptions);
+              return showNotification(title, message, icon, notificationData);
             });
         } else {
-          return self.registration.showNotification(title, {
-            body: message,
-            icon: icon,
-            tag: notificationTag,
-            data: {
-              url: urlToOpen
-            }
-          });
+          return showNotification(title, message, icon, notificationData);
         }
       });
     }).catch(function(err) {
@@ -96,14 +115,8 @@ self.addEventListener('push', function(event) {
       var title = 'An error occured';
       var message = 'We were unable to get the information for this ' +
         'push message';
-      var icon = 'images/touch/chrome-touch-icon-192x192.png';
-      var notificationTag = 'simple-push-demo-notification';
 
-      return self.registration.showNotification(title, {
-          body: message,
-          icon: icon,
-          tag: notificationTag
-        });
+      return showNotification(title, message);
     })
   );
 });

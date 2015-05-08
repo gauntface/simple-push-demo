@@ -21,7 +21,7 @@ function UIHandler() {
       // Now that we've selected the anchor text, execute the copy command
       document.execCommand('copy');
     } catch (err) {
-      console.log('Oops, unable to copy');
+      console.log('Oops, unable to copy', err);
     }
 
     // Remove the selections - NOTE: Should use

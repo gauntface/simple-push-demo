@@ -23,6 +23,7 @@ var API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
 var PUSH_SERVER_URL = 'https://simple-push-demo.appspot.com';
 
 function onPushSubscription(pushSubscription) {
+  console.log('pushSubscription = ', pushSubscription.endpoint);
   // Here we would normally send the endpoint
   // and subscription ID to our server.
   // In this demo we just use send these values to
@@ -32,15 +33,23 @@ function onPushSubscription(pushSubscription) {
 
   console.log('pushSubscription: ', pushSubscription);
 
-  var pushEndPoint = pushSubscription.endpoint;
-  var subscriptionId = pushSubscription.subscriptionId;
-
   // Code to handle the XHR
   var sendPushViaXHRButton = document.querySelector('.js-xhr-button');
   sendPushViaXHRButton.addEventListener('click', function(e) {
     var formData = new FormData();
-    formData.append('subscriptionId', subscriptionId);
-    formData.append('endpoint', pushEndPoint);
+
+    var endpoint = pushSubscription.endpoint;
+
+    // This will no be needed in M44 / M45
+    if (pushSubscription.subscriptionId) {
+      // Make the endpoint always contain the subscriptionId
+      // so the server is always consistent
+      if (endpoint === 'https://android.googleapis.com/gcm/send') {
+        endpoint += '/' + pushSubscription.subscriptionId;
+      }
+    }
+
+    formData.append('endpoint', endpoint);
 
     fetch(PUSH_SERVER_URL + '/send_push', {
         method: 'post',
@@ -52,10 +61,24 @@ function onPushSubscription(pushSubscription) {
       });
   });
 
-  // The curl command to trigger a push message straight from GCM
-  var curlCommand = 'curl --header "Authorization: key=' + API_KEY +
-      '" --header Content-Type:"application/json" ' + pushEndPoint +
+  var curlEndpoint = pushSubscription.endpoint;
+  var curlCommand = 'curl -I -X POST ' + pushSubscription.endpoint;
+
+  // GCM is propriatery and needs extra hacking
+  if (curlEndpoint.indexOf('https://android.googleapis.com/gcm/send') === 0) {
+    curlEndpoint = 'https://android.googleapis.com/gcm/send';
+    var subscriptionId = null;
+    if (pushSubscription.subscriptionId) {
+      subscriptionId = pushSubscription.subscriptionId;
+    } else {
+      var endpointSections = pushSubscription.endpoint.split('/');
+      subscriptionId = endpointSections[endpointSections.length - 1];
+    }
+    curlCommand = 'curl --header "Authorization: key=' + API_KEY +
+      '" --header Content-Type:"application/json" ' + curlEndpoint +
       ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
+  }
+  // The curl command to trigger a push message straight from GCM
 
   var curlCodeElement = document.querySelector('.js-curl-code');
   curlCodeElement.innerHTML = curlCommand;
@@ -118,8 +141,8 @@ function subscribeDevice() {
           // Use notification permission to do something
           if (Notification.permission === 'denied') {
             window.PushDemo.ui.showError('Ooops Notifications are Blocked',
-              'Unfortunately you just permanently blocked notifications. Please ' +
-              'unblock / allow them to switch on push notifications.');
+              'Unfortunately you just permanently blocked notifications. ' +
+              'Please unblock / allow them to switch on push notifications.');
             window.PushDemo.ui.setPushSwitchDisabled(true);
           } else {
             window.PushDemo.ui.showError('Ooops Push Couldn\'t Register',
@@ -262,6 +285,10 @@ function setUpNotificationPermission() {
       'Unfortunately notifications are permanently blocked. Please unblock / ' +
       'allow them to switch on push notifications.');
     return;
+  } else if (Notification.permission === 'default') {
+    window.PushDemo.ui.setPushChecked(false);
+    window.PushDemo.ui.setPushSwitchDisabled(false);
+    return;
   }
 
   // Check if push is supported and what the current state is
@@ -291,31 +318,10 @@ function setUpNotificationPermission() {
 
 // Once the service worker is registered set the initial state
 function initialiseState() {
-  // Are Notifications supported in the service worker?
-  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-    window.PushDemo.ui.showError('Ooops Notifications Not Supported',
-      'This is most likely ' +
-      'down to the experimental web features not being enabled in ' +
-      'chrome://flags or you\'re using a version of Chrome older than ' +
-      'version 42. Showing a notification is required when you receive a ' +
-      'push message in Chrome. Checkout ' +
-      'chrome://flags/#enable-experimental-web-platform-features');
-    return;
-  }
-
   // Check if push messaging is supported
   if (!('PushManager' in window)) {
     window.PushDemo.ui.showError('Ooops Push Isn\'t Supported',
-      '<p>This could be a few things.</p>' +
-      '<ol>' +
-      '<li>Make sure you are using Chrome Canary / Chrome version 42+</li>' +
-      '<li>Make sure you have Experimental Web Platform features enabled ' +
-      'in Chrome flags ' +
-      '(chrome://flags/#enable-experimental-web-platform-features)</li>' +
-      '<li>Make sure you have "gcm_sender_id" and "gcm_user_visible_only" ' +
-      'defined in your manifest</li>' +
-      '</ol>' +
-      'If both of the above are true, then please message ' +
+      'If this isn\'t an expected error please get in touch with ' +
       '<a href="https://twitter.com/gauntface">@gauntface</a> as the ' +
       'demo is probably broken.');
     return;
