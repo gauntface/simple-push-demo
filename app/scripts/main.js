@@ -96,7 +96,7 @@ function subscribeDevice() {
       .catch(function(e) {
         // Check for a permission prompt issue
         if ('permissions' in navigator) {
-          navigator.permissions.query({name: 'push', userVisible: true})
+          navigator.permissions.query({name: 'push', userVisibleOnly: true})
             .then(function(permissionStatus) {
               console.log('subscribe() Error: Push permission status = ',
                 permissionStatus);
@@ -240,7 +240,7 @@ function permissionStatusChange(permissionStatus) {
 }
 
 function setUpPushPermission() {
-  navigator.permissions.query({name: 'push', userVisible: true})
+  navigator.permissions.query({name: 'push', userVisibleOnly: true})
     .then(function(permissionStatus) {
       // Set the initial state
       permissionStatusChange(permissionStatus);
