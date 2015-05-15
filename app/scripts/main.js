@@ -41,10 +41,10 @@ function onPushSubscription(pushSubscription) {
     var endpoint = pushSubscription.endpoint;
 
     // This will no be needed in M44 / M45
-    if (pushSubscription.subscriptionId) {
+    if ('subscriptionId' in pushSubscription) {
       // Make the endpoint always contain the subscriptionId
       // so the server is always consistent
-      if (endpoint === 'https://android.googleapis.com/gcm/send') {
+      if (!endpoint.includes(pushSubscription.subscriptionId)) {
         endpoint += '/' + pushSubscription.subscriptionId;
       }
     }
