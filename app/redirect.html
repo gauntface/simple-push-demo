@@ -47,7 +47,15 @@ function getQuery() {
 var variables = getQuery();
 if (variables && variables.redirect) {
   var redirect = variables.redirect;
-  window.location.href = redirect;
+  if(redirect.substring(0,4) == 'http') {
+    window.location.href = redirect;
+  } else {
+    if(redirect[0] == "/") {
+      window.location.href = window.location.origin + redirect;
+    } else {
+      window.location.href = window.location.origin + "/" + redirect;
+    }
+  }
 } else {
   console.error('Redirect variable not defined in GET params');
 }
