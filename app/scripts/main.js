@@ -21,6 +21,7 @@
 
 var API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
 var PUSH_SERVER_URL = 'https://simple-push-demo.appspot.com';
+PUSH_SERVER_URL = 'http://localhost:8080';
 
 function onPushSubscription(pushSubscription) {
   console.log('pushSubscription = ', pushSubscription.endpoint);
@@ -186,7 +187,7 @@ function unsubscribeDevice() {
         // TODO: Remove the device details from the server
         // i.e. the pushSubscription.subscriptionId and
         // pushSubscription.endpoint
-
+        console.log('Unsubscribe from push');
         pushSubscription.unsubscribe().then(function(successful) {
           console.log('Unsubscribed from push: ', successful);
           if (!successful) {
@@ -257,6 +258,7 @@ function setUpPushPermission() {
           .then(function(subscription) {
             if (!subscription) {
               // NOOP
+              console.log('No subscription given');
               return;
             }
 
