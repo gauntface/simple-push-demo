@@ -272,6 +272,7 @@ function setUpPushPermission() {
           });
       });
     }).catch(function(err) {
+      console.error(err);
       window.PushDemo.ui.showError('Ooops Unable to check the permission',
         'Unfortunately the permission for push notifications couldn\'t be ' +
         'checked. Are you on Chrome 43+?');

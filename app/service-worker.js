@@ -92,11 +92,12 @@ self.addEventListener('push', function(event) {
                 for (var i = 0; i < notifications.length; i++) {
                   var existingNotification = notifications[i];
                   if (existingNotification.data &&
-                    existingNotification.data.notoficationCount) {
-                    notificationCount += existingNotification.data.notoficationCount;
+                    existingNotification.data.notificationCount) {
+                    notificationCount += existingNotification.data.notificationCount;
                   } else {
                     notificationCount++;
                   }
+                  existingNotification.close();
                 }
                 message = 'You have ' + notificationCount +
                   ' weather updates.';
