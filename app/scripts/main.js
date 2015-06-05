@@ -91,7 +91,7 @@ function subscribeDevice() {
 
   // We need the service worker registration to access the push manager
   navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-    serviceWorkerRegistration.pushManager.subscribe()
+    serviceWorkerRegistration.pushManager.subscribe({ userVisibleOnly: true })
       .then(onPushSubscription)
       .catch(function(e) {
         // Check for a permission prompt issue
