@@ -29,7 +29,7 @@
   </head>
   <body>
     <!-- Add your site or app content here -->
-    
+
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
     <script>
 'use strict';
@@ -39,7 +39,7 @@ function getQuery() {
   var qs = url.substring(url.indexOf('?') + 1).split('&');
   for (var i = 0, result = {}; i < qs.length; i++) {
     qs[i] = qs[i].split('=');
-    result[qs[i][0]] = qs[i][1];
+    result[encodeURIComponent(qs[i][0])] = encodeURIComponent(qs[i][1]);
   }
   return result;
 }
