@@ -123,19 +123,6 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
-  console.log('On notification click: ', event);
-
-  if (Notification.prototype.hasOwnProperty('data')) {
-    console.log('Using Data');
-    var url = event.notification.data.url;
-    event.waitUntil(clients.openWindow(url));
-  } else {
-    event.waitUntil(getIdb().get(KEY_VALUE_STORE_NAME, event.notification.tag).then(function(url) {
-      // At the moment you cannot open third party URL's, a simple trick
-      // is to redirect to the desired URL from a URL on your domain
-      var redirectUrl = '/redirect.html?redirect=' +
-        url;
-      return clients.openWindow(redirectUrl);
-    }));
-  }
+  var url = event.notification.data.url;
+  event.waitUntil(clients.openWindow(url));
 });
