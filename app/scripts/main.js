@@ -97,17 +97,17 @@ function subscribeDevice() {
         // Check for a permission prompt issue
         if ('permissions' in navigator) {
           navigator.permissions.query({name: 'push', userVisibleOnly: true})
-            .then(function(permissionStatus) {
-              console.log('subscribe() Error: Push permission status = ',
-                permissionStatus);
+            .then(function(permissionState) {
+              console.log('subscribe() Error: Push permission state = ',
+              permissionState);
               window.PushDemo.ui.setPushChecked(false);
-              if (permissionStatus.status === 'denied') {
+              if (permissionState.state === 'denied') {
                 // The user blocked the permission prompt
                 window.PushDemo.ui.showError('Ooops Notifications are Blocked',
                   'Unfortunately you just permanently blocked notifications. ' +
                   'Please unblock / allow them to switch on push ' +
                   'notifications.');
-              } else if (permissionStatus.status === 'prompt') {
+              } else if (permissionState.state === 'prompt') {
                 // The user didn't accept the permission prompt
                 window.PushDemo.ui.setPushSwitchDisabled(false);
                 return;
@@ -214,10 +214,10 @@ function unsubscribeDevice() {
   });
 }
 
-function permissionStatusChange(permissionStatus) {
-  console.log('permissionStatusChange = ', permissionStatus);
+function permissionStateChange(permissionState) {
+  console.log('permissionStateChange = ', permissionState);
   // If the notification permission is denied, it's a permanent block
-  switch (permissionStatus.status) {
+  switch (permissionState.state) {
     case 'denied':
       window.PushDemo.ui.showError('Ooops Push has been Blocked',
         'Unfortunately the user permanently blocked push. Please unblock / ' +
@@ -241,13 +241,13 @@ function permissionStatusChange(permissionStatus) {
 
 function setUpPushPermission() {
   navigator.permissions.query({name: 'push', userVisibleOnly: true})
-    .then(function(permissionStatus) {
+    .then(function(permissionState) {
       // Set the initial state
-      permissionStatusChange(permissionStatus);
+      permissionStateChange(permissionState);
 
       // Handle Permission State Changes
-      permissionStatus.onchange = function() {
-        permissionStatusChange(this);
+      permissionState.onchange = function() {
+        permissionStateChange(this);
       };
 
       // Check if push is supported and what the current state is
@@ -283,7 +283,7 @@ function setUpPushPermission() {
 function setUpNotificationPermission() {
   // If the notification permission is denied, it's a permanent block
   if (Notification.permission === 'denied') {
-    window.PushDemo.ui.showError('Ooops Notifications are Blocked', 
+    window.PushDemo.ui.showError('Ooops Notifications are Blocked',
       'Unfortunately notifications are permanently blocked. Please unblock / ' +
       'allow them to switch on push notifications.');
     return;
