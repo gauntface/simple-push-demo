@@ -29,8 +29,7 @@ function showNotification(title, body, icon, data) {
     data: data
   };
   if (self.registration.showNotification) {
-    self.registration.showNotification(title, notificationOptions);
-    return;
+    return self.registration.showNotification(title, notificationOptions);
   } else {
     new Notification(title, notificationOptions);
   }
@@ -43,46 +42,49 @@ self.addEventListener('push', function(event) {
   // of Push notifications, here we'll grab some data from
   // an API and use it to populate a notification
   event.waitUntil(
-    fetch(YAHOO_WEATHER_API_ENDPOINT).then(function(response) {
-      if (response.status !== 200) {
-        console.log('Looks like there was a problem. Status Code: ' +
-          response.status);
-        // Throw an error so the promise is rejected and catch() is executed
-        throw new Error();
-      }
-
-      // Examine the text in the response
-      return response.json().then(function(data) {
-        // console.log('Data = ', JSON.stringify(data));
-        if (data.query.count === 0) {
+    fetch(YAHOO_WEATHER_API_ENDPOINT)
+      .then(function(response) {
+        if (response.status !== 200) {
+          console.log('Looks like there was a problem. Status Code: ' +
+            response.status);
           // Throw an error so the promise is rejected and catch() is executed
           throw new Error();
         }
 
-        var title = 'What\'s the weather like in London?';
-        var message = data.query.results.channel.item.condition.text;
-        var icon = data.query.results.channel.image.url ||
-          'images/touch/chrome-touch-icon-192x192.png';
-        var notificationTag = 'simple-push-demo-notification';
+        // Examine the text in the response
+        return response.json().then(function(data) {
+          if (data.query.count === 0) {
+            // Throw an error so the promise is rejected and catch() is executed
+            throw new Error();
+          }
 
-        // Add this to the data of the notification
-        var urlToOpen = data.query.results.channel.link;
+          var title = 'What\'s the weather like in London?';
+          var message = data.query.results.channel.item.condition.text;
+          var icon = data.query.results.channel.image.url ||
+            'images/touch/chrome-touch-icon-192x192.png';
+          var notificationTag = 'simple-push-demo-notification';
 
-        if (!Notification.prototype.hasOwnProperty('data')) {
-          // Since Chrome doesn't support data at the moment
-          // Store the URL in IndexDB
-          getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
-        }
+          // Add this to the data of the notification
+          var urlToOpen = data.query.results.channel.link;
 
-        var notificationFilter = {
-          tag: 'simple-push-demo-notification'
-        };
+          if (!Notification.prototype.hasOwnProperty('data')) {
+            // Since Chrome doesn't support data at the moment
+            // Store the URL in IndexDB
+            getIdb().put(KEY_VALUE_STORE_NAME, notificationTag, urlToOpen);
+          }
 
-        var notificationData = {
-          url: urlToOpen
-        };
+          var notificationFilter = {
+            tag: 'simple-push-demo-notification'
+          };
 
-        if (self.registration.getNotifications) {
+          var notificationData = {
+            url: urlToOpen
+          };
+
+          if (!self.registration.getNotifications) {
+            return showNotification(title, message, icon, notificationData);
+          }
+
           return self.registration.getNotifications(notificationFilter)
             .then(function(notifications) {
               if (notifications && notifications.length > 0) {
@@ -93,7 +95,8 @@ self.addEventListener('push', function(event) {
                   var existingNotification = notifications[i];
                   if (existingNotification.data &&
                     existingNotification.data.notificationCount) {
-                    notificationCount += existingNotification.data.notificationCount;
+                    notificationCount +=
+                      existingNotification.data.notificationCount;
                   } else {
                     notificationCount++;
                   }
@@ -106,23 +109,22 @@ self.addEventListener('push', function(event) {
 
               return showNotification(title, message, icon, notificationData);
             });
-        } else {
-          return showNotification(title, message, icon, notificationData);
-        }
-      });
-    }).catch(function(err) {
-      console.error('Unable to retrieve data', err);
+        });
+      })
+      .catch(function(err) {
+        console.error('Unable to retrieve data', err);
 
-      var title = 'An error occured';
-      var message = 'We were unable to get the information for this ' +
-        'push message';
+        var title = 'An error occured';
+        var message = 'We were unable to get the information for this ' +
+          'push message';
 
-      return showNotification(title, message);
-    })
+        return showNotification(title, message);
+      })
   );
 });
 
 self.addEventListener('notificationclick', function(event) {
   var url = event.notification.data.url;
+  event.notification.close();
   event.waitUntil(clients.openWindow(url));
 });
