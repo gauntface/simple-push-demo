@@ -1,51 +1,40 @@
 <!doctype html>
 <html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Simple Push Demo</title>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Add to homescreen -->
-    <link rel="manifest" href="manifest.json">
+  <title>Simple Push Demo</title>
 
-    <!-- Add to homescreen for Chrome on Android -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Web Starter Kit">
-    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+  <link rel="manifest" href="manifest.json">
 
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Web Starter Kit">
-    <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.indigo-pink.min.css">
+  <script src="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-    <!-- Tile icon for Win8 (144x144 + tile color) -->
-    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
-    <meta name="msapplication-TileColor" content="#3372DF">
-
-    <meta name="theme-color" content="#3372DF">
-
-    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
-    <!--
-    <link rel="canonical" href="http://www.example.com/">
-    -->
-
-    <!-- Page styles -->
-    <link rel="stylesheet" href="styles/main.css">
-  </head>
-  <body>
-
-    <header>
-      <h1>Push Demo</h1>
+  <!-- Page styles -->
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title">Push Demo</span>
+        <div class="mdl-layout-spacer"></div>
+        <nav class="mdl-navigation mdl-layout--large-screen-only">
+          <a class="mdl-navigation__link" href="https://github.com/gauntface/simple-push-demo">Github</a>
+          <a class="mdl-navigation__link" href="https://developers.google.com/web/updates/2015/03/push-notifications-on-the-open-web?hl=en">Blog Post</a>
+        </nav>
+      </div>
     </header>
 
     <main>
       <div class="js-push-switch-container">
-        <label class="wsk-switch wsk-js-switch wsk-js-ripple-effect" for="enable-push">
-          <input type="checkbox" id="enable-push" class="wsk-switch__input js-enable-push" disabled />
-          <span class="wsk-switch__label">Enable Push Notifications</span>
+        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect js-push-toggle-switch" for="switch-2">
+          <input type="checkbox" id="switch-2" class="mdl-switch__input" disabled>
+          <span class="mdl-switch__label">Enable Push Notifications</span>
         </label>
       </div>
 
@@ -61,12 +50,6 @@
 
           <p>Copy and paste the following CURL command into your terminal
           to send a push message to your browser.</p>
-          
-          <p class="center">
-            <button class="copy-curl-button js-copy-curl-button wsk-button wsk-js-button wsk-button--colored wsk-js-ripple-effect">
-              Copy CURL Command to Clipboard
-            </button>
-          </p>
 
           <code class="curl-code-example js-curl-code"></code>
         </div>
@@ -84,16 +67,8 @@
         </a>
       </p>
     </main>
+  </div>
 
-    <!-- build:js(app/) ../../scripts/main.min.js -->
-    <script src="styleguide/switch/switch.js"></script>
-    <script src="styleguide/button/button.js"></script>
-    <script src="styleguide/third_party/rAF.js"></script>
-    <script src="styleguide/ripple/ripple.js"></script>
-    <script src="scripts/ui-handler.js"></script>
-    <script src="scripts/main.js"></script>
-    <!-- endbuild -->
-
-    <!-- Built with love using Web Starter Kit -->
-  </body>
+  <script src="scripts/main.js"></script>
+</body>
 </html>

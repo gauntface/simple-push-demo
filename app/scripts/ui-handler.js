@@ -2,7 +2,8 @@
 
 function UIHandler() {
   var enablePushSwitch = document.querySelector('.js-enable-push');
-  var wrappedPushSwitch = new MaterialSwitch(document.querySelector('.wsk-js-switch'));
+  var wrappedPushSwitch = new MaterialSwitch(
+    document.querySelector('.wsk-js-switch'));
 
   var sendPushOptions = document.querySelector('.js-send-push-options');
 

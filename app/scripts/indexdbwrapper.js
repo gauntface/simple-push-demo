@@ -41,8 +41,7 @@ IndexDBWrapperProto.transaction = function(stores, modeOrCallback, callback) {
 
     if (modeOrCallback.apply) {
       callback = modeOrCallback;
-    }
-    else if (modeOrCallback) {
+    } else if (modeOrCallback) {
       mode = modeOrCallback;
     }
 
@@ -57,8 +56,7 @@ IndexDBWrapperProto.transaction = function(stores, modeOrCallback, callback) {
 
     if (val[0] && 'result' in val[0]) {
       readPromise = Promise.all(val.map(promisifyRequest));
-    }
-    else {
+    } else {
       readPromise = promisifyRequest(val);
     }
 

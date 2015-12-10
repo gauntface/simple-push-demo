@@ -6,15 +6,6 @@
  *
  */
 
-/*
- * Visual Style Guide styles
- * Remove if you prefer to use a CSS library, like Bootstrap
- */
-
-@import "../styleguide/layout/layout";
-@import "../styleguide/switch/switch";
-@import "../styleguide/button/button";
-
 html,
 body {
   width: 100%;
@@ -26,10 +17,8 @@ body {
 body {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   font-weight: 300;
-  background-color: #fff;
   box-sizing: border-box;
   min-height: 100%;
-  color: $text-color-secondary;
 }
 
 header {
@@ -71,7 +60,7 @@ a {
   display: block;
 
   width: 100%;
-  
+
   word-break: break-all;
 
   padding: 16px;
