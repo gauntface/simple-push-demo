@@ -73,6 +73,11 @@ export default class PushClient {
       return;
     }
 
+    if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+      this._stateChangeCb(this.state.UNSUPPORTED);
+      return;
+    }
+
     navigator.serviceWorker.ready.then(() => {
       this._stateChangeCb(this.state.INITIALISING);
       this.setUpPushPermission();

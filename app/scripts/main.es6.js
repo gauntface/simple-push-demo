@@ -19,29 +19,11 @@
  *
  */
 
-import PushClient from './push-client.js';
+import PushClient from './push-client.es6.js';
 
 var API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
 var PUSH_SERVER_URL = 'https://simple-push-demo.appspot.com';
 
-var toggleSwitch = document.querySelector('.js-push-toggle-switch');
-toggleSwitch.initialised = false;
-
-// This is to wait for MDL initialising
-document.addEventListener('mdl-componentupgraded', function() {
-  if (toggleSwitch.initialised) {
-    return;
-  }
-
-  toggleSwitch.initialised = toggleSwitch.classList.contains('is-upgraded');
-  if (!toggleSwitch.initialised) {
-    return;
-  }
-
-  var pushToggleSwitch = toggleSwitch.MaterialSwitch;
-
-  updateUIForPush(pushToggleSwitch);
-});
 
 function updateUIForPush(pushToggleSwitch) {
   // This div contains the UI for CURL commands to trigger a push
@@ -67,57 +49,11 @@ function updateUIForPush(pushToggleSwitch) {
 
     switch (state.id) {
     case 'ERROR':
-      console.log(data);
+      console.error(data);
       break;
     default:
       break;
     }
-    /** switch (state) {
-    case 'UNSUPPORTED':
-      // Disable or Hide / Remove UI
-      pushToggleSwitch.disable();
-      pushToggleSwitch.off();
-      break;
-    case 'INITIALISING':
-      // Disable and set UI to off state while library figures out state
-      // pushToggleSwitch.disabled = true;
-      // pushToggleSwitch.checked = false;
-      break;
-    case 'PERMISSION_DENIED':
-      // Disable and Keep Off
-      pushToggleSwitch.disable();
-      pushToggleSwitch.off();
-      break;
-    case 'PERMISSION_GRANTED':
-      // Enable Push UI
-      pushToggleSwitch.enable();
-      break;
-    case 'PERMISSION_PROMPT':
-      // Enable Push UI but set to Off
-      pushToggleSwitch.enable();
-      pushToggleSwitch.off();
-      break;
-    case 'STARTING_SUBSCRIBE':
-      // During subscribe prevent the user from interacting with UI
-      pushToggleSwitch.on();
-      break;
-    case 'ERROR':
-      // This shouldn't occur
-      pushToggleSwitch.disable();
-      pushToggleSwitch.off();
-      break;
-    case 'SUBSCRIBED':
-      pushToggleSwitch.enable();
-      pushToggleSwitch.on();
-      break;
-    case 'UNSUBSCRIBED':
-      pushToggleSwitch.enable();
-      pushToggleSwitch.off();
-      break;
-    default:
-      console.log('Unknown push state change: ', state);
-      break;
-    }**/
   };
 
   var subscriptionUpdate = (subscription) => {
@@ -162,7 +98,7 @@ function updateUIForPush(pushToggleSwitch) {
     curlCodeElement.innerHTML = curlCommand;
 
     // Code to handle the XHR
-    var sendPushViaXHRButton = document.querySelector('.js-xhr-button');
+    var sendPushViaXHRButton = document.querySelector('.js-send-push-button');
     sendPushViaXHRButton.addEventListener('click', function(e) {
       var formData = new FormData();
 
@@ -178,14 +114,20 @@ function updateUIForPush(pushToggleSwitch) {
       }
 
       formData.append('endpoint', endpoint);
-
+      console.log('endpoint: ', endpoint);
       fetch(PUSH_SERVER_URL + '/send_push', {
         method: 'post',
         body: formData
       }).then(function(response) {
-        this.log('Response = ', response);
-      }).catch(function(err) {
-        this.log('Fetch Error :-S', err);
+        return response.json();
+      })
+      .then((responseObj) => {
+        if (!responseObj.success) {
+          throw new Error('Unsuccessful attempt to send push message');
+        }
+      })
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
       });
     });
 
@@ -215,29 +157,27 @@ function updateUIForPush(pushToggleSwitch) {
       scope: './'
     });
   } else {
-    // Service Workers aren't supported so you should hide the push UI
-    // If it's currently visible.
-    /** window.PushDemo.ui.showError('Ooops Service Workers aren\'t Supported',
-      'Service Workers aren\'t supported in this browser. ' +
-      'For this demo be sure to use ' +
-      '<a href="https://www.google.co.uk/chrome/browser/' +
-      'canary.html">Chrome Canary</a>' +
-      ' or version 42.');
-    window.PushDemo.ui.showOnlyError();**/
+    // TODO: Show error message
   }
 }
-/** window.addEventListener('UIReady', function() {
-  this.log('UIReady');
-  var pushClient = new PushClient(API_KEY);
 
-  // When the toggle switch changes, enabled / disable push
-  // messaging
-  var enablePushSwitch = document.querySelector('.js-enable-push');
-  enablePushSwitch.addEventListener('change', function(e) {
-    if (e.target.checked) {
-      pushClient.subscribeDevice();
-    } else {
-      pushClient.unsubscribeDevice();
-    }
-  });
-});**/
+
+// Below this comment is code to initialise a material design lite view.
+var toggleSwitch = document.querySelector('.js-push-toggle-switch');
+toggleSwitch.initialised = false;
+
+// This is to wait for MDL initialising
+document.addEventListener('mdl-componentupgraded', function() {
+  if (toggleSwitch.initialised) {
+    return;
+  }
+
+  toggleSwitch.initialised = toggleSwitch.classList.contains('is-upgraded');
+  if (!toggleSwitch.initialised) {
+    return;
+  }
+
+  var pushToggleSwitch = toggleSwitch.MaterialSwitch;
+
+  updateUIForPush(pushToggleSwitch);
+});

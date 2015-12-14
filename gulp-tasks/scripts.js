@@ -132,14 +132,17 @@ gulp.task('scripts:es6', function(cb) {
 });
 
 gulp.task('scripts:es5', function() {
-  return gulp.src([GLOBAL.config.src + '/**/*.js'])
+  return gulp.src([
+    '!' + GLOBAL.config.src + '/**/*.es6.js',
+    GLOBAL.config.src + '/**/*.js'
+  ])
     .pipe(gulpif(GLOBAL.config.env !== 'prod', sourcemaps.init()))
 
     // Remove the .es5 from the end of the file name using gulp-rename
     .pipe(rename(function(filePath) {
       var fullExtension = '.es5.js';
       if (filePath.basename.indexOf('.es5.js') !==
-        (filePath.length -fullExtension.lengt)) {
+        (filePath.length - fullExtension.length)) {
         return;
       }
 

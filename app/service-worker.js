@@ -7,18 +7,13 @@ var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/' +
   'Fdatatables.org%2Falltableswithkeys';
 
 function showNotification(title, body, icon, data) {
-  console.log('showNotification');
   var notificationOptions = {
     body: body,
     icon: icon ? icon : 'images/touch/chrome-touch-icon-192x192.png',
     tag: 'simple-push-demo-notification',
     data: data
   };
-  if (self.registration.showNotification) {
-    self.registration.showNotification(title, notificationOptions);
-  } else {
-    new Notification(title, notificationOptions);
-  }
+  self.registration.showNotification(title, notificationOptions);
 }
 
 self.addEventListener('push', function(event) {
@@ -31,17 +26,16 @@ self.addEventListener('push', function(event) {
     fetch(YAHOO_WEATHER_API_ENDPOINT)
       .then(function(response) {
         if (response.status !== 200) {
-          console.log('Looks like there was a problem. Status Code: ' +
-            response.status);
           // Throw an error so the promise is rejected and catch() is executed
-          throw new Error();
+          throw new Error('Invalid status code from weather API: ' +
+            response.status);
         }
 
         // Examine the text in the response
         return response.json();
       })
       .then(function(data) {
-        console.log('DATA: ', data);
+        console.log('Weather API data: ', data);
         if (data.query.count === 0) {
           // Throw an error so the promise is rejected and catch() is executed
           throw new Error();
@@ -67,6 +61,7 @@ self.addEventListener('push', function(event) {
           return showNotification(title, message, icon, notificationData);
         }
 
+        // Check if a notification is already displayed
         return self.registration.getNotifications(notificationFilter)
           .then(function(notifications) {
             if (notifications && notifications.length > 0) {

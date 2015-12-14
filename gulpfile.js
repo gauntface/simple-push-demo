@@ -34,8 +34,8 @@ GLOBAL.config = {
   version: projectPackage.version,
   license: 'Apache',
   licenseOptions: {
-      organization: 'Google Inc. All rights reserved.',
-    },
+    organization: 'Google Inc. All rights reserved.'
+  }
 };
 
 var allTasks = ['styles', 'scripts', 'copy', 'html', 'images'];

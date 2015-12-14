@@ -21,21 +21,6 @@ body {
   min-height: 100%;
 }
 
-header {
-  background-color: #2196F3;
-  color: white;
-}
-
-header h1 {
-  max-width: 480px;
-
-  margin: 0 auto;
-  padding-top: 140px;
-  padding-bottom: 32px;
-  padding-left: 32px;
-  padding-right: 32px;
-}
-
 main {
   max-width: 480px;
   min-width: 64px;
@@ -50,10 +35,6 @@ main {
 .error-title {
 	font-size: 28px;
 	margin-bottom: 4px;
-}
-
-a {
-	color: inherit;
 }
 
 .curl-code-example {
@@ -90,4 +71,19 @@ a {
   opacity: 0;
 
   transition:opacity 0.5s;
+}
+
+.mdl-switch {
+  width: auto;
+
+  span {
+    position: initial;
+    left: 0;
+
+    margin-left: 24px;
+  }
+}
+
+.push-switch-container {
+  text-align: center;
 }
