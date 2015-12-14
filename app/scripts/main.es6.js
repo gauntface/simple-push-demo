@@ -50,6 +50,10 @@ function updateUIForPush(pushToggleSwitch) {
     switch (state.id) {
     case 'ERROR':
       console.error(data);
+      showErrorMessage(
+        'Ooops a Problem Occurred',
+        data
+      );
       break;
     default:
       break;
@@ -157,7 +161,11 @@ function updateUIForPush(pushToggleSwitch) {
       scope: './'
     });
   } else {
-    // TODO: Show error message
+    showErrorMessage(
+      'Service Worker Not Supported',
+      'Sorry this demo requires service worker support in your browser. ' +
+      'Please try this demo in Chrome or Firefox Nightly.'
+    );
   }
 }
 
@@ -181,3 +189,16 @@ document.addEventListener('mdl-componentupgraded', function() {
 
   updateUIForPush(pushToggleSwitch);
 });
+
+function showErrorMessage(title, message) {
+  var errorContainer = document.querySelector('.js-error-message-container');
+
+  var titleElement = errorContainer.querySelector('.js-error-title');
+  var messageElement = errorContainer.querySelector('.js-error-message');
+  titleElement.textContent = title;
+  messageElement.textContent = message;
+  errorContainer.style.opacity = 1;
+
+  var pushOptionsContainer = document.querySelector('.js-send-push-options');
+  pushOptionsContainer.style.display = 'none';
+}
