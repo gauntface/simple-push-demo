@@ -7,13 +7,18 @@ var YAHOO_WEATHER_API_ENDPOINT = 'https://query.yahooapis.com/' +
   'Fdatatables.org%2Falltableswithkeys';
 
 function showNotification(title, body, icon, data) {
+  console.log('showNotification');
+  // Firefox has an issue with showing a notification with the icon from
+  // the Yaho API
+  // (i.e. http://l.yimg.com/a/i/brand/purplelogo//uh/us/news-wea.gif)
+  // HTTP, CORs or Size issue.
   var notificationOptions = {
     body: body,
-    icon: icon ? icon : 'images/touch/chrome-touch-icon-192x192.png',
+    icon: icon ? icon : '/images/touch/chrome-touch-icon-192x192.png',
     tag: 'simple-push-demo-notification',
     data: data
   };
-  self.registration.showNotification(title, notificationOptions);
+  return self.registration.showNotification(title, notificationOptions);
 }
 
 self.addEventListener('push', function(event) {
@@ -88,7 +93,7 @@ self.addEventListener('push', function(event) {
           });
       })
       .catch(function(err) {
-        console.error('Unable to retrieve data', err);
+        console.error('A Problem occured with handling the push msg', err);
 
         var title = 'An error occured';
         var message = 'We were unable to get the information for this ' +

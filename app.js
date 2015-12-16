@@ -1,12 +1,105 @@
+'use strict';
+
 var textEncoder = require('text-encoding').TextEncoder;
+var request = require('request-promise');
+var crypto = require('crypto');
 var express = require('express');
 var bodyParser = require('body-parser');
-var app = express();
 
+const GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
+const GCM_AUTHORIZATION = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
+
+var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use('/', express.static('./dist'));
+
+function generateServerKeys() {
+  var ellipticCurve = crypto.createECDH('prime256v1');
+  ellipticCurve.generateKeys();
+  return {
+    public: ellipticCurve.getPublicKey('base64'),
+    private: ellipticCurve.getPrivateKey('base64')
+  };
+}
+
+function encryptMessage(payload, keys) {
+  if (crypto.getCurves().indexOf('prime256v1') === -1) {
+    // We need the P-256 Diffie Hellman Elliptic Curve to generate the server
+    // certificates
+    // secp256r1 === prime256v1
+    console.log('We don\'t have the right Diffie Hellman curve to work.');
+    return;
+  }
+
+  var webClientPublicKey = keys.p256dh;
+  var webClientAuth = keys.auth;
+
+  var serverKeys = generateServerKeys();
+  console.log(serverKeys);
+}
+
+function sendPushMessage(endpoint, keys) {
+  if (keys) {
+    // TODO: Handle Encryption
+    encryptMessage('Please Work.', keys);
+  }
+
+  var options = {
+    uri: endpoint,
+    method: 'POST',
+    resolveWithFullResponse: true
+  };
+  if (endpoint.indexOf('https://android.googleapis.com/gcm/send') === 0) {
+    // Proprietary GCM
+    var endpointParts = endpoint.split('/');
+    var gcmRegistrationId = endpointParts[endpointParts.length - 1];
+
+    // Rename the request URI to not include the GCM registration ID
+    options.uri = GCM_ENDPOINT;
+
+    options.headers = {};
+    options.headers['Content-Type'] = 'application/json';
+    options.headers.Authorization = 'key=' + GCM_AUTHORIZATION;
+
+    // You can use a body of:
+    // registration_ids: [<gcmRegistrationId>, <gcmRegistrationId>...]
+    // for multiple registrations.
+    options.body = JSON.stringify({
+      'to': gcmRegistrationId
+    });
+  }
+
+  return request(options)
+  .then((response) => {
+    if (response.body.indexOf('Error') === 0) {
+      // GCM has a wonderful habit of returning 'Error=' for some problems
+      // while keeping the status code at 200. This catches that case
+      throw new Error('Problem with GCM. "' + response + '"');
+    }
+
+    if (response.statusCode !== 200 &&
+      response.statusCode !== 201) {
+      throw new Error('Unexpected status code from endpoint. "' +
+        response.statusCode + '"');
+    }
+
+    if (options.uri === GCM_ENDPOINT) {
+      try {
+        var responseObj = JSON.parse(response);
+        if (responseObj.failures) {
+          // This endpoint needs to be removing from your database
+
+        }
+      } catch (exception) {
+        // NOOP
+      }
+    }
+
+    return response;
+  });
+}
 
 /**
  *
@@ -16,29 +109,33 @@ app.use('/', express.static('./dist'));
  */
 app.post('/send_web_push', function(req, res) {
   var endpoint = req.body.endpoint;
+  var keys = req.body.keys;
   if (!endpoint) {
     // If there is no endpoint we can't send anything
     return res.status(404).json({success: false});
   }
 
-  /** var keys = req.body.keys;
-  var webClientPublicKey = keys.p256dh;
-  var webClientAuth = keys.auth;
+  sendPushMessage(endpoint, keys)
+  .then((responseText) => {
+    console.log('Request success');
+    // Check the response from GCM
 
-  var crypto = require('crypto');
-  if (crypto.getCurves().indexOf('prime256v1') > -1) {
-    // We need the P-256 Diffie Hellman Elliptic Curve to generate the server
-    // certificates
-    // secp256r1 === prime256v1
-    console.log('Looks like we have the right curve');
-  }
+    res.json({success: true});
+  })
+  .catch((err) => {
+    console.log('Problem with request', err);
+    res.json({success: false});
+  });
+
+  /**
+
+
+
+
 
   // Create a public, private key pair on the client
   // This should be done per web client (i.e. per subscription)
-  var ellipticCurve = crypto.createECDH('prime256v1');
-  ellipticCurve.generateKeys();
-  var serverPublicKey = ellipticCurve.getPublicKey('base64');
-  var serverPrivateKey = ellipticCurve.getPrivateKey('base64');
+
   console.log('public key', serverPublicKey);
   console.log('private key', serverPrivateKey);
 
@@ -89,9 +186,6 @@ app.post('/send_web_push', function(req, res) {
 
   hkdf = nonceHmac.update(info).digest('base64');
   var pseudoRandomKey = hkdf.slice(0, byteLength);**/
-
-
-  res.json({success: true});
 });
 
 var server = app.listen(3000, () => {
