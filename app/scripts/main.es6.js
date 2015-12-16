@@ -22,7 +22,9 @@
 import PushClient from './push-client.es6.js';
 
 var API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
-var PUSH_SERVER_URL = 'https://simple-push-demo.appspot.com';
+
+// Define a different server URL here if desire.
+var PUSH_SERVER_URL = '';
 
 
 function updateUIForPush(pushToggleSwitch) {
@@ -96,32 +98,19 @@ function updateUIForPush(pushToggleSwitch) {
       curlCommand = produceWebPushProtocolCURLCommand();
     }
 
-    console.log(curlCommand);
-
     var curlCodeElement = document.querySelector('.js-curl-code');
     curlCodeElement.innerHTML = curlCommand;
 
     // Code to handle the XHR
     var sendPushViaXHRButton = document.querySelector('.js-send-push-button');
     sendPushViaXHRButton.addEventListener('click', function(e) {
-      var formData = new FormData();
+      var headers = new Headers();
+      headers.append('Content-Type', 'application/json');
 
-      var endpoint = subscription.endpoint;
-
-      // This will no be needed in M44 / M45
-      if ('subscriptionId' in subscription) {
-        // Make the endpoint always contain the subscriptionId
-        // so the server is always consistent
-        if (!endpoint.includes(subscription.subscriptionId)) {
-          endpoint += '/' + subscription.subscriptionId;
-        }
-      }
-
-      formData.append('endpoint', endpoint);
-      console.log('endpoint: ', endpoint);
-      fetch(PUSH_SERVER_URL + '/send_push', {
+      fetch(PUSH_SERVER_URL + '/send_web_push', {
         method: 'post',
-        body: formData
+        headers: headers,
+        body: JSON.stringify(subscription)
       }).then(function(response) {
         return response.json();
       })

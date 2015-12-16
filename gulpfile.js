@@ -49,5 +49,5 @@ gulp.task('default', function(cb) {
 
 gulp.task('dev', function() {
   GLOBAL.config.env = 'dev';
-  return runSequence('clean', allTasks, 'browsersync', 'watch');
+  return runSequence('clean', allTasks, 'watch', 'nodemon');
 });
