@@ -14,7 +14,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use('/', express.static('./dist'));
-app.use('/tests/', express.static('./tests'));
 
 function generateServerKeys() {
   var ellipticCurve = crypto.createECDH('prime256v1');

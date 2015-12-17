@@ -61,6 +61,8 @@
     "WebPushEncryption": true,
     "fromBase64Url": true,
     "toArrayBuffer": true,
-    "toBase64Url": true
+    "toBase64Url": true,
+    "describe": true,
+    "it": true
   }
 }
