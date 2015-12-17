@@ -5,6 +5,8 @@ var request = require('request-promise');
 var crypto = require('crypto');
 var express = require('express');
 var bodyParser = require('body-parser');
+var ece = require('http_ece');
+var base64 = require('base64url');
 
 const GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
 const GCM_AUTHORIZATION = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
@@ -15,20 +17,6 @@ app.use(bodyParser.json());
 
 app.use('/', express.static('./dist'));
 
-function generateServerKeys() {
-  var ellipticCurve = crypto.createECDH('prime256v1');
-  ellipticCurve.generateKeys();
-  return {
-    public: ellipticCurve.getPublicKey('base64'),
-    private: ellipticCurve.getPrivateKey('base64'),
-    curve: ellipticCurve
-  };
-}
-
-function generareSharedSecret(serverKeys, clientPublicKey) {
-  return serverKeys.curve.computeSecret(clientPublicKey, 'base64', 'base64');
-}
-
 function encryptMessage(payload, keys) {
   if (crypto.getCurves().indexOf('prime256v1') === -1) {
     // We need the P-256 Diffie Hellman Elliptic Curve to generate the server
@@ -38,32 +26,47 @@ function encryptMessage(payload, keys) {
     return;
   }
 
-  var webClientPublicKey = keys.p256dh;
-  var webClientAuth = keys.auth;
+  var ellipticDHCurve = crypto.createECDH('prime256v1');
+  ellipticDHCurve.generateKeys();
 
-  var serverKeys = generateServerKeys();
-  console.log('Server Keys', serverKeys);
+  var sharedSecret = ellipticDHCurve.computeSecret(base64.decode(keys.p256dh));
+  ece.saveKey('simple-push-demo', sharedSecret);
 
-  var sharedSecret = generareSharedSecret(serverKeys, webClientPublicKey);
-  console.log('Shared Secret', sharedSecret);
+  var salt = crypto.randomBytes(16);
+  var cipherText = ece.encrypt(payload, {
+    keyid: 'simple-push-demo',
+    salt: base64.encode(salt)
+  });
 
-  const salt = crypto.randomBytes(16);
-  console.log('Salt', salt);
-
-
+  return {
+    payload: cipherText,
+    headers: {
+      'Content-Length': cipherText.length,
+      'Content-Type': 'application/octet-stream',
+      'Encryption-Key': 'keyid=p256dh;dh=' +
+        base64.encode(ellipticDHCurve.getPublicKey()),
+      'Encryption': 'keyid=p256dh;salt=' +
+        base64.encode(salt),
+      'Content-Encoding': 'aesgcm128'
+    }
+  };
 }
 
 function sendPushMessage(endpoint, keys) {
-  if (keys) {
-    // TODO: Handle Encryption
-    encryptMessage('Please Work.', keys);
-  }
-
   var options = {
     uri: endpoint,
     method: 'POST',
-    resolveWithFullResponse: true
+    resolveWithFullResponse: true,
+    headers: {}
   };
+  if (keys) {
+    var encryptedPayload = encryptMessage('Please Work.', keys);
+    options.headers = encryptedPayload.headers;
+    options.body = encryptedPayload.cipherText;
+    console.log(options);
+  }
+
+
   if (endpoint.indexOf('https://android.googleapis.com/gcm/send') === 0) {
     // Proprietary GCM
     var endpointParts = endpoint.split('/');
@@ -72,7 +75,6 @@ function sendPushMessage(endpoint, keys) {
     // Rename the request URI to not include the GCM registration ID
     options.uri = GCM_ENDPOINT;
 
-    options.headers = {};
     options.headers['Content-Type'] = 'application/json';
     options.headers.Authorization = 'key=' + GCM_AUTHORIZATION;
 
@@ -121,6 +123,7 @@ function sendPushMessage(endpoint, keys) {
  *
  */
 app.post('/send_web_push', function(req, res) {
+  console.log(req.body);
   var endpoint = req.body.endpoint;
   var keys = req.body.keys;
   if (!endpoint) {
