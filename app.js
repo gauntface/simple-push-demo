@@ -26,10 +26,12 @@ function encryptMessage(payload, keys) {
     return;
   }
 
+  console.log(keys);
+
   var ellipticDHCurve = crypto.createECDH('prime256v1');
   ellipticDHCurve.generateKeys();
 
-  var sharedSecret = ellipticDHCurve.computeSecret(base64.decode(keys.p256dh));
+  var sharedSecret = ellipticDHCurve.computeSecret(keys.p256dh, 'base64');
   ece.saveKey('simple-push-demo', sharedSecret);
 
   var salt = crypto.randomBytes(16);
@@ -123,7 +125,6 @@ function sendPushMessage(endpoint, keys) {
  *
  */
 app.post('/send_web_push', function(req, res) {
-  console.log(req.body);
   var endpoint = req.body.endpoint;
   var keys = req.body.keys;
   if (!endpoint) {
