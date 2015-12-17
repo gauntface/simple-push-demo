@@ -90,12 +90,6 @@ function updateUIForPush(pushToggleSwitch) {
       return curlCommand;
     };
 
-    var produceLocalCURLCommand = function() {
-      var curlEndpoint = subscription.endpoint;
-      var curlCommand = 'curl --request POST ' + curlEndpoint;
-      return curlCommand;
-    };
-
     var curlCommand;
     if (subscription.endpoint.indexOf(
       'https://android.googleapis.com/gcm/send') === 0) {
