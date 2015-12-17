@@ -14,14 +14,20 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use('/', express.static('./dist'));
+app.use('/tests/', express.static('./tests'));
 
 function generateServerKeys() {
   var ellipticCurve = crypto.createECDH('prime256v1');
   ellipticCurve.generateKeys();
   return {
     public: ellipticCurve.getPublicKey('base64'),
-    private: ellipticCurve.getPrivateKey('base64')
+    private: ellipticCurve.getPrivateKey('base64'),
+    curve: ellipticCurve
   };
+}
+
+function generareSharedSecret(serverKeys, clientPublicKey) {
+  return serverKeys.curve.computeSecret(clientPublicKey, 'base64', 'base64');
 }
 
 function encryptMessage(payload, keys) {
@@ -37,7 +43,15 @@ function encryptMessage(payload, keys) {
   var webClientAuth = keys.auth;
 
   var serverKeys = generateServerKeys();
-  console.log(serverKeys);
+  console.log('Server Keys', serverKeys);
+
+  var sharedSecret = generareSharedSecret(serverKeys, webClientPublicKey);
+  console.log('Shared Secret', sharedSecret);
+
+  const salt = crypto.randomBytes(16);
+  console.log('Salt', salt);
+
+
 }
 
 function sendPushMessage(endpoint, keys) {
@@ -128,24 +142,10 @@ app.post('/send_web_push', function(req, res) {
   });
 
   /**
-
-
-
-
-
-  // Create a public, private key pair on the client
-  // This should be done per web client (i.e. per subscription)
-
-  console.log('public key', serverPublicKey);
-  console.log('private key', serverPrivateKey);
-
-  var sharedSecret = ellipticCurve.computeSecret(webClientPublicKey, 'base64');
-  console.log('shared secret', sharedSecret);
-
 // TODO: Store client endpoint, client p256dh, client auth, server public key,
 // and server shared key
 
-  const salt = crypto.randomBytes(16);
+
   console.log('Salt: ', salt);
 
   //

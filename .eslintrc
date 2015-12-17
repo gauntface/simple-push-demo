@@ -57,6 +57,10 @@
     "IndexDBWrapper": true,
     "clients": true,
     "MaterialSwitch": true,
-    "MaterialButton": true
+    "MaterialButton": true,
+    "WebPushEncryption": true,
+    "fromBase64Url": true,
+    "toArrayBuffer": true,
+    "toBase64Url": true
   }
 }
