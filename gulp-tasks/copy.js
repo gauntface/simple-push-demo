@@ -20,7 +20,8 @@ var runSequence = require('run-sequence');
 var del = require('del');
 
 gulp.task('copy:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/*.*', ['copy:root']);
+  gulp.watch(GLOBAL.config.src + '/*.*',
+    ['copy:root', GLOBAL.config.browserSyncReload]);
 });
 
 gulp.task('copy:cleanRoot', function(cb) {
@@ -32,9 +33,9 @@ gulp.task('copy:cleanRoot', function(cb) {
 
 gulp.task('copy:root', ['copy:cleanRoot'], function() {
   return gulp.src([
-      GLOBAL.config.src + '/*.{json,txt,ico}',
-    ])
-    .pipe(gulp.dest(GLOBAL.config.dest));
+    GLOBAL.config.src + '/*.{json,txt,ico}'
+  ])
+  .pipe(gulp.dest(GLOBAL.config.dest));
 });
 
 gulp.task('copy', function(cb) {

@@ -38,7 +38,8 @@ var AUTOPREFIXER_BROWSERS = [
 ];
 
 gulp.task('styles:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/**/*.scss', ['styles']);
+  gulp.watch(GLOBAL.config.src + '/**/*.scss',
+    ['styles', GLOBAL.config.browserSyncReload]);
 });
 
 // Delete any files currently in the scripts destination path

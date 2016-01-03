@@ -33,8 +33,14 @@ var sourcemaps = require('gulp-sourcemaps');
 var rename = require('gulp-rename');
 
 gulp.task('scripts:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/**/*.js', ['scripts']);
-  gulp.watch(['./.eslintrc', './.eslintignore'], ['scripts']);
+  gulp.watch(GLOBAL.config.src + '/**/*.js',
+    ['scripts', GLOBAL.config.browserSyncReload]);
+  gulp.watch(['./.eslintrc', './.eslintignore'], ['scripts'])
+    .on('change', function() {
+      if (GLOBAL.config.browserSync) {
+        GLOBAL.config.browserSync.reload();
+      }
+    });
 });
 
 // Takes a set of objects defining inputs of javascript files

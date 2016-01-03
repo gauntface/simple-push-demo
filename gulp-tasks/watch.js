@@ -28,7 +28,7 @@ var runSequence = require('run-sequence');
 gulp.task('watch', function() {
   // Get all of the gulp task names
   var taskNames = Object.keys(gulp.tasks);
-  
+
   // Store ':watch' tasks in this array
   var gulpWatchTasks = [];
 

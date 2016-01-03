@@ -23,9 +23,6 @@ var gulp = require('gulp');
 var fs = require('fs');
 var runSequence = require('run-sequence');
 
-// Get tasks from gulp-tasks directory
-require('require-dir')('gulp-tasks');
-
 var projectPackage = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 GLOBAL.config = {
   env: 'prod',
@@ -38,6 +35,9 @@ GLOBAL.config = {
   }
 };
 
+// Get tasks from gulp-tasks directory
+require('require-dir')('gulp-tasks');
+
 var allTasks = ['styles', 'scripts', 'copy', 'html', 'images'];
 
 gulp.task('default', function(cb) {
@@ -49,5 +49,5 @@ gulp.task('default', function(cb) {
 
 gulp.task('dev', function() {
   GLOBAL.config.env = 'dev';
-  return runSequence('clean', allTasks, 'watch', 'nodemon');
+  return runSequence('clean', allTasks, 'watch', 'nodemon', 'browsersync');
 });
