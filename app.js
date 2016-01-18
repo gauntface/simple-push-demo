@@ -1,12 +1,10 @@
 'use strict';
 
-var textEncoder = require('text-encoding').TextEncoder;
 var request = require('request-promise');
-var crypto = require('crypto');
 var express = require('express');
 var bodyParser = require('body-parser');
-var ece = require('http_ece');
-var base64 = require('base64url');
+var EncryptionHelper = require('./encryption-helper');
+var urlBase64 = require('urlsafe-base64');
 
 const GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
 const GCM_AUTHORIZATION = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
@@ -18,6 +16,7 @@ app.use(bodyParser.json());
 app.use('/', express.static('./dist'));
 
 function encryptMessage(payload, keys) {
+  // Keys contains p256dh and auth
   if (crypto.getCurves().indexOf('prime256v1') === -1) {
     // We need the P-256 Diffie Hellman Elliptic Curve to generate the server
     // certificates
@@ -28,27 +27,18 @@ function encryptMessage(payload, keys) {
 
   console.log(keys);
 
-  var ellipticDHCurve = crypto.createECDH('prime256v1');
-  ellipticDHCurve.generateKeys();
-
-  var sharedSecret = ellipticDHCurve.computeSecret(keys.p256dh, 'base64');
-  ece.saveKey('simple-push-demo', sharedSecret);
-
-  var salt = crypto.randomBytes(16);
-  var cipherText = ece.encrypt(payload, {
-    keyid: 'simple-push-demo',
-    salt: base64.encode(salt)
-  });
-
+  var encryptionHelper = new EncryptionHelper({keys: keys});
+  var encryptedMsg = encryptionHelper.encryptMessage(payload);
+  encryptedMsg = urlBase64.encode(encryptedMsg);
   return {
-    payload: cipherText,
+    payload: encryptedMsg,
     headers: {
-      'Content-Length': cipherText.length,
+      'Content-Length': encryptedMsg.length,
       'Content-Type': 'application/octet-stream',
       'Encryption-Key': 'keyid=p256dh;dh=' +
-        base64.encode(ellipticDHCurve.getPublicKey()),
+        urlBase64.encode(encryptionHelper.getPublicKey()),
       'Encryption': 'keyid=p256dh;salt=' +
-        base64.encode(salt),
+        urlBase64.encode(encryptionHelper.getSalt()),
       'Content-Encoding': 'aesgcm128'
     }
   };
