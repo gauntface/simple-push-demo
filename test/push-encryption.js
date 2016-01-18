@@ -38,30 +38,30 @@ const CORRECT_VALUES = {
 const PAYLOAD = 'hello';
 
 describe('Test Encryption Steps of a Push Message Payload', () => {
-  var EncryptionHelper = require('../encryption-helper').EncryptionHelper;
-  var HMAC = require('../encryption-helper').HMAC;
-  var HKDF = require('../encryption-helper').HKDF;
+  var EncryptionHelper = require('../encryption-helper');
+  var HMAC = require('../hmac');
+  var HKDF = require('../hkdf');
 
   it('should instantiate a new helper', () => {
-    new EncryptionHelper();
+    new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
   });
 
   it('should create a server public, private key pair', () => {
-    var serverKeys = new EncryptionHelper().getServerKeys();
+    var serverKeys = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT).getServerKeys();
     serverKeys.should.be.a('object');
     serverKeys.should.have.property('public');
     serverKeys.should.have.property('private');
   });
 
   it('should instantiate a new helper with predefined server keys', () => {
-    new EncryptionHelper({
+    new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS
     });
   });
 
   // This test may work in Node 5.2 - See: https://github.com/nodejs/node/blob/master/CHANGELOG.md
   it('should have the provided server public, private key pair', () => {
-    var serverKeys = new EncryptionHelper({
+    var serverKeys = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS
     }).getServerKeys();
     serverKeys.should.be.a('object');
@@ -72,33 +72,29 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
   });
 
   it('should calculate a shared secret', () => {
-    var encryptionHelper = new EncryptionHelper();
-    var sharedSecretTest = encryptionHelper.getSharedSecret(
-      PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh
-    );
-    sharedSecretTest.should.be.a('string');
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
+    var sharedSecretTest = encryptionHelper.getSharedSecret();
+    Buffer.isBuffer(sharedSecretTest).should.equal(true);
   });
 
   it('should calculate a shared secret', () => {
-    var encryptionHelper = new EncryptionHelper({
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS
     });
-    var sharedSecretTest = encryptionHelper.getSharedSecret(
-      PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh
-    );
-    sharedSecretTest.should.be.a('string');
-    urlBase64.encode(urlBase64.decode(sharedSecretTest)).should.equal(CORRECT_VALUES.sharedSecret);
+    var sharedSecretTest = encryptionHelper.getSharedSecret();
+    Buffer.isBuffer(sharedSecretTest).should.equal(true);
+    urlBase64.encode(sharedSecretTest).should.equal(CORRECT_VALUES.sharedSecret);
   });
 
   it('should generate a random salt - 16byte buffer', () => {
-    var encryptionHelper = new EncryptionHelper();
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
     var randSalt = encryptionHelper.getSalt();
     Buffer.isBuffer(randSalt).should.equal(true);
     randSalt.should.have.length(16);
   });
 
   it('should get the defined salt - 16byte buffer', () => {
-    var encryptionHelper = new EncryptionHelper({
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       salt: PREDEFINED_SERVER_KEYS.salt
     });
     var randSalt = encryptionHelper.getSalt();
@@ -107,54 +103,65 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     randSalt.should.equal(PREDEFINED_SERVER_KEYS.salt);
   });
 
+  // See: https://martinthomson.github.io/http-encrypt
   it('should generate a context', () => {
-    var encryptionHelper = new EncryptionHelper();
-    var context = encryptionHelper.generateContext(PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh, PREDEFINED_SERVER_KEYS.public);
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
+    var context = encryptionHelper.generateContext();
 
     Buffer.isBuffer(context).should.equal(true);
-    // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
+    context.should.have.length(5 + 1 + 2 + 65 + 2 + 65);
+  });
+
+  it('should generate a context with specific value', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
+      serverKeys: PREDEFINED_SERVER_KEYS
+    });
+    var context = encryptionHelper.generateContext();
+
+    Buffer.isBuffer(context).should.equal(true);
     context.should.have.length(5 + 1 + 2 + 65 + 2 + 65);
     urlBase64.encode(context).should.equal(CORRECT_VALUES.context);
   });
 
-  it('should generate the specific context', () => {
-    var encryptionHelper = new EncryptionHelper({
-      serverKeys: PREDEFINED_SERVER_KEYS,
-      salt: PREDEFINED_SERVER_KEYS.salt
-    });
-    var context = encryptionHelper.generateContext(PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh, PREDEFINED_SERVER_KEYS.public);
+  it('should generate a cekInfo', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
+    var cekInfo = encryptionHelper.generateCEKInfo();
 
-    Buffer.isBuffer(context).should.equal(true);
-    // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
-    context.should.have.length(5 + 1 + 2 + 65 + 2 + 65);
-    urlBase64.encode(context).should.equal(CORRECT_VALUES.context);
+    Buffer.isBuffer(cekInfo).should.equal(true);
+    cekInfo.should.have.length(27 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
   });
 
   it('should generate the specific cekInfo', () => {
-    var encryptionHelper = new EncryptionHelper({
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS,
       salt: PREDEFINED_SERVER_KEYS.salt
     });
-    var context = encryptionHelper.generateContext(PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh, PREDEFINED_SERVER_KEYS.public);
-    var cekInfo = encryptionHelper.generateCEKInfo(context);
+    var cekInfo = encryptionHelper.generateCEKInfo();
 
     Buffer.isBuffer(cekInfo).should.equal(true);
     // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
-    cekInfo.should.have.length(27 + 1 + context.length);
+    cekInfo.should.have.length(27 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
     urlBase64.encode(cekInfo).should.equal(CORRECT_VALUES.cekInfo);
   });
 
+  it('should generate a nonceInfo', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
+    var cekInfo = encryptionHelper.generateNonceInfo();
+
+    Buffer.isBuffer(cekInfo).should.equal(true);
+    cekInfo.should.have.length(23 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
+  });
+
   it('should generate the specific nonceInfo', () => {
-    var encryptionHelper = new EncryptionHelper({
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS,
       salt: PREDEFINED_SERVER_KEYS.salt
     });
-    var context = encryptionHelper.generateContext(PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh, PREDEFINED_SERVER_KEYS.public);
-    var nonceInfo = encryptionHelper.generateNonceInfo(context);
+
+    var nonceInfo = encryptionHelper.generateNonceInfo();
 
     Buffer.isBuffer(nonceInfo).should.equal(true);
-    // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
-    nonceInfo.should.have.length(23 + 1 + context.length);
+    nonceInfo.should.have.length(23 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
     urlBase64.encode(nonceInfo).should.equal(CORRECT_VALUES.nonceInfo);
   });
 
@@ -170,38 +177,39 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     urlBase64.encode(hkdfOutput).should.equal('cS9spnQtVwB3AuvBt3wglw');
   });
 
-  it('should generate pseudo random key', () => {
-    var encryptionHelper = new EncryptionHelper({
+  it('should generate a pseudo random key', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
+    var prk = encryptionHelper.generatePRK();
+    Buffer.isBuffer(prk).should.equal(true);
+  });
+
+  it('should generate the specific pseudo random key', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS,
       salt: PREDEFINED_SERVER_KEYS.salt
     });
-    var sharedSecretTest = encryptionHelper.getSharedSecret(
-      PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh
-    );
-    var prk = encryptionHelper.generatePRK(sharedSecretTest, PREDEFINED_SUBSCRIPTIONOBJECT.keys.auth);
+    var prk = encryptionHelper.generatePRK();
     urlBase64.encode(prk).should.equal(CORRECT_VALUES.prk);
   });
 
-  it('should generate keys', () => {
-    var encryptionHelper = new EncryptionHelper({
+  it('should generate encryption keys', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT);
+
+    var keys = encryptionHelper.generateEncryptionKeys();
+
+    Buffer.isBuffer(keys.contentEncryptionKey).should.equal(true);
+    Buffer.isBuffer(keys.nonce).should.equal(true);
+    keys.contentEncryptionKey.should.have.length(16);
+    keys.nonce.should.have.length(12);
+  });
+
+  it('should generate specific encryption keys', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS,
       salt: PREDEFINED_SERVER_KEYS.salt
     });
-    var sharedSecretTest = encryptionHelper.getSharedSecret(
-      PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh
-    );
 
-    var context = encryptionHelper.generateContext(PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh, PREDEFINED_SERVER_KEYS.public);
-    var cekInfo = encryptionHelper.generateCEKInfo(context);
-    var nonceInfo = encryptionHelper.generateNonceInfo(context);
-
-    var prk = encryptionHelper.generatePRK(sharedSecretTest, PREDEFINED_SUBSCRIPTIONOBJECT.keys.auth);
-    var keys = encryptionHelper.generateKeys(
-      prk,
-      PREDEFINED_SERVER_KEYS.salt,
-      cekInfo,
-      nonceInfo
-    );
+    var keys = encryptionHelper.generateEncryptionKeys();
 
     Buffer.isBuffer(keys.contentEncryptionKey).should.equal(true);
     Buffer.isBuffer(keys.nonce).should.equal(true);
@@ -211,44 +219,23 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     urlBase64.encode(keys.nonce).should.equal(CORRECT_VALUES.nonce);
   });
 
-  it('should generate a padded payload', () => {
-    var paddingLength = 0;
-    var encryptionHelper = new EncryptionHelper({
+  it('should encrypt message', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS,
       salt: PREDEFINED_SERVER_KEYS.salt
     });
 
-    var recordBuffer = encryptionHelper.generateMessageBuffer(PAYLOAD, paddingLength);
-    Buffer.isBuffer(recordBuffer).should.equal(true);
-    recordBuffer.should.have.length(1 + paddingLength + PAYLOAD.length);
-    urlBase64.encode(recordBuffer).should.equal(CORRECT_VALUES.paddedRecord);
+    var encryptedMsg = encryptionHelper.encryptMessage(PAYLOAD);
+    Buffer.isBuffer(encryptedMsg).should.equal(true);
   });
 
-  it('should encrypt message', () => {
-    var encryptionHelper = new EncryptionHelper({
+  it('should encrypt message with specific keys and salt', () => {
+    var encryptionHelper = new EncryptionHelper(PREDEFINED_SUBSCRIPTIONOBJECT, {
       serverKeys: PREDEFINED_SERVER_KEYS,
       salt: PREDEFINED_SERVER_KEYS.salt
     });
-    var sharedSecretTest = encryptionHelper.getSharedSecret(
-      PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh
-    );
 
-    var context = encryptionHelper.generateContext(PREDEFINED_SUBSCRIPTIONOBJECT.keys.p256dh, PREDEFINED_SERVER_KEYS.public);
-    var cekInfo = encryptionHelper.generateCEKInfo(context);
-    var nonceInfo = encryptionHelper.generateNonceInfo(context);
-
-    var prk = encryptionHelper.generatePRK(sharedSecretTest, PREDEFINED_SUBSCRIPTIONOBJECT.keys.auth);
-    var keys = encryptionHelper.generateKeys(
-      prk,
-      PREDEFINED_SERVER_KEYS.salt,
-      cekInfo,
-      nonceInfo
-    );
-
-    var encryptedMsg = encryptionHelper.encryptMessage(
-      PAYLOAD,
-      keys
-    );
+    var encryptedMsg = encryptionHelper.encryptMessage(PAYLOAD);
     urlBase64.encode(encryptedMsg).should.equal(CORRECT_VALUES.encryptedPayload);
   });
 });

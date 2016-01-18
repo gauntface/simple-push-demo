@@ -3,43 +3,21 @@
 var crypto = require('crypto');
 var urlBase64 = require('urlsafe-base64');
 
-class HMAC {
-  constructor(ikm) {
-    this._ikm = ikm;
-    this._hmac = crypto.createHmac('sha256', ikm);
-  }
-
-  sign(input) {
-    var result = this._hmac.update(input).digest();
-    return result;
-  }
-}
-
-class HKDF {
-  constructor(inputKeyingMaterial, salt) {
-    this._salt = salt;
-    this._ikm = inputKeyingMaterial;
-
-    this._hmac = new HMAC(salt);
-  }
-
-  generate(info, byteLength) {
-    var fullInfoBuffer = Buffer.concat([
-      new Buffer(info, 'base64'),
-      new Buffer(1).fill(1)
-    ]);
-
-    var prk = this._hmac.sign(this._ikm);
-
-    var nextHmac = new HMAC(prk);
-    var nextPrk = nextHmac.sign(fullInfoBuffer);
-    return nextPrk.slice(0, byteLength);
-  }
-}
+var HKDF = require('./hkdf');
 
 class EncryptionHelper {
+  constructor(subscriptionObject, options) {
+    if (
+      typeof subscriptionObject === 'undefined' ||
+      subscriptionObject === null ||
+      !subscriptionObject.keys ||
+      !subscriptionObject.keys.p256dh ||
+      !subscriptionObject.keys.auth
+    ) {
+      throw new Error('Bad subscription object');
+    }
 
-  constructor(options) {
+    this._subscriptionObject = subscriptionObject;
     this._salt = crypto.randomBytes(16);
     this._ellipticCurve = crypto.createECDH('prime256v1');
     this._ellipticCurve.generateKeys();
@@ -68,9 +46,9 @@ class EncryptionHelper {
     };
   }
 
-  getSharedSecret(clientPublicKey) {
+  getSharedSecret() {
     return this._ellipticCurve.computeSecret(
-      clientPublicKey, 'base64',
+      this._subscriptionObject.keys.p256dh,
       'base64');
   }
 
@@ -78,26 +56,20 @@ class EncryptionHelper {
     return this._salt;
   }
 
-  generateContext(clientPublicKey, serverPublicKey) {
-    // context = label || 0x00 ||
-    //           length(recipient_public) || recipient_public ||
-    //           length(sender_public) || sender_public
-
-    // var bufferSize = 5 + 1 + 2 + 65 + 2 + 65;
-    // var contextBuffer = new Buffer(bufferSize);
-
+  // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
+  generateContext() {
     var labelBuffer = new Buffer('P-256', 'ascii');
     var paddingBuffer = new Buffer(1).fill(0);
 
-    var clientPublicKeyLengthBuffer = new Buffer(2);
-    clientPublicKeyLengthBuffer.writeUIntBE(
-      urlBase64.decode(clientPublicKey).length, 0, 2);
-    var clientPublicKeyBuffer = urlBase64.decode(clientPublicKey);
+    var clientPublicKeyBuffer = urlBase64.decode(
+      this._subscriptionObject.keys.p256dh);
 
+    var clientPublicKeyLengthBuffer = new Buffer(2);
+    clientPublicKeyLengthBuffer.writeUIntBE(clientPublicKeyBuffer.length, 0, 2);
+
+    var serverPublicKeyBuffer = urlBase64.decode(this.getServerKeys().public);
     var serverPublicKeyLengthBuffer = new Buffer(2);
-    serverPublicKeyLengthBuffer.writeUIntBE(
-      urlBase64.decode(serverPublicKey).length, 0, 2);
-    var serverPublicKeyBuffer = urlBase64.decode(serverPublicKey);
+    serverPublicKeyLengthBuffer.writeUIntBE(serverPublicKeyBuffer.length, 0, 2);
 
     return Buffer.concat([
       labelBuffer,
@@ -109,7 +81,8 @@ class EncryptionHelper {
     ]);
   }
 
-  generateCEKInfo(context) {
+  generateCEKInfo() {
+    let contextBuffer = this.generateContext();
     var contentEncodingBuffer = new Buffer('Content-Encoding: aesgcm128',
       'utf8');
     var paddingBuffer = new Buffer(1).fill(0);
@@ -117,11 +90,12 @@ class EncryptionHelper {
     return Buffer.concat([
       contentEncodingBuffer,
       paddingBuffer,
-      context
+      contextBuffer
     ]);
   }
 
-  generateNonceInfo(context) {
+  generateNonceInfo() {
+    let contextBuffer = this.generateContext();
     var contentEncodingBuffer = new Buffer('Content-Encoding: nonce',
       'utf8');
     var paddingBuffer = new Buffer(1).fill(0);
@@ -129,21 +103,27 @@ class EncryptionHelper {
     return Buffer.concat([
       contentEncodingBuffer,
       paddingBuffer,
-      context
+      contextBuffer
     ]);
   }
 
-  generatePRK(sharedSecret, auth) {
+  generatePRK() {
     var authInfoBuffer = new Buffer('Content-Encoding: auth\0', 'utf8');
-    var hkdf = new HKDF(urlBase64.decode(sharedSecret), urlBase64.decode(auth));
+    var hkdf = new HKDF(
+      this.getSharedSecret(),
+      urlBase64.decode(this._subscriptionObject.keys.auth));
     return hkdf.generate(authInfoBuffer, 32);
   }
 
-  generateKeys(prk, salt, cekInfo, nonceInfo) {
-    var hkdf = new HKDF(prk, salt);
+  generateEncryptionKeys() {
+    var prk = this.generatePRK();
+    var cekInfo = this.generateCEKInfo();
+    var nonceInfo = this.generateNonceInfo();
+
+    var hkdf = new HKDF(prk, this._salt);
     var cekPrk = hkdf.generate(cekInfo, 16);
 
-    hkdf = new HKDF(prk, salt);
+    hkdf = new HKDF(prk, this._salt);
     var noncePrk = hkdf.generate(nonceInfo, 12);
 
     return {
@@ -152,27 +132,15 @@ class EncryptionHelper {
     };
   }
 
-  generateMessageBuffer(payload, paddingBytes) {
-    // Create the record for the data, which is a byte for the length of the
-    // padding, followed by a number of NULL bytes for the padding, followed by
-    // the actual content of the plaintext.
-    var paddingBuffer = new Buffer(1 + paddingBytes);
-    paddingBuffer.fill(0);
-    paddingBuffer.writeUIntBE(paddingBytes, 0, 1);
-
-    var messageBuffer = new Buffer(payload, 'utf8');
-
-    return Buffer.concat([paddingBuffer, messageBuffer]);
-  }
-
-  encryptMessage(payload, keys) {
+  encryptMessage(message) {
+    var keys = this.generateEncryptionKeys();
     var paddingBytes = 0;
 
     var paddingBuffer = new Buffer(1 + paddingBytes);
     paddingBuffer.fill(0);
     paddingBuffer.writeUIntBE(paddingBytes, 0, 1);
 
-    var messageBuffer = new Buffer(payload, 'utf8');
+    var messageBuffer = new Buffer(message, 'utf8');
     var record = Buffer.concat([paddingBuffer, messageBuffer]);
 
     var gcm = crypto.createCipheriv(
@@ -191,8 +159,4 @@ class EncryptionHelper {
   }
 }
 
-module.exports = {
-  EncryptionHelper: EncryptionHelper,
-  HMAC: HMAC,
-  HKDF: HKDF
-};
+module.exports = EncryptionHelper;
