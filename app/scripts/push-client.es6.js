@@ -103,7 +103,7 @@ export default class PushClient {
   }
 
   setUpPushPermission() {
-    console.log('PushClient.setUpPushPermission()');
+    // console.log('PushClient.setUpPushPermission()');
     navigator.permissions.query({name: 'push', userVisibleOnly: true})
     .then((permissionState) => {
       // Set the initial state

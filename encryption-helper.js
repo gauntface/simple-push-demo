@@ -1,22 +1,64 @@
 'use strict';
 
 var crypto = require('crypto');
+var urlBase64 = require('urlsafe-base64');
+
+class HMAC {
+  constructor(ikm) {
+    this._ikm = ikm;
+    this._hmac = crypto.createHmac('sha256', ikm);
+  }
+
+  sign(input) {
+    var result = this._hmac.update(input).digest();
+    return result;
+  }
+}
+
+class HKDF {
+  constructor(inputKeyingMaterial, salt) {
+    this._salt = salt;
+    this._ikm = inputKeyingMaterial;
+
+    this._hmac = new HMAC(salt);
+  }
+
+  generate(info, byteLength) {
+    var fullInfoBuffer = Buffer.concat([
+      new Buffer(info, 'base64'),
+      new Buffer(1).fill(1)
+    ]);
+
+    var prk = this._hmac.sign(this._ikm);
+
+    var nextHmac = new HMAC(prk);
+    var nextPrk = nextHmac.sign(fullInfoBuffer);
+    return nextPrk.slice(0, byteLength);
+  }
+}
 
 class EncryptionHelper {
 
   constructor(options) {
-    // TODO: Check prime256v1 is valid
-
+    this._salt = crypto.randomBytes(16);
     this._ellipticCurve = crypto.createECDH('prime256v1');
+    this._ellipticCurve.generateKeys();
+
     if (options && options.serverKeys && options.serverKeys.public &&
       options.serverKeys.private) {
       this._ellipticCurve.setPrivateKey(
         options.serverKeys.private,
         'base64'
       );
+      this._ellipticCurve.setPublicKey(
+        options.serverKeys.public,
+        'base64'
+      );
     }
 
-    this._ellipticCurve.generateKeys();
+    if (options && options.salt) {
+      this._salt = options.salt;
+    }
   }
 
   getServerKeys() {
@@ -32,77 +74,125 @@ class EncryptionHelper {
       'base64');
   }
 
-  generateRandomSalt() {
-    return crypto.randomBytes(16);
+  getSalt() {
+    return this._salt;
   }
 
-  // What this is doing is (in laymans terms):
-  //    1. Sign the auth secret with the shared secret using HMAC.
-  //         (Both server and client can decrypt the shared secret to
-  //         get the auth).
-  //    2. Sign the result of step 1 with 'content-encoding: auth' to
-  //         identify that the contents is the auth secret
-  generatePseudoRandomKey(sharedSecret, authenticationSecret) {
-    return new HKDF(sharedSecret, authenticationSecret)
-      .generate('Content-Encoding: auth\0', 32);
+  generateContext(clientPublicKey, serverPublicKey) {
+    // context = label || 0x00 ||
+    //           length(recipient_public) || recipient_public ||
+    //           length(sender_public) || sender_public
+
+    // var bufferSize = 5 + 1 + 2 + 65 + 2 + 65;
+    // var contextBuffer = new Buffer(bufferSize);
+
+    var labelBuffer = new Buffer('P-256', 'ascii');
+    var paddingBuffer = new Buffer(1).fill(0);
+
+    var clientPublicKeyLengthBuffer = new Buffer(2);
+    clientPublicKeyLengthBuffer.writeUIntBE(
+      urlBase64.decode(clientPublicKey).length, 0, 2);
+    var clientPublicKeyBuffer = urlBase64.decode(clientPublicKey);
+
+    var serverPublicKeyLengthBuffer = new Buffer(2);
+    serverPublicKeyLengthBuffer.writeUIntBE(
+      urlBase64.decode(serverPublicKey).length, 0, 2);
+    var serverPublicKeyBuffer = urlBase64.decode(serverPublicKey);
+
+    return Buffer.concat([
+      labelBuffer,
+      paddingBuffer,
+      clientPublicKeyLengthBuffer,
+      clientPublicKeyBuffer,
+      serverPublicKeyLengthBuffer,
+      serverPublicKeyBuffer
+    ]);
   }
 
-  generateContentEncryptionKey(pseudoRandomKey, salt) {
-    var nonce = this.generateNonce(pseudoRandomKey, salt);
-    var cekHKDF = new HKDF(pseudoRandomKey, salt)
-      .generate('Content-Encoding: aesgcm128\0', 16);
-    return crypto.createCipheriv('id-aes128-GCM', cekHKDF, nonce);
+  generateCEKInfo(context) {
+    var contentEncodingBuffer = new Buffer('Content-Encoding: aesgcm128',
+      'utf8');
+    var paddingBuffer = new Buffer(1).fill(0);
+
+    return Buffer.concat([
+      contentEncodingBuffer,
+      paddingBuffer,
+      context
+    ]);
   }
 
-  generateNonce(pseudoRandomKey, salt) {
-    return new HKDF(pseudoRandomKey, salt)
-      .generate('Content-Encoding: nonce\0', 12);
+  generateNonceInfo(context) {
+    var contentEncodingBuffer = new Buffer('Content-Encoding: nonce',
+      'utf8');
+    var paddingBuffer = new Buffer(1).fill(0);
+
+    return Buffer.concat([
+      contentEncodingBuffer,
+      paddingBuffer,
+      context
+    ]);
   }
 
-  /** encryptMessage(payload, keys) {
-    if (crypto.getCurves().indexOf('prime256v1') === -1) {
-      // We need the P-256 Diffie Hellman Elliptic Curve to generate the server
-      // certificates
-      // secp256r1 === prime256v1
-      console.log('We don\'t have the right Diffie Hellman curve to work.');
-      return;
-    }
+  generatePRK(sharedSecret, auth) {
+    var authInfoBuffer = new Buffer('Content-Encoding: auth\0', 'utf8');
+    var hkdf = new HKDF(urlBase64.decode(sharedSecret), urlBase64.decode(auth));
+    return hkdf.generate(authInfoBuffer, 32);
+  }
 
-    var webClientPublicKey = keys.p256dh;
-    var webClientAuth = keys.auth;
+  generateKeys(prk, salt, cekInfo, nonceInfo) {
+    var hkdf = new HKDF(prk, salt);
+    var cekPrk = hkdf.generate(cekInfo, 16);
 
-    var serverKeys = generateServerKeys();
-    console.log('Server Keys', serverKeys);
+    hkdf = new HKDF(prk, salt);
+    var noncePrk = hkdf.generate(nonceInfo, 12);
 
-    var sharedSecret = generareSharedSecret(serverKeys, webClientPublicKey);
-    console.log('Shared Secret', sharedSecret);
+    return {
+      contentEncryptionKey: cekPrk,
+      nonce: noncePrk
+    };
+  }
 
-    const salt = crypto.randomBytes(16);
-    console.log('Salt', salt);
+  generateMessageBuffer(payload, paddingBytes) {
+    // Create the record for the data, which is a byte for the length of the
+    // padding, followed by a number of NULL bytes for the padding, followed by
+    // the actual content of the plaintext.
+    var paddingBuffer = new Buffer(1 + paddingBytes);
+    paddingBuffer.fill(0);
+    paddingBuffer.writeUIntBE(paddingBytes, 0, 1);
 
+    var messageBuffer = new Buffer(payload, 'utf8');
 
-  }**/
+    return Buffer.concat([paddingBuffer, messageBuffer]);
+  }
+
+  encryptMessage(payload, keys) {
+    var paddingBytes = 0;
+
+    var paddingBuffer = new Buffer(1 + paddingBytes);
+    paddingBuffer.fill(0);
+    paddingBuffer.writeUIntBE(paddingBytes, 0, 1);
+
+    var messageBuffer = new Buffer(payload, 'utf8');
+    var record = Buffer.concat([paddingBuffer, messageBuffer]);
+
+    var gcm = crypto.createCipheriv(
+      'aes-128-gcm',
+      keys.contentEncryptionKey,
+      keys.nonce
+    );
+
+    var encryptedBuffer = gcm.update(record);
+    gcm.final();
+
+    return Buffer.concat([
+      encryptedBuffer,
+      gcm.getAuthTag()
+    ]);
+  }
 }
 
-class HKDF {
-  constructor(salt, inputKeyingMaterial) {
-    this._salt = salt;
-    this._ikm = inputKeyingMaterial;
-  }
-
-  generate(info, byteLength) {
-    // HMAC One
-    var hmac = crypto.createHmac('sha256', this._salt);
-    var prk = hmac.update(this._ikm).digest();
-
-    // HMAC Two
-    hmac = crypto.createHmac('sha256', prk);
-    prk = hmac.update(info).digest();
-    if (prk.byteLength < byteLength) {
-      throw new Error('Provided length to HKDF.generate is too long.');
-    }
-    return prk.slice(0, byteLength);
-  }
-}
-
-module.exports = EncryptionHelper;
+module.exports = {
+  EncryptionHelper: EncryptionHelper,
+  HMAC: HMAC,
+  HKDF: HKDF
+};
