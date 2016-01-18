@@ -30,7 +30,9 @@ const CORRECT_VALUES = {
   nonceInfo: 'Q29udGVudC1FbmNvZGluZzogbm9uY2UAUC0yNTYAAEEEIhaCyfJcO_VWSGovY_thEG9164OeXAA9PaC42F0ihbcg_saYeHVIwo8vFF_vHy8nLpkUreiXaiGCf_7TI_tBAABBBOg5KfYiBdDDRF12Ri17y3v-POPr8X0nVP2jDjowPVI_DMKU1aQ3OLdPH1iaakvR9_PHq6tNCzJH35v_JUz2crY',
   prk: '9Ua-rfDdC4WzwO_W644ZISWGXpNp8bxDSICxjlr03xQ',
   contentEncryptionKey: '-Oh_SKtuK8nP0kuCTYUeSQ',
-  nonce: '6CkTryo-JSdq8TcG'
+  nonce: '6CkTryo-JSdq8TcG',
+  paddedRecord: 'AGhlbGxv',
+  encryptedPayload: 'hCVH5wnzy6VJJXPW4faO2lvVtGDCtw'
 };
 
 const PAYLOAD = 'hello';
@@ -205,8 +207,8 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     Buffer.isBuffer(keys.nonce).should.equal(true);
     keys.contentEncryptionKey.should.have.length(16);
     keys.nonce.should.have.length(12);
-    urlBase64.encode(keys.contentEncryptionKey).should.equal('-Oh_SKtuK8nP0kuCTYUeSQ');
-    urlBase64.encode(keys.nonce).should.equal('6CkTryo-JSdq8TcG');
+    urlBase64.encode(keys.contentEncryptionKey).should.equal(CORRECT_VALUES.contentEncryptionKey);
+    urlBase64.encode(keys.nonce).should.equal(CORRECT_VALUES.nonce);
   });
 
   it('should generate a padded payload', () => {
@@ -219,7 +221,7 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     var recordBuffer = encryptionHelper.generateMessageBuffer(PAYLOAD, paddingLength);
     Buffer.isBuffer(recordBuffer).should.equal(true);
     recordBuffer.should.have.length(1 + paddingLength + PAYLOAD.length);
-    urlBase64.encode(recordBuffer).should.equal('AGhlbGxv');
+    urlBase64.encode(recordBuffer).should.equal(CORRECT_VALUES.paddedRecord);
   });
 
   it('should encrypt message', () => {
@@ -247,6 +249,6 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
       PAYLOAD,
       keys
     );
-    urlBase64.encode(encryptedMsg).should.equal('hCVH5wnzy6VJJXPW4faO2lvVtGDCtw');
+    urlBase64.encode(encryptedMsg).should.equal(CORRECT_VALUES.encryptedPayload);
   });
 });
