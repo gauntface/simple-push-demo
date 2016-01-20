@@ -144,7 +144,7 @@ class EncryptionHelper {
     var record = Buffer.concat([paddingBuffer, messageBuffer]);
 
     var gcm = crypto.createCipheriv(
-      'aes-128-gcm',
+      'id-aes128-GCM',
       keys.contentEncryptionKey,
       keys.nonce
     );

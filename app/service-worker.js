@@ -23,6 +23,12 @@ function showNotification(title, body, icon, data) {
 
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
+  if (event.data) {
+    console.log('message data', event.data);
+    console.log('message data', event.data.text);
+    var output = event.data.text();
+    console.log(output);
+  }
 
   // Since this is no payload data with the first version
   // of Push notifications, here we'll grab some data from

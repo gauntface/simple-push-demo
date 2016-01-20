@@ -1,12 +1,16 @@
 'use strict';
 
+/* eslint-disable dot-notation */
+
 var request = require('request-promise');
 var express = require('express');
 var bodyParser = require('body-parser');
 var EncryptionHelper = require('./encryption-helper');
 var urlBase64 = require('urlsafe-base64');
 
+const GCM_USE_WEB_PUSH = true;
 const GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
+const GCM_WEB_PUSH_ENDPOINT = 'https://jmt17.google.com/gcm/demo-webpush-00';
 const GCM_AUTHORIZATION = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
 
 var app = express();
@@ -15,97 +19,86 @@ app.use(bodyParser.json());
 
 app.use('/', express.static('./dist'));
 
-function encryptMessage(payload, keys) {
-  // Keys contains p256dh and auth
-  if (crypto.getCurves().indexOf('prime256v1') === -1) {
-    // We need the P-256 Diffie Hellman Elliptic Curve to generate the server
-    // certificates
-    // secp256r1 === prime256v1
-    console.log('We don\'t have the right Diffie Hellman curve to work.');
-    return;
-  }
-
-  console.log(keys);
-
-  var encryptionHelper = new EncryptionHelper({keys: keys});
-  var encryptedMsg = encryptionHelper.encryptMessage(payload);
-  encryptedMsg = urlBase64.encode(encryptedMsg);
-  return {
-    payload: encryptedMsg,
-    headers: {
-      'Content-Length': encryptedMsg.length,
-      'Content-Type': 'application/octet-stream',
-      'Encryption-Key': 'keyid=p256dh;dh=' +
-        urlBase64.encode(encryptionHelper.getPublicKey()),
-      'Encryption': 'keyid=p256dh;salt=' +
-        urlBase64.encode(encryptionHelper.getSalt()),
-      'Content-Encoding': 'aesgcm128'
-    }
-  };
-}
-
-function sendPushMessage(endpoint, keys) {
+function handleGCMAPI(endpoint, encryptionHelper, encryptedDataBuffer) {
   var options = {
     uri: endpoint,
     method: 'POST',
-    resolveWithFullResponse: true,
     headers: {}
   };
-  if (keys) {
-    var encryptedPayload = encryptMessage('Please Work.', keys);
-    options.headers = encryptedPayload.headers;
-    options.body = encryptedPayload.cipherText;
-    console.log(options);
+
+  if (encryptionHelper !== null && encryptedDataBuffer !== null) {
+    // Add required headers
+    options.headers['Crypto-Key'] = 'dh=' +
+      urlBase64.encode(encryptionHelper.getServerKeys().public);
+    options.headers['Encryption'] = 'salt=' +
+        urlBase64.encode(encryptionHelper.getSalt());
   }
 
+  // Proprietary GCM
+  var endpointParts = endpoint.split('/');
+  var gcmRegistrationId = endpointParts[endpointParts.length - 1];
+
+  if (GCM_USE_WEB_PUSH) {
+    var webPushEndpoint = GCM_WEB_PUSH_ENDPOINT + '/' + gcmRegistrationId;
+    return handleWebPushAPI(webPushEndpoint,
+      encryptionHelper, encryptedDataBuffer);
+  }
+
+  // The registration ID cannot be included on the end of the GCM endpoint
+  options.uri = GCM_ENDPOINT;
+  options.headers['Content-Type'] = 'application/json';
+  options.headers['Authorization'] = 'key=' + GCM_AUTHORIZATION;
+  options.body = JSON.stringify({
+    'to': gcmRegistrationId,
+    'raw_data': encryptedDataBuffer.toString('base64')
+  });
+
+  return request(options);
+}
+
+function handleWebPushAPI(endpoint, encryptionHelper, encryptedDataBuffer) {
+  var options = {
+    uri: endpoint,
+    method: 'POST',
+    headers: {}
+  };
+
+  // GCM web push NEEDS this
+  if (endpoint.indexOf(GCM_WEB_PUSH_ENDPOINT) === 0) {
+    options.headers['Authorization'] = 'key=' + GCM_AUTHORIZATION;
+  } else {
+    // GCM web push FAILS with this, but firefox NEEDS this
+    options.headers['Content-Encoding'] = 'aesgcm128';
+  }
+
+  if (encryptionHelper !== null && encryptedDataBuffer !== null) {
+    // Add required headers
+    options.headers['Crypto-Key'] = 'dh=' +
+      urlBase64.encode(encryptionHelper.getServerKeys().public);
+    options.headers['Encryption'] = 'salt=' +
+        urlBase64.encode(encryptionHelper.getSalt());
+  }
+
+  options.body = encryptedDataBuffer;
+
+  return request(options);
+}
+
+function sendPushMessage(endpoint, keys) {
+  let encryptionHelper = null;
+  let encryptedDataBuffer = null;
+  if (keys) {
+    encryptionHelper = new EncryptionHelper({keys: keys});
+    encryptedDataBuffer = encryptionHelper.encryptMessage('hello');
+  }
 
   if (endpoint.indexOf('https://android.googleapis.com/gcm/send') === 0) {
-    // Proprietary GCM
-    var endpointParts = endpoint.split('/');
-    var gcmRegistrationId = endpointParts[endpointParts.length - 1];
-
-    // Rename the request URI to not include the GCM registration ID
-    options.uri = GCM_ENDPOINT;
-
-    options.headers['Content-Type'] = 'application/json';
-    options.headers.Authorization = 'key=' + GCM_AUTHORIZATION;
-
-    // You can use a body of:
-    // registration_ids: [<gcmRegistrationId>, <gcmRegistrationId>...]
-    // for multiple registrations.
-    options.body = JSON.stringify({
-      'to': gcmRegistrationId
-    });
+    // Handle Proprietary GCM API
+    return handleGCMAPI(endpoint, encryptionHelper, encryptedDataBuffer);
   }
 
-  return request(options)
-  .then((response) => {
-    if (response.body.indexOf('Error') === 0) {
-      // GCM has a wonderful habit of returning 'Error=' for some problems
-      // while keeping the status code at 200. This catches that case
-      throw new Error('Problem with GCM. "' + response + '"');
-    }
-
-    if (response.statusCode !== 200 &&
-      response.statusCode !== 201) {
-      throw new Error('Unexpected status code from endpoint. "' +
-        response.statusCode + '"');
-    }
-
-    if (options.uri === GCM_ENDPOINT) {
-      try {
-        var responseObj = JSON.parse(response);
-        if (responseObj.failures) {
-          // This endpoint needs to be removing from your database
-
-        }
-      } catch (exception) {
-        // NOOP
-      }
-    }
-
-    return response;
-  });
+  // Handle Web Push API
+  return handleWebPushAPI(endpoint, encryptionHelper, encryptedDataBuffer);
 }
 
 /**
@@ -124,7 +117,7 @@ app.post('/send_web_push', function(req, res) {
 
   sendPushMessage(endpoint, keys)
   .then((responseText) => {
-    console.log('Request success');
+    console.log('Request success', responseText);
     // Check the response from GCM
 
     res.json({success: true});
@@ -133,52 +126,6 @@ app.post('/send_web_push', function(req, res) {
     console.log('Problem with request', err);
     res.json({success: false});
   });
-
-  /**
-// TODO: Store client endpoint, client p256dh, client auth, server public key,
-// and server shared key
-
-
-  console.log('Salt: ', salt);
-
-  //
-  // The following code makes the pseudo random key
-  var authInfo = UTF8.encode('Content-Encoding: auth\0');
-  var byteLength = 32;
-
-  var internalPseudoRandomKey = crypto.createHmac('SHA256', webClientAuth)
-    .update(sharedSecret).digest('base64');
-  var prkHmac = crypto.createHmac('SHA256', internalPseudoRandomKey);
-  var UTF8 = textEncoder('utf-8');
-  var info = new Uint8Array(authInfo.byteLength + 1);
-  info.set(new Uint8Array(authInfo));
-  info.set(new Uint8Array([1]), authInfo.byteLength);
-
-  var hkdf = prkHmac.update(info).digest('base64');
-  var pseudoRandomKey = hkdf.slice(0, byteLength);
-  console.log('hkdfValue: ', pseudoRandomKey);
-
-
-
-  internalPseudoRandomKey = crypto.createHmac('SHA256', salt)
-    .update(pseudoRandomKey).digest('base64');
-  var nonceHmac = crypto.createHmac('SHA256', internalPseudoRandomKey);
-
-  var context = new Uint8Array(5 + 1 + 2 + 65 + 2 + 65);
-  context.set([0x50, 0x2D, 0x32, 0x35, 0x36], 0);
-
-  context.set([0x00, self.recipientPublicKey_.byteLength], 6);
-  context.set(new Uint8Array(self.recipientPublicKey_), 8);
-
-  context.set([0x00, senderPublic.byteLength], 73);
-  context.set(new Uint8Array(senderPublic), 75)
-  var cekInfo = new Uint8Array(27 + 1 + context.byteLength);
-  info = new Uint8Array(authInfo.byteLength + 1);
-  info.set(new Uint8Array(authInfo));
-  info.set(new Uint8Array([1]), authInfo.byteLength);
-
-  hkdf = nonceHmac.update(info).digest('base64');
-  var pseudoRandomKey = hkdf.slice(0, byteLength);**/
 });
 
 var server = app.listen(3000, () => {
