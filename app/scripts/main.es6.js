@@ -84,6 +84,11 @@ function updateUIForPush(pushToggleSwitch) {
       return curlCommand;
     };
 
+    var isChromeForAndroid = function() {
+      var regex = /.*Android \d\.\d;.*Chrome\/\d+\.\d+\.\d+\.\d+.*/g;
+      return (regex.exec(navigator.userAgent) !== null);
+    };
+
     var produceWebPushProtocolCURLCommand = function() {
       var curlEndpoint = subscription.endpoint;
       var curlCommand = 'curl --request POST ' + curlEndpoint;
@@ -91,10 +96,28 @@ function updateUIForPush(pushToggleSwitch) {
     };
 
     var curlCommand;
+    var intenLink = document.querySelector('.js-intent-button');
     if (subscription.endpoint.indexOf(
       'https://android.googleapis.com/gcm/send') === 0) {
+      if (isChromeForAndroid()) {
+        intenLink.style.display = 'inline-block';
+        var appPackage = 'com.gauntface.push.dedupe';
+        var fallbackUrl = encodeURIComponent(
+          window.location.href + '?dedupeCheck=true');
+        var endpointSections = subscription.endpoint.split('/');
+        var subscriptionId = endpointSections[endpointSections.length - 1];
+        intenLink.href = `intent:#Intent;package=${appPackage};` +
+            `S.browser_fallback_url=${fallbackUrl};` +
+            `type=text/plain;S.com.gauntface.push.dedupe.intent.extra.REG_ID` +
+            `=${subscriptionId};end`;
+      } else {
+        intenLink.style.display = 'none';
+      }
+
+
       curlCommand = produceGCMProprietaryCURLCommand();
     } else {
+      intenLink.style.display = 'none';
       curlCommand = produceWebPushProtocolCURLCommand();
     }
 
