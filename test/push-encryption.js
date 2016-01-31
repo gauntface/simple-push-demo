@@ -12,7 +12,7 @@ var urlBase64 = require('urlsafe-base64');
 const PREDEFINED_SERVER_KEYS = {
   public: 'BOg5KfYiBdDDRF12Ri17y3v+POPr8X0nVP2jDjowPVI/DMKU1aQ3OLdPH1iaakvR9/PHq6tNCzJH35v/JUz2crY=',
   private: 'uDNsfsz91y2ywQeOHljVoiUg3j5RGrDVAswRqjP3v90=',
-  salt: new Buffer('AAAAAAAAAAAAAAAAAAAAAA', 'base64')
+  salt: 'AAAAAAAAAAAAAAAAAAAAAA'
 };
 
 const PREDEFINED_SUBSCRIPTIONOBJECT = {
@@ -100,7 +100,7 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     var randSalt = encryptionHelper.getSalt();
     Buffer.isBuffer(randSalt).should.equal(true);
     randSalt.should.have.length(16);
-    randSalt.should.equal(PREDEFINED_SERVER_KEYS.salt);
+    urlBase64.encode(randSalt).should.equal(PREDEFINED_SERVER_KEYS.salt);
   });
 
   // See: https://martinthomson.github.io/http-encrypt
