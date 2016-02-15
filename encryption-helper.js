@@ -59,7 +59,7 @@ class EncryptionHelper {
   // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
   generateContext() {
     var labelBuffer = new Buffer('P-256', 'ascii');
-    var paddingBuffer = new Buffer(1).fill(0);
+    var paddingBuffer = new Buffer(2).fill(0);
 
     var clientPublicKeyBuffer = urlBase64.decode(
       this._subscriptionObject.keys.p256dh);
@@ -83,9 +83,9 @@ class EncryptionHelper {
 
   generateCEKInfo() {
     let contextBuffer = this.generateContext();
-    var contentEncodingBuffer = new Buffer('Content-Encoding: aesgcm128',
+    var contentEncodingBuffer = new Buffer('Content-Encoding: aesgcm',
       'utf8');
-    var paddingBuffer = new Buffer(1).fill(0);
+    var paddingBuffer = new Buffer(2).fill(0);
 
     return Buffer.concat([
       contentEncodingBuffer,
@@ -98,7 +98,7 @@ class EncryptionHelper {
     let contextBuffer = this.generateContext();
     var contentEncodingBuffer = new Buffer('Content-Encoding: nonce',
       'utf8');
-    var paddingBuffer = new Buffer(1).fill(0);
+    var paddingBuffer = new Buffer(2).fill(0);
 
     return Buffer.concat([
       contentEncodingBuffer,

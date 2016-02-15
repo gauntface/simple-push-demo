@@ -68,7 +68,7 @@ function handleWebPushAPI(endpoint, encryptionHelper, encryptedDataBuffer) {
     options.headers['Authorization'] = 'key=' + GCM_AUTHORIZATION;
   } else {
     // GCM web push FAILS with this, but firefox NEEDS this
-    options.headers['Content-Encoding'] = 'aesgcm128';
+    options.headers['Content-Encoding'] = 'aesgcm';
   }
 
   if (encryptionHelper !== null && encryptedDataBuffer !== null) {
