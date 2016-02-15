@@ -123,7 +123,7 @@ app.post('/send_web_push', function(req, res) {
     res.json({success: true});
   })
   .catch((err) => {
-    console.log('Problem with request', err);
+    console.log('Problem with request');
     res.json({success: false});
   });
 });

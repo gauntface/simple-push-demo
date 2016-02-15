@@ -26,13 +26,13 @@ const PREDEFINED_SUBSCRIPTIONOBJECT = {
 const CORRECT_VALUES = {
   sharedSecret: 'vgkL5otElJ7tB3jnxop9g7sGxuM4gGs5NL3qTCxe9JE',
   context: 'UC0yNTYAAEEEIhaCyfJcO_VWSGovY_thEG9164OeXAA9PaC42F0ihbcg_saYeHVIwo8vFF_vHy8nLpkUreiXaiGCf_7TI_tBAABBBOg5KfYiBdDDRF12Ri17y3v-POPr8X0nVP2jDjowPVI_DMKU1aQ3OLdPH1iaakvR9_PHq6tNCzJH35v_JUz2crY',
-  cekInfo: 'Q29udGVudC1FbmNvZGluZzogYWVzZ2NtMTI4AFAtMjU2AABBBCIWgsnyXDv1VkhqL2P7YRBvdeuDnlwAPT2guNhdIoW3IP7GmHh1SMKPLxRf7x8vJy6ZFK3ol2ohgn_-0yP7QQAAQQToOSn2IgXQw0RddkYte8t7_jzj6_F9J1T9ow46MD1SPwzClNWkNzi3Tx9YmmpL0ffzx6urTQsyR9-b_yVM9nK2',
+  cekInfo: 'Q29udGVudC1FbmNvZGluZzogYWVzZ2NtAFAtMjU2AABBBCIWgsnyXDv1VkhqL2P7YRBvdeuDnlwAPT2guNhdIoW3IP7GmHh1SMKPLxRf7x8vJy6ZFK3ol2ohgn_-0yP7QQAAQQToOSn2IgXQw0RddkYte8t7_jzj6_F9J1T9ow46MD1SPwzClNWkNzi3Tx9YmmpL0ffzx6urTQsyR9-b_yVM9nK2',
   nonceInfo: 'Q29udGVudC1FbmNvZGluZzogbm9uY2UAUC0yNTYAAEEEIhaCyfJcO_VWSGovY_thEG9164OeXAA9PaC42F0ihbcg_saYeHVIwo8vFF_vHy8nLpkUreiXaiGCf_7TI_tBAABBBOg5KfYiBdDDRF12Ri17y3v-POPr8X0nVP2jDjowPVI_DMKU1aQ3OLdPH1iaakvR9_PHq6tNCzJH35v_JUz2crY',
   prk: '9Ua-rfDdC4WzwO_W644ZISWGXpNp8bxDSICxjlr03xQ',
-  contentEncryptionKey: '-Oh_SKtuK8nP0kuCTYUeSQ',
+  contentEncryptionKey: '0G5bnzk_43i9yMq0uSyd9A',
   nonce: '6CkTryo-JSdq8TcG',
   paddedRecord: 'AGhlbGxv',
-  encryptedPayload: 'hCVH5wnzy6VJJXPW4faO2lvVtGDCtw'
+  encryptedPayload: 'CE2uS6BxfXlWHWfQhh3QWGZ3rWPcvRM'
 };
 
 const PAYLOAD = 'hello';
@@ -128,7 +128,7 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
     var cekInfo = encryptionHelper.generateCEKInfo();
 
     Buffer.isBuffer(cekInfo).should.equal(true);
-    cekInfo.should.have.length(27 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
+    cekInfo.should.have.length(24 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
   });
 
   it('should generate the specific cekInfo', () => {
@@ -140,7 +140,7 @@ describe('Test Encryption Steps of a Push Message Payload', () => {
 
     Buffer.isBuffer(cekInfo).should.equal(true);
     // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
-    cekInfo.should.have.length(27 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
+    cekInfo.should.have.length(24 + 1 + urlBase64.decode(CORRECT_VALUES.context).length);
     urlBase64.encode(cekInfo).should.equal(CORRECT_VALUES.cekInfo);
   });
 
