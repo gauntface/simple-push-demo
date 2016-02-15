@@ -35,7 +35,7 @@ class EncryptionHelper {
     }
 
     if (options && options.salt) {
-      this._salt = options.salt;
+      this._salt = new Buffer(options.salt, 'base64');
     }
   }
 
