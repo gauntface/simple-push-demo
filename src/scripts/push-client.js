@@ -1,12 +1,14 @@
 'use strict';
 
+/* eslint-env browser */
+
 export default class PushClient {
 
   constructor(stateChangeCb, subscriptionUpdate) {
     this._stateChangeCb = stateChangeCb;
     this._subscriptionUpdate = subscriptionUpdate;
 
-    this.state = {
+    this._state = {
       UNSUPPORTED: {
         id: 'UNSUPPORTED',
         interactive: false,
@@ -59,139 +61,113 @@ export default class PushClient {
     };
 
     if (!('serviceWorker' in navigator)) {
-      this._stateChangeCb(this.state.UNSUPPORTED);
+      this._stateChangeCb(this._state.UNSUPPORTED);
       return;
     }
 
     if (!('PushManager' in window)) {
-      this._stateChangeCb(this.state.UNSUPPORTED);
-      return;
-    }
-
-    if (!('permissions' in navigator)) {
-      this._stateChangeCb(this.state.UNSUPPORTED);
+      this._stateChangeCb(this._state.UNSUPPORTED);
       return;
     }
 
     if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-      this._stateChangeCb(this.state.UNSUPPORTED);
+      this._stateChangeCb(this._state.UNSUPPORTED);
       return;
     }
 
     navigator.serviceWorker.ready.then(() => {
-      this._stateChangeCb(this.state.INITIALISING);
+      this._stateChangeCb(this._state.INITIALISING);
       this.setUpPushPermission();
     });
   }
 
   _permissionStateChange(permissionState) {
-    // console.log('PushClient.permissionStateChange(): ', permissionState);
     // If the notification permission is denied, it's a permanent block
-    switch (permissionState.state) {
-    case 'denied':
-      this._stateChangeCb(this.state.PERMISSION_DENIED);
-      break;
-    case 'granted':
-      this._stateChangeCb(this.state.PERMISSION_GRANTED);
-      break;
-    case 'prompt':
-      this._stateChangeCb(this.state.PERMISSION_PROMPT);
-      break;
-    default:
-      break;
+    switch (permissionState) {
+      case 'denied':
+        this._stateChangeCb(this._state.PERMISSION_DENIED);
+        break;
+      case 'granted':
+        this._stateChangeCb(this._state.PERMISSION_GRANTED);
+        break;
+      case 'default':
+        this._stateChangeCb(this._state.PERMISSION_PROMPT);
+        break;
+      default:
+        console.error('Unexpected permission state: ', permissionState);
+        break;
     }
   }
 
   setUpPushPermission() {
-    // console.log('PushClient.setUpPushPermission()');
-    navigator.permissions.query({name: 'push', userVisibleOnly: true})
-    .then((permissionState) => {
-      // Set the initial state
-      this._permissionStateChange(permissionState);
+    this._permissionStateChange(Notification.permission);
 
-      // Handle Permission State Changes
-      permissionState.onchange = () => {
-        this._permissionStateChange(this);
-      };
-
-      // Check what the current push state is
-      return navigator.serviceWorker.ready;
-    })
-    .then((serviceWorkerRegistration) => {
+    return navigator.serviceWorker.ready
+    .then(serviceWorkerRegistration => {
       // Let's see if we have a subscription already
       return serviceWorkerRegistration.pushManager.getSubscription();
     })
-    .then((subscription) => {
+    .then(subscription => {
       if (!subscription) {
         // NOOP since we have no subscription and the permission state
         // will inform whether to enable or disable the push UI
         return;
       }
 
-      this._stateChangeCb(this.state.SUBSCRIBED);
+      this._stateChangeCb(this._state.SUBSCRIBED);
 
       // Update the current state with the
       // subscriptionid and endpoint
       this._subscriptionUpdate(subscription);
     })
-    .catch((err) => {
-      console.log('PushClient.setUpPushPermission() Error', err);
-      this._stateChangeCb(this.state.ERROR, err);
+    .catch(err => {
+      console.log(err);
+      this._stateChangeCb(this._state.ERROR, err);
     });
   }
 
   subscribeDevice() {
-    console.log('PushClient.subscribeDevice()');
-
-    this._stateChangeCb(this.state.STARTING_SUBSCRIBE);
-
+    this._stateChangeCb(this._state.STARTING_SUBSCRIBE);
 
     // We need the service worker registration to access the push manager
     navigator.serviceWorker.ready
-    .then((serviceWorkerRegistration) => {
+    .then(serviceWorkerRegistration => {
       return serviceWorkerRegistration.pushManager.subscribe(
         {userVisibleOnly: true}
       );
     })
-    .then((subscription) => {
-      this._stateChangeCb(this.state.SUBSCRIBED);
+    .then(subscription => {
+      this._stateChangeCb(this._state.SUBSCRIBED);
       this._subscriptionUpdate(subscription);
     })
-    .catch((subscriptionErr) => {
-      console.log('PushClient.subscribeDevice() Error', subscriptionErr);
-
+    .catch(subscriptionErr => {
       // Check for a permission prompt issue
-      return navigator.permissions.query({name: 'push', userVisibleOnly: true})
-      .then((permissionState) => {
-        this._permissionStateChange(permissionState);
+      this._permissionStateChange(Notification.permission);
 
-        // window.PushDemo.ui.setPushChecked(false);
-        if (permissionState.state !== 'denied' &&
-        permissionState.state !== 'prompt') {
-          // If the permission wasnt denied or prompt, that means the
-          // permission was accepted, so this must be an error
-          this._stateChangeCb(this.state.ERROR, subscriptionErr);
-        }
-      });
+      if (Notification.permission !== 'denied' &&
+      Notification.permission !== 'default') {
+        // If the permission wasnt denied or prompt, that means the
+        // permission was accepted, so this must be an error
+        this._stateChangeCb(this._state.ERROR, subscriptionErr);
+      }
     });
   }
 
   unsubscribeDevice() {
-    console.log('PushClient.unsubscribeDevice()');
     // Disable the switch so it can't be changed while
     // we process permissions
     // window.PushDemo.ui.setPushSwitchDisabled(true);
 
-    this._stateChangeCb(this.state.STARTING_UNSUBSCRIBE);
+    this._stateChangeCb(this._state.STARTING_UNSUBSCRIBE);
 
     navigator.serviceWorker.ready
-    .then((serviceWorkerRegistration) => {
+    .then(serviceWorkerRegistration => {
       return serviceWorkerRegistration.pushManager.getSubscription();
     })
-    .then((pushSubscription) => {
+    .then(pushSubscription => {
       // Check we have everything we need to unsubscribe
       if (!pushSubscription) {
-        this._stateChangeCb(this.state.UNSUBSCRIBED);
+        this._stateChangeCb(this._state.UNSUBSCRIBED);
         this._subscriptionUpdate(null);
         return;
       }
@@ -208,16 +184,15 @@ export default class PushClient {
           // This just may be in a bad state when the user returns
           console.error('We were unable to unregister from push');
         }
-      })
-      .catch(function(e) { });
+      });
     })
     .then(() => {
-      this._stateChangeCb(this.state.UNSUBSCRIBED);
+      this._stateChangeCb(this._state.UNSUBSCRIBED);
       this._subscriptionUpdate(null);
     })
-    .catch((e) => {
+    .catch(err => {
       console.error('Error thrown while revoking push notifications. ' +
-        'Most likely because push was never registered', e);
+        'Most likely because push was never registered', err);
     });
   }
 }

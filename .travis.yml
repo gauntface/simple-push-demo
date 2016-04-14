@@ -1,0 +1,19 @@
+sudo: required
+dist: trusty
+language: node_js
+cache:
+  directories:
+    - node_modules
+node_js:
+  - 'stable'
+env:
+  global:
+    - GH_REF: 'github.com/gauntface/simple-push-demo.git'
+    - secure: "XhL8hEI+U9w5LxMBWfHXZKfbDEi8cZIizXAcXBCtwsIePS+bePGOcGsrMq9ywN7k3wwZVX1xGluA+X/QS5kMYPvSW/Osg8ZC1Ac6UdoELWIepYmK8lwLrDN2oj1Q1QX1/nQ1V1m9rDhwPAxWzp0yI6QNT/jTfqKgGlAahuM24han9ziMOi/Sc+r4vrN1bMrMDWOg+7oU7qC6kpCTbPXzhABuaDnKbLqjz6EMCQHSf+QqRmkkAisijKa9ydNoA2lLc2dvmbxdQM5chQnizbaSPMCZMATYdo5i2gp6nf5OOSa8Np1rh755DDrcHQd741qjSPigZb0oId8Cgyh72ZYLE6iwjuKRLPkOTue2ngC1G6EAdPB+lPpsTXhOqEpPP4YcMs0GDePwcrRRHTDgM1IEDGxEV8Dd5q1TNgAzM6xrYKlmUykRoJ1WnJww481G/8Pp31fJ4JTGQJDQ59pP/uUXp/hX++ONVr5hSPbiG41wfNyeGovl71KLgApH9DrXC3BFKzVnCm2hY2PlJXQvDrU44qs1vJ7/B1MQH2+NsL1crm/zpp3yoVQ3Rrwb3cPEdnxRb/2t+ls9GJn1prwuS16scz91ctpXbiaHt/yZvlix7/fpgrkD24VlZI2ovQFlrDj//tA6v5Jh7x8oC/OT9HlqCrdFGcSQXfFzovGRAMsXIp0="
+
+install:
+  - npm install
+
+script:
+  - npm run test
+  - ./project/publish-gh-pages.sh

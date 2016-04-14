@@ -1,7 +1,7 @@
 /**
  *
  *  Web Starter Kit
- *  Copyright 2015 Google Inc. All rights reserved.
+ *  Copyright 2016 Google Inc. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,16 +19,13 @@
 
 'use strict';
 
-var gulp = require('gulp');
-var fs = require('fs');
-var runSequence = require('run-sequence');
+const gulp = require('gulp');
+const runSequence = require('run-sequence');
 
-var projectPackage = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 GLOBAL.config = {
   env: 'prod',
-  src: 'app',
-  dest: 'dist',
-  version: projectPackage.version,
+  src: 'src',
+  dest: 'build',
   license: 'Apache',
   licenseOptions: {
     organization: 'Google Inc. All rights reserved.'
@@ -49,5 +46,5 @@ gulp.task('default', function(cb) {
 
 gulp.task('dev', function() {
   GLOBAL.config.env = 'dev';
-  return runSequence('clean', allTasks, 'watch', 'nodemon', 'browsersync');
+  return runSequence('clean', allTasks, 'watch', 'browsersync');
 });
