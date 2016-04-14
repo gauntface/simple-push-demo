@@ -23,7 +23,7 @@ To try out the demo locally, clone the repo and run the following:
 
 1. Run the gulp server
 
-        gulp serve
+        gulp dev
 
 This will open up your browser on the relevant page, now if you open http://localhost:3000 in Chrome canary you should be able to enable push notifications.
 
