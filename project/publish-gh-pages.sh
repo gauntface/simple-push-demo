@@ -59,7 +59,7 @@ echo ""
 echo ""
 echo "Copy build to gh-pages"
 echo ""
-rm -rf ./gh-pages/
+rm -rf ./gh-pages/**/*
 cp -r ./build/. ./gh-pages
 
 echo ""
