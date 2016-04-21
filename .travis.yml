@@ -3,17 +3,15 @@ dist: trusty
 language: node_js
 cache:
   directories:
-    - node_modules
+  - node_modules
 node_js:
-  - 'stable'
+- stable
 env:
   global:
-    - GH_REF: 'github.com/gauntface/simple-push-demo.git'
-    - secure: "XhL8hEI+U9w5LxMBWfHXZKfbDEi8cZIizXAcXBCtwsIePS+bePGOcGsrMq9ywN7k3wwZVX1xGluA+X/QS5kMYPvSW/Osg8ZC1Ac6UdoELWIepYmK8lwLrDN2oj1Q1QX1/nQ1V1m9rDhwPAxWzp0yI6QNT/jTfqKgGlAahuM24han9ziMOi/Sc+r4vrN1bMrMDWOg+7oU7qC6kpCTbPXzhABuaDnKbLqjz6EMCQHSf+QqRmkkAisijKa9ydNoA2lLc2dvmbxdQM5chQnizbaSPMCZMATYdo5i2gp6nf5OOSa8Np1rh755DDrcHQd741qjSPigZb0oId8Cgyh72ZYLE6iwjuKRLPkOTue2ngC1G6EAdPB+lPpsTXhOqEpPP4YcMs0GDePwcrRRHTDgM1IEDGxEV8Dd5q1TNgAzM6xrYKlmUykRoJ1WnJww481G/8Pp31fJ4JTGQJDQ59pP/uUXp/hX++ONVr5hSPbiG41wfNyeGovl71KLgApH9DrXC3BFKzVnCm2hY2PlJXQvDrU44qs1vJ7/B1MQH2+NsL1crm/zpp3yoVQ3Rrwb3cPEdnxRb/2t+ls9GJn1prwuS16scz91ctpXbiaHt/yZvlix7/fpgrkD24VlZI2ovQFlrDj//tA6v5Jh7x8oC/OT9HlqCrdFGcSQXfFzovGRAMsXIp0="
-
+  - GH_REF: github.com/gauntface/simple-push-demo.git
+  - secure: Zb5y956NolfZUubPVIJsrafqT0/6c+0lTqAVX1Tcnutv1cpemEVj1PihTm2aPjyigoDGxTd6Zpav+pkOy0PvdssyqhaJ/r7ERxk3kg7GabAK97OKCn9QXvvTyilbB1473dPurcn3FJ3J+JxTnTD8A/gDfvP6FZV0FkLGeSOQ0xWwTVKgoxutoFB+QQrK0vgrKLeJdZDBoe+hxTMMZRxwfshs6H2a/AOUUWrPkHjB7qfOFgrWrUUg7nKi5UK16w6lEHLeAQ3FDCbCAVWvN973VTbKT+NrIdUFwCM/bwIgH6ORwBjkA6QuTBn09iEEt/VWKyKCZQyqn4+H7L2QwNt4dYR5RtTvaLKDtWOslac/vRIQ1FE5H5wtEbfDqr1bijDrScEcbBHITkZqkqKe9NZE0lGsCoXQL12gax/cS9AC0n5J6sRqSXp51gVm40BQ3TsiOiqOlc6N646yFFCptLREpEmZnQ5364jgGz653s3qSowTPeVrSmq10eKoIACmsjS50ZHBRDQUxx20uV0TZJa5yW9d7IKZtcU5xAbNu7aATZ5Uvg3VcGZlO3zUgSkPJzgBpJxpJhPGjQZ1bLe17MMFYULhs6K8Rg5S9DsNRY0qEm1OOGjRMqFznx/Kf1PoOTu/llnoomgZTNWrfH9rpmqx64ggRSeY18Jiek2sqg0ZXos=
 install:
-  - npm install
-
+- npm install
 script:
-  - npm run test
-  - ./project/publish-gh-pages.sh
+- npm run test
+- "./project/publish-gh-pages.sh"
