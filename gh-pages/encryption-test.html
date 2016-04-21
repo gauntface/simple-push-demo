@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Simple Push Demo</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.indigo-pink.min.css">
+  <script src="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <!-- Page styles -->
+  <link rel="stylesheet" href="styles/encryption-test.css">
+</head>
+<body>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title">Push Demo</span>
+        <div class="mdl-layout-spacer"></div>
+        <nav class="mdl-navigation mdl-layout--large-screen-only">
+          <a class="mdl-navigation__link" href="/">Push Demo</a>
+          <a class="mdl-navigation__link" href="https://github.com/gauntface/simple-push-demo">Github</a>
+          <a class="mdl-navigation__link" href="https://developers.google.com/web/updates/2015/03/push-notifications-on-the-open-web?hl=en">Blog Post</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="column">
+        <h1>Input</h1>
+        <p>The p256dh and auth values are the keys from the PushSubscription
+        object, i.e. the result of calling JSON.stringify(subscription).</p>
+
+        <p>In production you'd want to create a new public / private key pair
+        for your server for every push subscription and a new salt for every
+        encrypted payload.</p>
+
+        <p>For the purposes of testing your encryption, you may just want
+        to use these default values, other wise feel free to add your own.</p>
+
+        <!-- p256dh -->
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="p256dh" value="BCIWgsnyXDv1VkhqL2P7YRBvdeuDnlwAPT2guNhdIoW3IP7GmHh1SMKPLxRf7x8vJy6ZFK3ol2ohgn_-0yP7QQA=">
+          <label class="mdl-textfield__label" for="p256dh">p256dh</label>
+        </div>
+
+        <!-- auth -->
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="auth" value="8eDyX_uCN0XRhSbY5hs7Hg==">
+          <label class="mdl-textfield__label" for="auth">auth</label>
+        </div>
+
+        <!-- public server key -->
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="public-server-key" value="BOg5KfYiBdDDRF12Ri17y3v+POPr8X0nVP2jDjowPVI/DMKU1aQ3OLdPH1iaakvR9/PHq6tNCzJH35v/JUz2crY=">
+          <label class="mdl-textfield__label" for="public-server-key">Public Server Key</label>
+        </div>
+
+        <!-- private server key -->
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="private-server-key" value="uDNsfsz91y2ywQeOHljVoiUg3j5RGrDVAswRqjP3v90=">
+          <label class="mdl-textfield__label" for="private-server-key">Private Server Key</label>
+        </div>
+
+        <!-- salt -->
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="salt" value="AAAAAAAAAAAAAAAAAAAAAA">
+          <label class="mdl-textfield__label" for="salt">Salt</label>
+        </div>
+
+        <!-- payload -->
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="message" value="hello">
+          <label class="mdl-textfield__label" for="message">Message</label>
+        </div>
+      </section>
+
+      <section class="column">
+        <h1>Output</h1>
+        <p>The final output should be shown below. When working on this, I found
+        breaking the steps of the encryption process down helped to make
+        sure I was on the right path - those are shown in the following
+        section.</p>
+
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="encrypted-payload">
+          <label class="mdl-textfield__label" for="encrypted-payload">Encrypted Payload</label>
+        </div>
+
+        <h4>Broken Down Steps</h5>
+        <ol>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="shared-secret">
+              <label class="mdl-textfield__label" for="shared-secret">Shared Secret</label>
+            </div>
+          </li>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="context">
+              <label class="mdl-textfield__label" for="context">Context</label>
+            </div>
+          </li>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="cekinfo">
+              <label class="mdl-textfield__label" for="cekinfo">Content Encryption Key Info (cekInfo)</label>
+            </div>
+          </li>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="nonceinfo">
+              <label class="mdl-textfield__label" for="nonceinfo">Nonce Info</label>
+            </div>
+          </li>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="prk">
+              <label class="mdl-textfield__label" for="prk">Pseudo Random Key (PRK)</label>
+            </div>
+          </li>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="encryption-keys">
+              <label class="mdl-textfield__label" for="encryption-keys">Encryption Keys</label>
+            </div>
+          </li>
+          <li>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="encrypted-payload-2">
+              <label class="mdl-textfield__label" for="encrypted-payload-2">Encrypted Payload</label>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
