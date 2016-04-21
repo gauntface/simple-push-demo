@@ -17,7 +17,7 @@ var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-app.use('/', express.static('./dist'));
+app.use('/', express.static('./build'));
 
 function handleGCMAPI(endpoint, encryptionHelper, encryptedDataBuffer) {
   var options = {
@@ -132,8 +132,3 @@ var server = app.listen(3000, () => {
   var port = server.address().port;
   console.log('Server is listening at http://localhost:%s', port);
 });
-
-// Maybe prime256v1
-// Maybe secp256k1
-// var serverKeys = crypto.diffieHellman.generateKeys('binary');
-// console.log(crypto.getCurves());

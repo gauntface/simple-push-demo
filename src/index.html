@@ -2,20 +2,18 @@
 <html lang="">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Simple Push Demo</title>
 
   <link rel="manifest" href="manifest.json">
 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.indigo-pink.min.css">
   <script src="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.min.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
   <!-- Page styles -->
-  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="/styles/main.css">
 </head>
 <body>
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -26,7 +24,8 @@
         <nav class="mdl-navigation mdl-layout--large-screen-only">
           <a class="mdl-navigation__link" href="/encryption-test.html">Encryption Tests</a>
           <a class="mdl-navigation__link" href="https://github.com/gauntface/simple-push-demo">Github</a>
-          <a class="mdl-navigation__link" href="https://developers.google.com/web/updates/2015/03/push-notifications-on-the-open-web?hl=en">Blog Post</a>
+          <a class="mdl-navigation__link" href="https://developers.google.com/web/fundamentals/primers/push-notifications/">Docs</a>
+          <a class="mdl-navigation__link" href="https://developers.google.com/web/fundamentals/getting-started/push-notifications/">Guide</a>
         </nav>
       </div>
     </header>
@@ -43,7 +42,7 @@
         <div class="send-push-options js-send-push-options">
           <p class="center">
             <button class="xhr-button js-send-push-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
-              Send a Push to GCM via XHR
+              Send a Push via XHR
             </button>
           </p>
 
@@ -52,24 +51,23 @@
           <p>Copy and paste the following CURL command into your terminal
           to send a push message to your browser.</p>
 
-          <code class="curl-code-example js-curl-code"></code>
+          <p><code class="curl-code-example js-curl-code"></code></p>
+
+          <p><strong>Notes:</strong></p>
+
+          <ul>
+            <li>Payloads are starting to get support <a href="https://developers.google.com/web/updates/2016/03/web-push-encryption?hl=en">Check out this link for info</a>. This demo doesn't use them yet.</li>
+            <li>Not seeing a notification in Firefox? <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1233086">This bug may be the culprit.</a> Check the logs for a note when the push is received though.</li>
+          </ul>
         </div>
         <div class="error-message-container js-error-message-container">
           <h1 class="error-title js-error-title"></h1>
           <p class="error-message js-error-message"></p>
         </div>
       </div>
-
-      <p class="center">
-        The Weather API is
-        <br />
-        <a href="https://www.yahoo.com/?ilc=401" target="_blank">
-          <img src="https://poweredby.yahoo.com/purple.png" width="134" height="29"/>
-        </a>
-      </p>
     </main>
   </div>
 
-  <script src="scripts/main.js"></script>
+  <script src="scripts/main.js" async defer></script>
 </body>
 </html>

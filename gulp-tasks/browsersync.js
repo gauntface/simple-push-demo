@@ -7,7 +7,9 @@ GLOBAL.config.browserSyncReload = browserSync.reload;
 // Static server
 gulp.task('browsersync', function() {
   browserSync.init({
-    proxy: 'localhost:3000',
+    server: {
+      baseDir: GLOBAL.config.dest
+    },
     port: 8080,
     open: false
   });

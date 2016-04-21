@@ -1,13 +1,9 @@
-Simple Service Worker Push Demo
-=======
+# Simple Service Worker Push Demo
+
+[![Build Status](https://travis-ci.org/gauntface/simple-push-demo.svg?branch=master)](https://travis-ci.org/gauntface/simple-push-demo) [![Dependency Status](https://david-dm.org/gauntface/simple-push-demo.svg)](https://david-dm.org/gauntface/simple-push-demo) [![devDependency Status](https://david-dm.org/gauntface/simple-push-demo/dev-status.svg)](https://david-dm.org/gauntface/simple-push-demo#info=devDependencies)
 
 The goal of this repo is to demonstrate how to implement push
 notifications into your web app.
-
-## Requirements
-
-- You need to be using Chrome version 42 ([See "Current Release Information" here](http://www.chromium.org/developers/calendar))
-- Have "Experimental Web Platform" features enabled (Will hopefully go away as a requirement very soon)
 
 ## Using the Demo
 
@@ -25,8 +21,6 @@ To try out the demo locally, clone the repo and run the following:
 
         gulp dev
 
-This will open up your browser on the relevant page, now if you open http://localhost:3000 in Chrome canary you should be able to enable push notifications.
-
 [Imgur](http://i.imgur.com/Y2yafBv.png)
 
 The two methods you can send a push message to your device after enabling it are:
@@ -36,4 +30,3 @@ The two methods you can send a push message to your device after enabling it are
 
 1. Send a push to GCM using CURL
     - This option is nice and easy, copy and paste the CURL command into a terminal and it will make a request to GCM (Google Cloud Messaging) which will then send the push message. Useful to see what a request to GCM consists of.
-
