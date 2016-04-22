@@ -43,7 +43,7 @@
   },
   "private": true,
   "scripts": {
-    "test": "gulp"
+    "test": "gulp && mocha"
   },
   "dependencies": {
     "atob": "^2.0.0",
