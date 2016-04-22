@@ -6,7 +6,7 @@ self.addEventListener('push', function(event) {
   console.log('ServiceWorker: Received a push message');
   var notificationOptions = {
     body: 'Thanks for sending this push msg.',
-    icon: '/images/icon-192x192.png',
+    icon: './images/icon-192x192.png',
     tag: 'simple-push-demo-notification',
     data: {
       url: 'https://developers.google.com/web/fundamentals/getting-started/push-notifications/'
