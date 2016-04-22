@@ -50,7 +50,7 @@
     "base64url": "^1.0.5",
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
-    "request-promise": "^1.0.2",
+    "request-promise": "^3.0.0",
     "urlsafe-base64": "^1.0.0"
   }
 }
