@@ -183,7 +183,10 @@ export default class AppController {
     console.log('Sending XHR to Web Push Protocol endpoint');
 
     fetch(subscription.endpoint, {
-      method: 'post'
+      method: 'post',
+      headers: {
+        'TTL': '60',
+      },
     })
     .then(function(response) {
       if (response.status >= 400 && response.status < 500) {
