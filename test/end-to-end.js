@@ -30,7 +30,7 @@ const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
 const mochaHelper = require('../node_modules/sw-testing-helpers/src/mocha/utils.js');
 const seleniumFirefox = require('selenium-webdriver/firefox');
 
-describe('Test sw-testing-helpers', function() {
+describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
 
