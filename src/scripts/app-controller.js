@@ -212,7 +212,7 @@ export default class AppController {
 
   produceWebPushProtocolCURLCommand(subscription) {
     var curlEndpoint = subscription.endpoint;
-    var curlCommand = 'curl --request POST ' + curlEndpoint;
+    var curlCommand = 'curl -H "TTL: 60" --request POST ' + curlEndpoint;
     return curlCommand;
   }
 
