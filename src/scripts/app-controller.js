@@ -55,6 +55,17 @@ export default class AppController {
         this._pushClient.unsubscribeDevice();
       }
     });
+
+    if (
+      window.location.protocol !== 'https' &&
+      window.location.hostname !== 'localhost') {
+      this.showErrorMessage(
+        'You Need to be HTTPs',
+        'Please check out the ' +
+        '<a href="https://gauntface.github.io/simple-push-demo/">HTTPs ' +
+        'version of this page here</a>'
+      );
+    }
   }
 
   registerServiceWorker() {
