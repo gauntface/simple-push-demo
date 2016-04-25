@@ -185,7 +185,7 @@ export default class AppController {
     fetch(subscription.endpoint, {
       method: 'post',
       headers: {
-        'TTL': '60',
+        TTL: '60',
       },
     })
     .then(function(response) {
