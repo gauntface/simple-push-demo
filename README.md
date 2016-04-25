@@ -21,7 +21,7 @@ To try out the demo locally, clone the repo and run the following:
 
         gulp dev
 
-[Imgur](http://i.imgur.com/Y2yafBv.png)
+<img src="http://i.imgur.com/Y2yafBv.png" width="304px" height="366xpx" />
 
 The two methods you can send a push message to your device after enabling it are:
 
