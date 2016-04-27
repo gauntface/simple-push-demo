@@ -236,7 +236,7 @@ export default class AppController {
     var titleElement = errorContainer.querySelector('.js-error-title');
     var messageElement = errorContainer.querySelector('.js-error-message');
     titleElement.textContent = title;
-    messageElement.textContent = message;
+    messageElement.innerHTML = message;
     errorContainer.style.opacity = 1;
 
     var pushOptionsContainer = document.querySelector('.js-send-push-options');
