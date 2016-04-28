@@ -57,7 +57,7 @@ export default class AppController {
     });
 
     if (
-      window.location.protocol !== 'https' &&
+      window.location.protocol !== 'https:' &&
       window.location.hostname !== 'localhost') {
       this.showErrorMessage(
         'You Need to be HTTPs',
