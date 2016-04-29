@@ -1,9 +1,12 @@
 'use strict';
 
-/* eslint-env serviceworker */
+/* eslint-env browser, serviceworker */
+
+importScripts('./scripts/analytics.js');
+
+self.analytics.trackingId = 'UA-77119321-2';
 
 self.addEventListener('push', function(event) {
-  console.log('ServiceWorker: Received a push message');
   var notificationOptions = {
     body: 'Thanks for sending this push msg.',
     icon: './images/icon-192x192.png',
@@ -14,18 +17,25 @@ self.addEventListener('push', function(event) {
   };
 
   event.waitUntil(
-    self.registration.showNotification('Hello', notificationOptions)
+    Promise.all([
+      self.registration.showNotification('Hello', notificationOptions),
+      self.analytics.trackEvent('push-received')
+    ])
   );
 });
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
-  if (!event.nofication.data) {
-    return;
+  let clickResponsePromise = Promise.resolve();
+  if (event.nofication.data && event.notification.data.url) {
+    clickResponsePromise = clients.openWindow(event.notification.data.url);
   }
 
-  if (event.notification.data.url) {
-    event.waitUntil(clients.openWindow(event.notification.data.url));
-  }
+  event.waitUntil(
+    Promise.all([
+      clickResponsePromise,
+      self.analytics.trackEvent('notification-click')
+    ])
+  );
 });

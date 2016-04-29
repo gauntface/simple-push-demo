@@ -1,6 +1,5 @@
 /**
- *
- *  Web Starter Kit
+ * 
  *  Copyright 2016 Google Inc. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +30,7 @@ const del = require('del');
 const eslint = require('gulp-eslint');
 const runSequence = require('run-sequence');
 
-function bundleJS(fullFilePath) {
+const bundleJS = fullFilePath => {
   const browserifyBundles = browserify({
     entries: fullFilePath
   });
@@ -59,9 +58,9 @@ function bundleJS(fullFilePath) {
 
   return stream.pipe(sourcemaps.write('.'))
   .pipe(gulp.dest(GLOBAL.config.dest));
-}
+};
 
-function build() {
+const build = () => {
   const globResponse = glob.sync(GLOBAL.config.src + '/**/*.js', {
     dot: false
   });
@@ -77,7 +76,7 @@ function build() {
   }, Promise.resolve());
 
   return buildPromise;
-}
+};
 
 gulp.task('scripts:watch', function() {
   gulp.watch(GLOBAL.config.src + '/**/*.js',
