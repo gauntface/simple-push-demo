@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2015 Google Inc. All rights reserved.
+ * Copyright 2016 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var gulp = require('gulp');
-var del = require('del');
-var gulpif = require('gulp-if');
-var imagemin = require('gulp-imagemin');
+
+'use strict';
+
+const gulp = require('gulp');
+const del = require('del');
+const imagemin = require('gulp-imagemin');
 
 gulp.task('images:watch', function() {
   gulp.watch(GLOBAL.config.src + '/images/**/*.*',
@@ -32,11 +34,15 @@ gulp.task('images:clean', function(cb) {
 });
 
 gulp.task('images', ['images:clean'], function() {
-  return gulp.src(GLOBAL.config.src + '/**/*.{png,jpg,jpeg,gif,svg}')
-    .pipe(gulpif(GLOBAL.config.env === 'prod', imagemin({
+  let stream = gulp.src(GLOBAL.config.src + '/**/*.{png,jpg,jpeg,gif,svg}');
+
+  if (GLOBAL.config.env === 'prod') {
+    stream = stream.pipe(imagemin({
       progressive: true,
       interlaced: true,
       svgoPlugins: [{removeViewBox: false}]
-    })))
-    .pipe(gulp.dest(GLOBAL.config.dest));
+    }));
+  }
+
+  return stream.pipe(gulp.dest(GLOBAL.config.dest));
 });

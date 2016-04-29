@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2015 Google Inc. All rights reserved.
+ * Copyright 2016 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-var gulp = require('gulp');
-var gulpif = require('gulp-if');
-var minifyHtml = require('gulp-minify-html');
-var replace = require('gulp-replace');
+'use strict';
+
+const gulp = require('gulp');
+const minifyHtml = require('gulp-minify-html');
 
 gulp.task('html:watch', function() {
   gulp.watch(GLOBAL.config.src + '/**/*.html',
@@ -26,10 +26,13 @@ gulp.task('html:watch', function() {
 });
 
 gulp.task('html', function() {
-  return gulp.src([
+  let stream = gulp.src([
     GLOBAL.config.src + '/**/*.html'
-  ])
-  .pipe(gulpif(GLOBAL.config.env === 'prod', minifyHtml()))
-  .pipe(replace(/@VERSION@/g, GLOBAL.config.version))
-  .pipe(gulp.dest(GLOBAL.config.dest));
+  ]);
+
+  if (GLOBAL.config.env === 'prod') {
+    stream = stream.pipe(minifyHtml());
+  }
+
+  return stream.pipe(gulp.dest(GLOBAL.config.dest));
 });

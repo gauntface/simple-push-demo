@@ -34,7 +34,7 @@
   <script src="/node_modules/mocha/mocha.js"></script>
 
   <!-- SW Helper -->
-  <script src="/node_modules/sw-testing-helpers/src/mocha/utils.js"></script>
+  <script src="/node_modules/sw-testing-helpers/browser/mocha-utils.js"></script>
 
   <script>mocha.setup({
     ui: 'bdd'
@@ -57,7 +57,7 @@
         Services.perms.addFromPrincipal(principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
       }
 
-      window.goog.MochaUtils.startMochaTest()
+      window.goog.mochaUtils.startInBrowserMochaTests()
       .then(results => {
         window.testsuite = results;
       });

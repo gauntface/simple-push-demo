@@ -27,7 +27,7 @@ const path = require('path');
 const SWTestingHelpers = require('sw-testing-helpers');
 const TestServer = SWTestingHelpers.TestServer;
 const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
-const mochaHelper = require('../node_modules/sw-testing-helpers/src/mocha/utils.js');
+const mochaUtils = SWTestingHelpers.mochaUtils;
 const seleniumFirefox = require('selenium-webdriver/firefox');
 
 describe('Test simple-push-demo', function() {
@@ -60,13 +60,13 @@ describe('Test simple-push-demo', function() {
   });
 
   const queueUnitTest = browserInfo => {
-    it(`should pass all tests in ${browserInfo.prettyName}`, () => {
+    it(`should pass all tests in ${browserInfo.getPrettyName()}`, () => {
 
-      if (browserInfo.seleniumBrowserId === 'firefox') {
+      if (browserInfo.getSeleniumBrowserId() === 'firefox') {
         const ffProfile = new seleniumFirefox.Profile();
         ffProfile.setPreference('security.turn_off_all_security_so_that_viruses_can_take_over_this_computer', true);
-        browserInfo.seleniumOptions.setProfile(ffProfile);
-      } else if (browserInfo.seleniumBrowserId === 'chrome') {
+        browserInfo.getSeleniumOptions().setProfile(ffProfile);
+      } else if (browserInfo.getSeleniumBrowserId() === 'chrome') {
         /* eslint-disable camelcase */
         const chromePreferences = {
           profile: {
@@ -80,7 +80,7 @@ describe('Test simple-push-demo', function() {
         chromePreferences.profile.content_settings.exceptions.notifications[testServerURL + ',*'] = {
           setting: 1
         };
-        browserInfo.seleniumOptions.setUserPreferences(chromePreferences);
+        browserInfo.getSeleniumOptions().setUserPreferences(chromePreferences);
         /* eslint-enable camelcase */
       }
 
@@ -88,15 +88,15 @@ describe('Test simple-push-demo', function() {
 
       return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
       .then(() => {
-        return automatedBrowserTesting.runMochaTests(
-          browserInfo.prettyName,
+        return mochaUtils.startWebDriverMochaTests(
+          browserInfo.getPrettyName(),
           globalDriverReference,
           `${testServerURL}/test/browser-tests/`
         );
       })
       .then(testResults => {
         if (testResults.failed.length > 0) {
-          const errorMessage = mochaHelper.prettyPrintErrors(
+          const errorMessage = mochaUtils.prettyPrintErrors(
             browserInfo.prettyName,
             testResults
           );
@@ -109,7 +109,7 @@ describe('Test simple-push-demo', function() {
           // Load simple push demo page
           globalDriverReference.get(`${testServerURL}/build/`)
           .then(() => {
-            if (browserInfo.seleniumBrowserId === 'firefox') {
+            if (browserInfo.getSeleniumBrowserId() === 'firefox') {
               return globalDriverReference.executeScript(function() {
                 /* eslint-env browser */
                 /* globals Components,Services */
@@ -259,7 +259,7 @@ describe('Test simple-push-demo', function() {
     });
   };
 
-  const automatedBrowsers = automatedBrowserTesting.getAutomatedBrowsers();
+  const automatedBrowsers = automatedBrowserTesting.getDiscoverableBrowsers();
   automatedBrowsers.forEach(browserInfo => {
     queueUnitTest(browserInfo);
   });

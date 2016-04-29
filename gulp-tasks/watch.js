@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-var gulp = require('gulp');
-var runSequence = require('run-sequence');
+'use strict';
+
+const gulp = require('gulp');
+const runSequence = require('run-sequence');
 
 /**
  *
@@ -27,17 +29,17 @@ var runSequence = require('run-sequence');
  */
 gulp.task('watch', function() {
   // Get all of the gulp task names
-  var taskNames = Object.keys(gulp.tasks);
+  const taskNames = Object.keys(gulp.tasks);
 
   // Store ':watch' tasks in this array
-  var gulpWatchTasks = [];
+  const gulpWatchTasks = [];
 
   // Loop over all tasknames
   for (var i = 0; i < taskNames.length; i++) {
-    var taskName = taskNames[i];
+    const taskName = taskNames[i];
 
     // Split tasks on the ':' character
-    var taskParts = taskName.split(':');
+    const taskParts = taskName.split(':');
 
     // Check length is greater one to avoid selecting this task &
     // check if the last part is 'watch'
