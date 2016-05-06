@@ -40,8 +40,14 @@
     ui: 'bdd'
   })</script>
 
+  <!-- Project Files -->
+  <script src="/build/scripts/encryption/encryption-helper.js"></script>
+  <script src="/build/scripts/encryption/hmac.js"></script>
+  <script src="/build/scripts/encryption/hkdf.js"></script>
+
   <!-- Add test scripts here -->
   <script src="./permissions.js"></script>
+  <script src="./encryption-test.js"></script>
 
   <script>
     (function() {
@@ -49,7 +55,7 @@
       // before any tests are run.
       window.chai.should();
 
-      if (typeof netscape !== 'undefined') {
+      if (typeof netscape !== 'undefined' && typeof window.netscape.security.PrivilegeManager !== 'undefined') {
         window.netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
         Components.utils.import('resource://gre/modules/Services.jsm');
         const uri = Services.io.newURI(window.location.origin, null, null);

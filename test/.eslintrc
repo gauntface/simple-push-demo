@@ -1,0 +1,14 @@
+{
+  "extends": "google",
+  "env": {
+    "node": true,
+    "mocha": true
+    },
+  "rules": {
+    "max-len": 0,
+    "require-jsdoc": 0,
+    "no-console": 0,
+    "padded-blocks": 0,
+    "max-nested-callbacks": 0
+  }
+}
