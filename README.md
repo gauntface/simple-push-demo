@@ -5,7 +5,11 @@
 The goal of this repo is to demonstrate how to implement push
 notifications into your web app.
 
-## Using the Demo
+## Github Pages Demo
+
+Just visit [Github Pages Demo](https://gauntface.github.io/simple-push-demo/).
+
+## Using the Demo Locally
 
 To try out the demo locally, clone the repo and run the following:
 
@@ -22,11 +26,3 @@ To try out the demo locally, clone the repo and run the following:
         gulp dev
 
 <img src="http://i.imgur.com/Y2yafBv.png" width="304px" height="366xpx" />
-
-The two methods you can send a push message to your device after enabling it are:
-
-1. Send a push to GCM via XHR
-    - This button sends a request to an [App Engine app](https://github.com/gauntface/simple-push-demo-backend) which then sends a request to GCM (Google Cloud Messaging), emulating what would happen when a server wants to send a push message to a user.
-
-1. Send a push to GCM using CURL
-    - This option is nice and easy, copy and paste the CURL command into a terminal and it will make a request to GCM (Google Cloud Messaging) which will then send the push message. Useful to see what a request to GCM consists of.
