@@ -35,8 +35,8 @@ const joinUnit8Arrays = allUint8Arrays => {
   }, new Uint8Array());
 };
 
-export default class EncryptionHelper {
-  constructor(serverKeys, salt) {
+export class EncryptionHelper {
+  constructor(serverKeys, salt, vapidKeys) {
     if (!serverKeys || !serverKeys.publicKey || !serverKeys.privateKey) {
       throw new Error('Bad server keys. Use ' +
         'EncryptionHelperFactory.generateKeys()');
@@ -47,8 +47,14 @@ export default class EncryptionHelper {
         'EncryptionHelperFactory.generateSalt()');
     }
 
+    if (vapidKeys && (!vapidKeys.publicKey || !vapidKeys.privateKey)) {
+      throw new Error('Bad VAPID keys. Use ' +
+        'EncryptionHelperFactory.generateVapidKeys()');
+    }
+
     this._serverKeys = serverKeys;
     this._salt = salt;
+    this._vapidKeys = vapidKeys;
   }
 
   getPublicServerKey() {
@@ -57,6 +63,22 @@ export default class EncryptionHelper {
 
   getPrivateServerKey() {
     return this._serverKeys.privateKey;
+  }
+
+  getPublicVapidKey() {
+    if (!this._vapidKeys || !this._vapidKeys.publicKey) {
+      return null;
+    }
+
+    return this._vapidKeys.publicKey;
+  }
+
+  getPrivateVapidKey() {
+    if (!this._vapidKeys || !this._vapidKeys.privateKey) {
+      return null;
+    }
+
+    return this._vapidKeys.privateKey;
   }
 
   getSharedSecret(publicKeyString) {
@@ -391,42 +413,135 @@ export default class EncryptionHelperFactory {
   static generateHelper(options) {
     return Promise.resolve()
     .then(() => {
-      if (options && options.serverKeys) {
-        return EncryptionHelperFactory.importKeys(options);
+      const keyPromises = [
+        EncryptionHelperFactory.generateKeys(options)
+      ];
+
+      if (options && options.vapidKeys) {
+        keyPromises.push(options.vapidKeys);
       }
 
-      return EncryptionHelperFactory.generateKeys(options);
+      return Promise.all(keyPromises);
     })
-    .then(keys => {
+    .then(results => {
       let salt = null;
       if (options && options.salt) {
         salt = EncryptionHelper.base64UrlToUint8Array(options.salt);
       } else {
         salt = crypto.getRandomValues(new Uint8Array(16));
       }
-      return new EncryptionHelper(keys, salt);
+      return new EncryptionHelper(results[0], salt, results[1]);
     });
   }
 
-  static importKeys(options) {
-    if (!options || !options.serverKeys ||
-      !options.serverKeys.publicKey || !options.serverKeys.privateKey) {
+  static importKeys(keys) {
+    if (!keys || !keys.publicKey || !keys.privateKey) {
       return Promise.reject(new Error('Bad options for key import'));
     }
 
     return Promise.resolve()
     .then(() => {
       return EncryptionHelper.stringKeysToCryptoKeys(
-        options.serverKeys.publicKey,
-        options.serverKeys.privateKey
+        keys.publicKey,
+        keys.privateKey
       );
     });
   }
 
-  static generateKeys() {
+  static generateKeys(options) {
+    if (options && options.serverKeys) {
+      return EncryptionHelperFactory.importKeys(options.serverKeys);
+    }
+
     // True is to make the keys extractable
     return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
       true, ['deriveBits']);
+  }
+
+  static generateVapidKeys() {
+    return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
+      true, ['deriveBits'])
+      .then(keys => {
+        return EncryptionHelper.exportCryptoKeys(
+          keys.publicKey, keys.privateKey);
+      });
+  }
+
+  static createVapidAuthHeader(vapidKeys, audience, subject, exp) {
+    if (!audience) {
+      return Promise.reject(new Error('Audience must be the origin of the ' +
+        'server'));
+    }
+
+    if (!subject) {
+      return Promise.reject(new Error('Subject must be either a mailto or ' +
+        'http link'));
+    }
+
+    if (typeof exp !== 'number') {
+      // The `exp` field will contain the current timestamp in UTC plus twelve hours.
+      exp = Math.floor((Date.now() / 1000) + 12 * 60 * 60);
+    }
+
+    // Ensure the audience is just the origin
+    audience = new URL(audience).origin;
+
+    const tokenHeader = {
+      typ: 'JWT',
+      alg: 'ES256'
+    };
+
+    const tokenBody = {
+      aud: audience,
+      exp: exp,
+      sub: subject
+    };
+
+    // Utility function for UTF-8 encoding a string to an ArrayBuffer.
+    const utf8Encoder = new TextEncoder('utf-8');
+
+    // The unsigned token is the concatenation of the URL-safe base64 encoded header and body.
+    const unsignedToken =
+      EncryptionHelper.uint8ArrayToBase64Url(
+        utf8Encoder.encode(JSON.stringify(tokenHeader))
+      ) + '.' + EncryptionHelper.uint8ArrayToBase64Url(
+        utf8Encoder.encode(JSON.stringify(tokenBody))
+      );
+
+    // Sign the |unsignedToken| using ES256 (SHA-256 over ECDSA).
+    const key = {
+      kty: 'EC',
+      crv: 'P-256',
+      x: EncryptionHelper.uint8ArrayToBase64Url(
+        vapidKeys.publicKey.slice(1, 33)),
+      y: EncryptionHelper.uint8ArrayToBase64Url(
+        vapidKeys.publicKey.slice(33, 65)),
+      d: EncryptionHelper.uint8ArrayToBase64Url(vapidKeys.privateKey)
+    };
+
+      // Sign the |unsignedToken| with the server's private key to generate the signature.
+    return crypto.subtle.importKey('jwk', key, {
+      name: 'ECDSA', namedCurve: 'P-256'
+    }, true, ['sign'])
+    .then(key => {
+      return crypto.subtle.sign({
+        name: 'ECDSA',
+        hash: {
+          name: 'SHA-256'
+        }
+      }, key, utf8Encoder.encode(unsignedToken));
+    })
+    .then(signature => {
+      const jsonWebToken = unsignedToken + '.' +
+        EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(signature));
+      const p256ecdsa = EncryptionHelper.uint8ArrayToBase64Url(
+        vapidKeys.publicKey);
+
+      return {
+        bearer: jsonWebToken,
+        p256ecdsa: p256ecdsa
+      };
+    });
   }
 
   static generateSalt() {

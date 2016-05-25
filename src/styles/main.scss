@@ -32,6 +32,20 @@ main {
   box-sizing: border-box;
 }
 
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.js-headers-list p, .small-margin {
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+
+.js-headers-list p span {
+  font-weight: bold;
+}
+
 .error-title {
 	font-size: 28px;
 	margin-bottom: 4px;
