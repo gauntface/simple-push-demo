@@ -41,18 +41,27 @@
 
       <div class="content-overlap-wrapper">
         <div class="send-push-options js-send-push-options">
-          <p class="center">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label payload-textfield js-payload-textfield-container hidden">
+            <input class="mdl-textfield__input js-payload-textfield" type="text" id="payload-textfield">
+            <label class="mdl-textfield__label" for="payload-textfield">Add Payload Text</label>
+          </div>
+
+          <p class="state-msg js-state-msg"></p>
+
+          <p class="center js-xhr-button-container">
             <button class="xhr-button js-send-push-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
               Send a Push via XHR
             </button>
           </p>
 
-          <p class="center">OR</p>
+          <p class="center js-push-options-or">OR</p>
 
-          <p>Copy and paste the following CURL command into your terminal
-          to send a push message to your browser.</p>
+          <div class="js-curl-container">
+            <p>Copy and paste the following CURL command into your terminal
+            to send a push message to your browser.</p>
 
-          <p><code class="curl-code-example js-curl-code"></code></p>
+            <p><code class="curl-code-example js-curl-code"></code></p>
+          </div>
 
           <p><strong>Notes:</strong></p>
 

@@ -7,7 +7,9 @@ importScripts('./scripts/analytics.js');
 self.analytics.trackingId = 'UA-77119321-2';
 
 self.addEventListener('push', function(event) {
-  var notificationOptions = {
+  console.log('Received push');
+  let notificationTitle = 'Hello';
+  const notificationOptions = {
     body: 'Thanks for sending this push msg.',
     icon: './images/icon-192x192.png',
     tag: 'simple-push-demo-notification',
@@ -16,9 +18,16 @@ self.addEventListener('push', function(event) {
     }
   };
 
+  if (event.data) {
+    const dataText = event.data.text();
+    notificationTitle = 'Received Payload';
+    notificationOptions.body = `Push data: '${dataText}'`;
+  }
+
   event.waitUntil(
     Promise.all([
-      self.registration.showNotification('Hello', notificationOptions),
+      self.registration.showNotification(
+        notificationTitle, notificationOptions),
       self.analytics.trackEvent('push-received')
     ])
   );
