@@ -129,27 +129,44 @@ export default class PushClient {
   subscribeDevice() {
     this._stateChangeCb(this._state.STARTING_SUBSCRIBE);
 
-    // We need the service worker registration to access the push manager
-    navigator.serviceWorker.ready
-    .then(serviceWorkerRegistration => {
-      return serviceWorkerRegistration.pushManager.subscribe(
-        {userVisibleOnly: true}
-      );
+    return new Promise((resolve, reject) => {
+      if (Notification.permission === 'denied') {
+        return reject(new Error('Push messages are blocked.'));
+      }
+
+      if (Notification.permission === 'granted') {
+        return resolve();
+      }
+
+      if (Notification.permission === 'default') {
+        Notification.requestPermission(result => {
+          if (result !== 'granted') {
+            reject(new Error('Bad permission result'));
+          }
+
+          resolve();
+        });
+      }
     })
-    .then(subscription => {
-      this._stateChangeCb(this._state.SUBSCRIBED);
-      this._subscriptionUpdate(subscription);
+    .then(() => {
+      // We need the service worker registration to access the push manager
+      return navigator.serviceWorker.ready
+      .then(serviceWorkerRegistration => {
+        return serviceWorkerRegistration.pushManager.subscribe(
+          {userVisibleOnly: true}
+        );
+      })
+      .then(subscription => {
+        this._stateChangeCb(this._state.SUBSCRIBED);
+        this._subscriptionUpdate(subscription);
+      })
+      .catch(subscriptionErr => {
+        this._stateChangeCb(this._state.ERROR, subscriptionErr);
+      });
     })
-    .catch(subscriptionErr => {
+    .catch(() => {
       // Check for a permission prompt issue
       this._permissionStateChange(Notification.permission);
-
-      if (Notification.permission !== 'denied' &&
-      Notification.permission !== 'default') {
-        // If the permission wasnt denied or prompt, that means the
-        // permission was accepted, so this must be an error
-        this._stateChangeCb(this._state.ERROR, subscriptionErr);
-      }
     });
   }
 
