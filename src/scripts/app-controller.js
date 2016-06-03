@@ -124,7 +124,6 @@ export default class AppController {
         );
         break;
       default:
-        console.log('ID ===> ', state.id);
         break;
     }
   }
@@ -237,7 +236,6 @@ export default class AppController {
     if (payloadText && payloadText.trim().length > 0) {
       payloadPromise = EncryptionHelperFactory.generateHelper()
       .then(encryptionHelper => {
-        console.log(JSON.stringify(subscription));
         return encryptionHelper.encryptMessage(
           JSON.parse(JSON.stringify(subscription)), payloadText);
       });
