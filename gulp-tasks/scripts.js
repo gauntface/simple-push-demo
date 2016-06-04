@@ -1,5 +1,5 @@
 /**
- * 
+ *
  *  Copyright 2016 Google Inc. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,7 +90,7 @@ gulp.task('scripts:watch', function() {
 });
 
 gulp.task('scripts:eslint', function() {
-  let stream = gulp.src([GLOBAL.config.src + '/**/*.js'])
+  let stream = gulp.src([GLOBAL.config.src + '/**/*.js', '!' + GLOBAL.config.src + '/scripts/libs/**/*.js'])
 
     // eslint() attaches the lint output to the eslint property,
     // of the file object so it can be used by other modules.
