@@ -72,3 +72,25 @@ main {
 
 .state-msg {
   color: #95a5a6; }
+
+.snippet-code {
+  position: relative; }
+  .snippet-code code:hover::before {
+    display: inline-block;
+    content: 'click to copy';
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-top-left-radius: 5px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 3px 10px; }
+  .snippet-code code.copied::before {
+    content: 'copied';
+    color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0.6); }
+  .snippet-code code.nosupport::before {
+    content: "browser not supported :'(";
+    color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0.6); }
