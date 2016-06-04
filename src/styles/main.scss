@@ -118,5 +118,11 @@ main {
       color: rgba(255,255,255,.5);
       background-color: rgba(0,0,0,.6);
     }
+
+    &.nosupport::before {
+      content: "browser not supported :'(";
+      color: rgba(255,255,255,.5);
+      background-color: rgba(0,0,0,.6);
+    }
   }
 }

@@ -2,6 +2,7 @@
 
 import PushClient from './push-client.js';
 import EncryptionHelperFactory from './encryption/encryption-helper';
+import MaterialComponentsSnippets from './libs/snippets';
 
 export default class AppController {
   constructor() {
@@ -75,6 +76,9 @@ export default class AppController {
           this._payloadTextField.value);
       }
     });
+
+    // allow snippets to be copied via click
+    new MaterialComponentsSnippets().init();
   }
 
   registerServiceWorker() {
