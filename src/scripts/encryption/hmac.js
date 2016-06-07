@@ -2,7 +2,7 @@
 
 'use strict';
 
-export default class HMAC {
+class HMAC {
   constructor(ikm) {
     this._ikm = ikm;
   }
@@ -19,4 +19,6 @@ export default class HMAC {
 if (typeof window !== 'undefined') {
   window.gauntface = window.gauntface || {};
   window.gauntface.HMAC = HMAC;
+} else if (module && module.exports) {
+  module.exports = HMAC;
 }

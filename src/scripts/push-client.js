@@ -2,7 +2,7 @@
 
 /* eslint-env browser */
 
-export default class PushClient {
+class PushClient {
 
   constructor(stateChangeCb, subscriptionUpdate, publicAppKey) {
     this._stateChangeCb = stateChangeCb;
@@ -124,7 +124,7 @@ export default class PushClient {
       this._subscriptionUpdate(subscription);
     })
     .catch(err => {
-      console.log(err);
+      console.log('setUpPushPermission() ', err);
       this._stateChangeCb(this._state.ERROR, err);
     });
   }
@@ -197,9 +197,8 @@ export default class PushClient {
         return;
       }
 
-      // TODO: Remove the device details from the server
-      // i.e. the pushSubscription.subscriptionId and
-      // pushSubscription.endpoint
+      // You should remove the device details from the server
+      // i.e. the  pushSubscription.endpoint
       return pushSubscription.unsubscribe()
       .then(function(successful) {
         if (!successful) {
@@ -220,4 +219,8 @@ export default class PushClient {
         'Most likely because push was never registered', err);
     });
   }
+}
+
+if (window) {
+  window.PushClient = PushClient;
 }

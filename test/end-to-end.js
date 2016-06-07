@@ -480,12 +480,22 @@ describe('Test simple-push-demo', function() {
 
   const automatedBrowsers = automatedBrowserTesting.getDiscoverableBrowsers();
   automatedBrowsers.forEach(browserInfo => {
+    if (process.env.TRAVIS || process.env.RELEASE_SCRIPT) {
+      if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
+        browserInfo.getVersionNumber() <= 49) {
+        // 49 has issues with marionette / permission issues.
+        return;
+      }
+    }
+
     if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
         browserInfo.getVersionNumber() <= 47) {
       // There is a bug in Firefox version 47 that prevents mocha tests
       // results being returned
       return;
-    } else if (browserInfo.getSeleniumBrowserId() === 'opera' &&
+    }
+
+    if (browserInfo.getSeleniumBrowserId() === 'opera' &&
         browserInfo.getVersionNumber() <= 39) {
       // Opera has no feature detect for push support, so bail
       return;

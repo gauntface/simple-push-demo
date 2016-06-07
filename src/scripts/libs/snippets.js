@@ -1,7 +1,7 @@
 // from Material Design Lite website
 // @see https://getmdl.io/assets/snippets.js
 /* eslint-env browser */
-export default class MaterialComponentsSnippets {
+class MaterialComponentsSnippets {
   constructor() {
     this.snippets = document.querySelectorAll('code.language-markup');
   }
@@ -53,3 +53,5 @@ export default class MaterialComponentsSnippets {
     };
   }
 }
+
+window.MaterialComponentsSnippets = MaterialComponentsSnippets;

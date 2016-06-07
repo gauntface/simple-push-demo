@@ -1,6 +1,5 @@
+/* global AppController */
 /* eslint-env browser */
-import AppController from './app-controller.js';
-
 window.onload = function() {
   const appController = new AppController();
   appController.ready

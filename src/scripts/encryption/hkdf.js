@@ -1,10 +1,9 @@
+/* global HMAC */
 /* eslint-env browser */
 
 'use strict';
 
-import HMAC from './hmac.js';
-
-export default class HKDF {
+class HKDF {
   constructor(ikm, salt) {
     this._ikm = ikm;
     this._salt = salt;
@@ -31,4 +30,6 @@ export default class HKDF {
 if (typeof window !== 'undefined') {
   window.gauntface = window.gauntface || {};
   window.gauntface.HKDF = HKDF;
+} else if (module && module.exports) {
+  module.exports = HKDF;
 }

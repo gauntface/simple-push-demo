@@ -5,11 +5,10 @@
  * Massive H/T to Peter Beverloo for this.
  */
 
+/* global HKDF */
 /* eslint-env browser */
 
 'use strict';
-
-import HKDF from './hkdf.js';
 
 // Length, in bytes, of a P-256 field element. Expected format of the private key.
 const PRIVATE_KEY_BYTES = 32;
@@ -35,7 +34,7 @@ const joinUnit8Arrays = allUint8Arrays => {
   }, new Uint8Array());
 };
 
-export class EncryptionHelper {
+class EncryptionHelper {
   constructor(serverKeys, salt, vapidKeys) {
     if (!serverKeys || !serverKeys.publicKey || !serverKeys.privateKey) {
       throw new Error('Bad server keys. Use ' +
@@ -198,7 +197,7 @@ export class EncryptionHelper {
 
       const hkdf = new HKDF(
         sharedSecret,
-        EncryptionHelper.base64UrlToUint8Array(subscription.keys.auth));
+        window.base64UrlToUint8Array(subscription.keys.auth));
       return hkdf.generate(authInfoUint8Array, 32);
     });
   }
@@ -266,9 +265,9 @@ export class EncryptionHelper {
       .then(keys => {
         return {
           cipherText: encryptedPayloadArrayBuffer,
-          salt: EncryptionHelper.uint8ArrayToBase64Url(this.getSalt()),
+          salt: window.uint8ArrayToBase64Url(this.getSalt()),
           publicServerKey:
-            EncryptionHelper.uint8ArrayToBase64Url(keys.publicKey)
+            window.uint8ArrayToBase64Url(keys.publicKey)
         };
       });
     });
@@ -281,8 +280,8 @@ export class EncryptionHelper {
       promises.push(
         crypto.subtle.exportKey('jwk', publicKey)
         .then(jwk => {
-          const x = EncryptionHelper.base64UrlToUint8Array(jwk.x);
-          const y = EncryptionHelper.base64UrlToUint8Array(jwk.y);
+          const x = window.base64UrlToUint8Array(jwk.x);
+          const y = window.base64UrlToUint8Array(jwk.y);
 
           const publicKey = new Uint8Array(65);
           publicKey.set([0x04], 0);
@@ -298,7 +297,7 @@ export class EncryptionHelper {
           crypto.subtle
             .exportKey('jwk', privateKey)
           .then(jwk => {
-            return EncryptionHelper.base64UrlToUint8Array(jwk.d);
+            return window.base64UrlToUint8Array(jwk.d);
           })
         );
       }
@@ -323,8 +322,7 @@ export class EncryptionHelper {
       throw new Error('The publicKey is expected to be an String.');
     }
 
-    const publicKeyUnitArray = EncryptionHelper
-      .base64UrlToUint8Array(publicKey);
+    const publicKeyUnitArray = window.base64UrlToUint8Array(publicKey);
     if (publicKeyUnitArray.byteLength !== PUBLIC_KEY_BYTES) {
       throw new Error('The publicKey is expected to be ' +
         PUBLIC_KEY_BYTES + ' bytes.');
@@ -339,8 +337,8 @@ export class EncryptionHelper {
     const jwk = {
       kty: 'EC',
       crv: 'P-256',
-      x: EncryptionHelper.uint8ArrayToBase64Url(publicBuffer, 1, 33),
-      y: EncryptionHelper.uint8ArrayToBase64Url(publicBuffer, 33, 65),
+      x: window.uint8ArrayToBase64Url(publicBuffer, 1, 33),
+      y: window.uint8ArrayToBase64Url(publicBuffer, 33, 65),
       ext: true
     };
 
@@ -353,8 +351,7 @@ export class EncryptionHelper {
         throw new Error('The privateKey is expected to be an String.');
       }
 
-      const privateKeyArray = EncryptionHelper
-        .base64UrlToUint8Array(privateKey);
+      const privateKeyArray = window.base64UrlToUint8Array(privateKey);
 
       if (privateKeyArray.byteLength !== PRIVATE_KEY_BYTES) {
         throw new Error('The privateKey is expected to be ' +
@@ -362,8 +359,7 @@ export class EncryptionHelper {
       }
 
       // d must be defined after the importKey call for public
-      jwk.d = EncryptionHelper
-        .uint8ArrayToBase64Url(new Uint8Array(privateKeyArray));
+      jwk.d = window.uint8ArrayToBase64Url(new Uint8Array(privateKeyArray));
       keyPromises.push(crypto.subtle.importKey('jwk', jwk,
         {name: 'ECDH', namedCurve: 'P-256'}, true, ['deriveBits']));
     }
@@ -379,37 +375,9 @@ export class EncryptionHelper {
       return keyPair;
     });
   }
-
-  static uint8ArrayToBase64Url(uint8Array, start, end) {
-    start = start || 0;
-    end = end || uint8Array.byteLength;
-
-    const base64 = btoa(
-      String.fromCharCode.apply(null, uint8Array.slice(start, end)));
-    return base64
-      .replace(/\=/g, '') // eslint-disable-line no-useless-escape
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_');
-  }
-
-  // Converts the URL-safe base64 encoded |base64UrlData| to an Uint8Array buffer.
-  static base64UrlToUint8Array(base64UrlData) {
-    const padding = '='.repeat((4 - base64UrlData.length % 4) % 4);
-    const base64 = (base64UrlData + padding)
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
-
-    const rawData = atob(base64);
-    const buffer = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-      buffer[i] = rawData.charCodeAt(i);
-    }
-    return buffer;
-  }
 }
 
-export default class EncryptionHelperFactory {
+class EncryptionHelperFactory {
   static generateHelper(options) {
     return Promise.resolve()
     .then(() => {
@@ -426,7 +394,7 @@ export default class EncryptionHelperFactory {
     .then(results => {
       let salt = null;
       if (options && options.salt) {
-        salt = EncryptionHelper.base64UrlToUint8Array(options.salt);
+        salt = window.base64UrlToUint8Array(options.salt);
       } else {
         salt = crypto.getRandomValues(new Uint8Array(16));
       }
@@ -502,9 +470,9 @@ export default class EncryptionHelperFactory {
 
     // The unsigned token is the concatenation of the URL-safe base64 encoded header and body.
     const unsignedToken =
-      EncryptionHelper.uint8ArrayToBase64Url(
+      window.uint8ArrayToBase64Url(
         utf8Encoder.encode(JSON.stringify(tokenHeader))
-      ) + '.' + EncryptionHelper.uint8ArrayToBase64Url(
+      ) + '.' + window.uint8ArrayToBase64Url(
         utf8Encoder.encode(JSON.stringify(tokenBody))
       );
 
@@ -512,11 +480,11 @@ export default class EncryptionHelperFactory {
     const key = {
       kty: 'EC',
       crv: 'P-256',
-      x: EncryptionHelper.uint8ArrayToBase64Url(
+      x: window.uint8ArrayToBase64Url(
         vapidKeys.publicKey.slice(1, 33)),
-      y: EncryptionHelper.uint8ArrayToBase64Url(
+      y: window.uint8ArrayToBase64Url(
         vapidKeys.publicKey.slice(33, 65)),
-      d: EncryptionHelper.uint8ArrayToBase64Url(vapidKeys.privateKey)
+      d: window.uint8ArrayToBase64Url(vapidKeys.privateKey)
     };
 
       // Sign the |unsignedToken| with the server's private key to generate the signature.
@@ -533,8 +501,8 @@ export default class EncryptionHelperFactory {
     })
     .then(signature => {
       const jsonWebToken = unsignedToken + '.' +
-        EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(signature));
-      const p256ecdsa = EncryptionHelper.uint8ArrayToBase64Url(
+        window.uint8ArrayToBase64Url(new Uint8Array(signature));
+      const p256ecdsa = window.uint8ArrayToBase64Url(
         vapidKeys.publicKey);
 
       return {

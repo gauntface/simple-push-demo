@@ -67,8 +67,8 @@ describe('Test VAPID', function() {
       (keys.publicKey.length).should.equal(65);
       (keys.privateKey.length).should.equal(32);
 
-      const publicKey = EncryptionHelper.uint8ArrayToBase64Url(keys.publicKey);
-      const privateKey = EncryptionHelper.uint8ArrayToBase64Url(keys.privateKey);
+      const publicKey = window.uint8ArrayToBase64Url(keys.publicKey);
+      const privateKey = window.uint8ArrayToBase64Url(keys.privateKey);
       publicKey.should.equal(VALID_VAPID_KEYS.publicKey);
       privateKey.should.equal(VALID_VAPID_KEYS.privateKey);
     });
@@ -92,10 +92,9 @@ describe('Test VAPID', function() {
 
   it('should generate specific VAPID authentication headers', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.createVapidAuthHeader({
-      publicKey: EncryptionHelper.base64UrlToUint8Array(VALID_VAPID_KEYS.publicKey),
-      privateKey: EncryptionHelper.base64UrlToUint8Array(VALID_VAPID_KEYS.privateKey)
+      publicKey: window.base64UrlToUint8Array(VALID_VAPID_KEYS.publicKey),
+      privateKey: window.base64UrlToUint8Array(VALID_VAPID_KEYS.privateKey)
     }, 'https://fcm.googleapis.com', 'mailto:simple-push-demo@gauntface.co.uk', VALID_OUTPUT.expiration)
     .then(authHeaders => {
       (authHeaders instanceof Object).should.equal(true);
