@@ -3,9 +3,8 @@
     "babel-preset-es2015": "^6.0.15",
     "babelify": "^7.2.0",
     "browser-sync": "^2.10.0",
-    "browserify": "^13.0.0",
     "chai": "^3.4.1",
-    "del": "^2.0.2",
+    "del": "^2.2.0",
     "eslint": "^2.8.0",
     "eslint-config-google": "^0.5.0",
     "express": "^4.13.3",
@@ -19,18 +18,15 @@
     "gulp-minify-html": "^1.0.4",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.4",
-    "gulp-sourcemaps": "^1.6.0",
     "gulp-streamify": "^1.0.2",
-    "gulp-uglify": "^1.5.1",
     "gulp-util": "^3.0.6",
+    "mkdirp": "^0.5.1",
     "mocha": "^2.3.4",
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
     "selenium-webdriver": "^2.53.2",
-    "sw-testing-helpers": "0.0.15",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "sw-testing-helpers": "0.1.1"
   },
   "engines": {
     "node": ">=0.10.0"

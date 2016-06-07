@@ -20,13 +20,16 @@
 // documentation here: http://selenium.googlecode.com/git/docs/api/javascript/index.html
 
 require('chai').should();
+const fs = require('fs');
+const del = require('del');
 const path = require('path');
+const mkdirp = require('mkdirp');
 const SWTestingHelpers = require('sw-testing-helpers');
 const TestServer = SWTestingHelpers.TestServer;
 const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
 const mochaUtils = SWTestingHelpers.mochaUtils;
 const seleniumFirefox = require('selenium-webdriver/firefox');
-const exec = require('child_process').exec;
+const seleniumChrome = require('selenium-webdriver/chrome');
 
 describe('Test simple-push-demo', function() {
   // Browser tests can be slow
@@ -77,6 +80,32 @@ describe('Test simple-push-demo', function() {
           };
           browserInfo.getSeleniumOptions().setUserPreferences(chromePreferences);
           /* eslint-enable camelcase */
+        } else if (browserInfo.getSeleniumBrowserId() === 'opera') {
+          /* eslint-disable camelcase */
+          const operaPreferences = {
+            profile: {
+              content_settings: {
+                exceptions: {
+                  notifications: {}
+                }
+              }
+            }
+          };
+          operaPreferences.profile.content_settings.exceptions.notifications[testServerURL + ',*'] = {
+            last_used: 1464967088.793686,
+            setting: [1, 1464967088.793686]
+          };
+          // Write to file
+          const tempPreferenceFile = './test/output/temp/opera';
+          mkdirp.sync(tempPreferenceFile);
+
+          fs.writeFileSync(`${tempPreferenceFile}/Preferences`, JSON.stringify(operaPreferences));
+          /* eslint-enable camelcase */
+          const options = browserInfo.getSeleniumOptions();
+          // const newOptions = new seleniumChrome.Options();
+          // newOptions.setChromeBinaryPath(browserInfo._getExecutablePath());
+          options.addArguments(`user-data-dir=${tempPreferenceFile}/`);
+          // browserInfo.setSeleniumOptions(newOptions);
         }
 
         globalDriverReference = browserInfo.getSeleniumDriver();
@@ -85,7 +114,10 @@ describe('Test simple-push-demo', function() {
       afterEach(function() {
         this.timeout(10000);
 
-        return automatedBrowserTesting.killWebDriver(globalDriverReference);
+        return automatedBrowserTesting.killWebDriver(globalDriverReference)
+        .then(() => {
+          return del('./test/output/');
+        });
       });
 
       it(`should pass all browser tests`, () => {
@@ -198,7 +230,7 @@ describe('Test simple-push-demo', function() {
               });
             });
           })
-          .then(() => {
+          /** .then(() => {
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeScript(function() {
                 const curlCodeElement = document.querySelector('.js-curl-code');
@@ -215,7 +247,7 @@ describe('Test simple-push-demo', function() {
           })
           .then(curlCommand => {
             curlCommand.length.should.be.above(0);
-          })
+          })**/
           .then(() => {
             // Click XHR Button
             return globalDriverReference.executeScript(function() {
@@ -276,7 +308,7 @@ describe('Test simple-push-demo', function() {
         });
       });
 
-      it(`should be able to enter payload text, trigger a push via curl or fetch and receive a push message in ${browserInfo.getPrettyName()}`, function() {
+      it(`should be able to enter payload text and receive a push message in ${browserInfo.getPrettyName()}`, function() {
         // This is to handle the fact that selenium-webdriver doesn't use native
         // promises.
         return new Promise((resolve, reject) => {
@@ -331,7 +363,7 @@ describe('Test simple-push-demo', function() {
               });
             });
           })
-          .then(() => {
+          /** .then(() => {
             // Wait until curl command / general state is good to go
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeScript(function() {
@@ -339,7 +371,7 @@ describe('Test simple-push-demo', function() {
                 return curlCodeElement.textContent.length > 0;
               });
             });
-          })
+          })**/
           .then(() => {
             // Add Payload text
             return globalDriverReference.executeScript(function(payloadText) {
@@ -351,7 +383,7 @@ describe('Test simple-push-demo', function() {
               textfield.oninput();
             }, PAYLOAD_TEST);
           })
-          .then(() => {
+          /** .then(() => {
             // Wait until curl command / general state is good to go
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeScript(function() {
@@ -359,25 +391,15 @@ describe('Test simple-push-demo', function() {
                 return stateMsg.textContent.length > 0;
               });
             });
-          })
+          })**/
           .then(() => {
             // Attempt to trigger push via fetch button
             return globalDriverReference.executeScript(function() {
-              const buttonContainer = document.querySelector('.js-xhr-button-container');
-              if (buttonContainer.style.display === 'none') {
-                return false;
-              }
-
               const pushButton = document.querySelector('.js-send-push-button');
               pushButton.click();
-              return true;
             });
           })
-          .then(triggeredNotification => {
-            if (triggeredNotification) {
-              return;
-            }
-
+          /** .then(() => {
             // Trigger notification via curl
             return globalDriverReference.executeScript(function() {
               const curlCodeElement = document.querySelector('.js-curl-code');
@@ -400,7 +422,7 @@ describe('Test simple-push-demo', function() {
                 });
               });
             });
-          })
+          })**/
           .then(() => {
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeAsyncScript(function() {
@@ -458,10 +480,24 @@ describe('Test simple-push-demo', function() {
 
   const automatedBrowsers = automatedBrowserTesting.getDiscoverableBrowsers();
   automatedBrowsers.forEach(browserInfo => {
+    if (process.env.TRAVIS || process.env.RELEASE_SCRIPT) {
+      if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
+        browserInfo.getVersionNumber() <= 49) {
+        // 49 has issues with marionette / permission issues.
+        return;
+      }
+    }
+
     if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
-      browserInfo.getReleaseName() === 'beta') {
+        browserInfo.getVersionNumber() <= 47) {
       // There is a bug in Firefox version 47 that prevents mocha tests
       // results being returned
+      return;
+    }
+
+    if (browserInfo.getSeleniumBrowserId() === 'opera' &&
+        browserInfo.getVersionNumber() <= 39) {
+      // Opera has no feature detect for push support, so bail
       return;
     }
 

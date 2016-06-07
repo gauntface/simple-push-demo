@@ -2,11 +2,13 @@
 
 /* eslint-env browser */
 
-export default class PushClient {
+class PushClient {
 
-  constructor(stateChangeCb, subscriptionUpdate) {
+  constructor(stateChangeCb, subscriptionUpdate, publicAppKey) {
     this._stateChangeCb = stateChangeCb;
     this._subscriptionUpdate = subscriptionUpdate;
+
+    this._publicApplicationKey = publicAppKey;
 
     this._state = {
       UNSUPPORTED: {
@@ -75,7 +77,8 @@ export default class PushClient {
       return;
     }
 
-    navigator.serviceWorker.ready.then(() => {
+    navigator.serviceWorker.ready
+    .then(() => {
       this._stateChangeCb(this._state.INITIALISING);
       this.setUpPushPermission();
     });
@@ -121,7 +124,7 @@ export default class PushClient {
       this._subscriptionUpdate(subscription);
     })
     .catch(err => {
-      console.log(err);
+      console.log('setUpPushPermission() ', err);
       this._stateChangeCb(this._state.ERROR, err);
     });
   }
@@ -152,8 +155,13 @@ export default class PushClient {
       // We need the service worker registration to access the push manager
       return navigator.serviceWorker.ready
       .then(serviceWorkerRegistration => {
+        let publicServerKey = new Uint8Array(65);
+        publicServerKey[0] = 0x04;
         return serviceWorkerRegistration.pushManager.subscribe(
-          {userVisibleOnly: true}
+          {
+            userVisibleOnly: true,
+            applicationServerKey: this._publicApplicationKey
+          }
         );
       })
       .then(subscription => {
@@ -189,9 +197,8 @@ export default class PushClient {
         return;
       }
 
-      // TODO: Remove the device details from the server
-      // i.e. the pushSubscription.subscriptionId and
-      // pushSubscription.endpoint
+      // You should remove the device details from the server
+      // i.e. the  pushSubscription.endpoint
       return pushSubscription.unsubscribe()
       .then(function(successful) {
         if (!successful) {
@@ -212,4 +219,8 @@ export default class PushClient {
         'Most likely because push was never registered', err);
     });
   }
+}
+
+if (window) {
+  window.PushClient = PushClient;
 }

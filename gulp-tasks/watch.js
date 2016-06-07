@@ -27,7 +27,7 @@ const runSequence = require('run-sequence');
  * will automatically pick it up and run it.
  *
  */
-gulp.task('watch', function() {
+gulp.task('watch', ['default'], function() {
   // Get all of the gulp task names
   const taskNames = Object.keys(gulp.tasks);
 
@@ -35,7 +35,7 @@ gulp.task('watch', function() {
   const gulpWatchTasks = [];
 
   // Loop over all tasknames
-  for (var i = 0; i < taskNames.length; i++) {
+  for (let i = 0; i < taskNames.length; i++) {
     const taskName = taskNames[i];
 
     // Split tasks on the ':' character

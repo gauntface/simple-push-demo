@@ -94,8 +94,8 @@ describe('Test Web Push Encryption', function() {
       (keys.publicKey.length).should.equal(65);
       (keys.privateKey.length).should.equal(32);
 
-      const publicKey = EncryptionHelper.uint8ArrayToBase64Url(keys.publicKey);
-      const privateKey = EncryptionHelper.uint8ArrayToBase64Url(keys.privateKey);
+      const publicKey = window.uint8ArrayToBase64Url(keys.publicKey);
+      const privateKey = window.uint8ArrayToBase64Url(keys.privateKey);
       publicKey.should.equal(VALID_SERVER_KEYS.publicKey);
       privateKey.should.equal(VALID_SERVER_KEYS.privateKey);
     });
@@ -106,7 +106,6 @@ describe('Test Web Push Encryption', function() {
      * Referred to as IKM on https://tests.peter.sh/push-encryption-verifier/
      */
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS
     })
@@ -115,7 +114,7 @@ describe('Test Web Push Encryption', function() {
     })
     .then(sharedSecret => {
       (sharedSecret instanceof ArrayBuffer).should.equal(true);
-      const base64Secret = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(sharedSecret));
+      const base64Secret = window.uint8ArrayToBase64Url(new Uint8Array(sharedSecret));
       base64Secret.should.equal(VALID_OUTPUT.sharedSecret);
     });
   });
@@ -132,14 +131,13 @@ describe('Test Web Push Encryption', function() {
 
   it('should use defined salt', function() {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
     })
     .then(testEncryption => {
       (testEncryption.getSalt() instanceof Uint8Array).should.equal(true);
-      const base64Salt = EncryptionHelper.uint8ArrayToBase64Url(testEncryption.getSalt());
+      const base64Salt = window.uint8ArrayToBase64Url(testEncryption.getSalt());
       base64Salt.should.equal(VALID_SALT);
     });
   });
@@ -159,7 +157,6 @@ describe('Test Web Push Encryption', function() {
 
   it('should generate a context with the expected output', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
@@ -170,7 +167,7 @@ describe('Test Web Push Encryption', function() {
     .then(context => {
       (context instanceof Uint8Array).should.equal(true);
       context.byteLength.should.equal(5 + 1 + 2 + 65 + 2 + 65);
-      const base64Context = EncryptionHelper.uint8ArrayToBase64Url(context);
+      const base64Context = window.uint8ArrayToBase64Url(context);
       base64Context.should.equal(VALID_OUTPUT.context);
     });
   });
@@ -189,7 +186,6 @@ describe('Test Web Push Encryption', function() {
 
   it('should generate the specific cekInfo', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
@@ -202,7 +198,7 @@ describe('Test Web Push Encryption', function() {
       cekInfo.byteLength.should.equal(24 + 1 + 5 + 1 + 2 + 65 + 2 + 65);
 
       // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
-      const base64CekInfo = EncryptionHelper.uint8ArrayToBase64Url(cekInfo);
+      const base64CekInfo = window.uint8ArrayToBase64Url(cekInfo);
       base64CekInfo.should.equal(VALID_OUTPUT.cekInfo);
     });
   });
@@ -221,7 +217,6 @@ describe('Test Web Push Encryption', function() {
 
   it('should generate the specific nonceInfo', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
@@ -234,34 +229,32 @@ describe('Test Web Push Encryption', function() {
       nonceInfo.byteLength.should.equal(23 + 1 + 5 + 1 + 2 + 65 + 2 + 65);
 
       // See: https://martinthomson.github.io/http-encryption/#rfc.section.4.2
-      const base64NonceInfo = EncryptionHelper.uint8ArrayToBase64Url(nonceInfo);
+      const base64NonceInfo = window.uint8ArrayToBase64Url(nonceInfo);
       base64NonceInfo.should.equal(VALID_OUTPUT.nonceInfo);
     });
   });
 
   it('should have a working HMAC implementation', () => {
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     const HMAC = window.gauntface.HMAC;
-    const hmac = new HMAC(EncryptionHelper.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'));
-    return hmac.sign(EncryptionHelper.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'))
+    const hmac = new HMAC(window.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'));
+    return hmac.sign(window.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'))
     .then(prk => {
       (prk instanceof ArrayBuffer).should.equal(true);
-      const base64Prk = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(prk));
+      const base64Prk = window.uint8ArrayToBase64Url(new Uint8Array(prk));
       base64Prk.should.equal('hTx0A5N9i2I5VpsYTreZP8X3Ua786ijyyGOFji0pxQs');
     });
   });
 
   it('should have a working HKDF implementation', () => {
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     const HKDF = window.gauntface.HKDF;
     const hkdf = new HKDF(
-      EncryptionHelper.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'),
-      EncryptionHelper.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA')
+      window.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'),
+      window.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA')
     );
-    return hkdf.generate(EncryptionHelper.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'), 16)
+    return hkdf.generate(window.base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'), 16)
     .then(hkdfOutput => {
       (hkdfOutput instanceof ArrayBuffer).should.equal(true);
-      const base64HKDFOutput = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(hkdfOutput));
+      const base64HKDFOutput = window.uint8ArrayToBase64Url(new Uint8Array(hkdfOutput));
       base64HKDFOutput.should.equal('cS9spnQtVwB3AuvBt3wglw');
     });
   });
@@ -279,7 +272,6 @@ describe('Test Web Push Encryption', function() {
 
   it('should generate the specific pseudo random key', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
@@ -290,7 +282,7 @@ describe('Test Web Push Encryption', function() {
     .then(prk => {
       (prk instanceof ArrayBuffer).should.equal(true);
 
-      const base64prk = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(prk));
+      const base64prk = window.uint8ArrayToBase64Url(new Uint8Array(prk));
       base64prk.should.equal(VALID_OUTPUT.prk);
     });
   });
@@ -312,7 +304,6 @@ describe('Test Web Push Encryption', function() {
 
   it('should generate the specific encryption keys', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
@@ -327,10 +318,10 @@ describe('Test Web Push Encryption', function() {
       new Uint8Array(keys.contentEncryptionKey).byteLength.should.equal(16);
       new Uint8Array(keys.nonce).byteLength.should.equal(12);
 
-      const base64cek = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(keys.contentEncryptionKey));
+      const base64cek = window.uint8ArrayToBase64Url(new Uint8Array(keys.contentEncryptionKey));
       base64cek.should.equal(VALID_OUTPUT.contentEncryptionKey);
 
-      const base64nonce = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(keys.nonce));
+      const base64nonce = window.uint8ArrayToBase64Url(new Uint8Array(keys.nonce));
       base64nonce.should.equal(VALID_OUTPUT.nonce);
     });
   });
@@ -351,7 +342,6 @@ describe('Test Web Push Encryption', function() {
 
   it('should encrypt message to a specific value', () => {
     const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
       salt: VALID_SALT
@@ -365,7 +355,7 @@ describe('Test Web Push Encryption', function() {
       (typeof encryptedPayload.publicServerKey === 'string').should.equal(true);
       (typeof encryptedPayload.salt === 'string').should.equal(true);
 
-      const base64EncryptedPayload = EncryptionHelper.uint8ArrayToBase64Url(new Uint8Array(encryptedPayload.cipherText));
+      const base64EncryptedPayload = window.uint8ArrayToBase64Url(new Uint8Array(encryptedPayload.cipherText));
       base64EncryptedPayload.should.equal(VALID_OUTPUT.payload);
     });
   });
