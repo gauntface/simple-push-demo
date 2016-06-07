@@ -1,2 +1,24 @@
-!function n(r,e,t){function i(u,f){if(!e[u]){if(!r[u]){var a="function"==typeof require&&require;if(!f&&a)return a(u,!0);if(o)return o(u,!0);var c=new Error("Cannot find module '"+u+"'");throw c.code="MODULE_NOT_FOUND",c}var s=e[u]={exports:{}};r[u][0].call(s.exports,function(n){var e=r[u][1][n];return i(e?e:n)},s,s.exports,n,r,e,t)}return e[u].exports}for(var o="function"==typeof require&&require,u=0;u<t.length;u++)i(t[u]);return i}({1:[function(n,r,e){"use strict";function t(n,r){if(!(n instanceof r))throw new TypeError("Cannot call a class as a function")}var i=function(){function n(n,r){for(var e=0;e<r.length;e++){var t=r[e];t.enumerable=t.enumerable||!1,t.configurable=!0,"value"in t&&(t.writable=!0),Object.defineProperty(n,t.key,t)}}return function(r,e,t){return e&&n(r.prototype,e),t&&n(r,t),r}}(),o=function(){function n(r){t(this,n),this._ikm=r}return i(n,[{key:"sign",value:function(n){return crypto.subtle.importKey("raw",this._ikm,{name:"HMAC",hash:"SHA-256"},!1,["sign"]).then(function(r){return crypto.subtle.sign("HMAC",r,n)})}}]),n}();"undefined"!=typeof window&&(window.gauntface=window.gauntface||{},window.gauntface.HMAC=o),r.exports=o},{}]},{},[1]);
-//# sourceMappingURL=hmac.js.map
+/* eslint-env browser */
+
+'use strict';
+
+class HMAC {
+  constructor(ikm) {
+    this._ikm = ikm;
+  }
+
+  sign(input) {
+    return crypto.subtle.importKey('raw', this._ikm,
+      {name: 'HMAC', hash: 'SHA-256'}, false, ['sign'])
+    .then(key => {
+      return crypto.subtle.sign('HMAC', key, input);
+    });
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.gauntface = window.gauntface || {};
+  window.gauntface.HMAC = HMAC;
+} else if (module && module.exports) {
+  module.exports = HMAC;
+}

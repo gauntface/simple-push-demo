@@ -1,2 +1,50 @@
-!function t(i,e,n){function o(r,s){if(!e[r]){if(!i[r]){var c="function"==typeof require&&require;if(!s&&c)return c(r,!0);if(a)return a(r,!0);var l=new Error("Cannot find module '"+r+"'");throw l.code="MODULE_NOT_FOUND",l}var f=e[r]={exports:{}};i[r][0].call(f.exports,function(t){var e=i[r][1][t];return o(e?e:t)},f,f.exports,t,i,e,n)}return e[r].exports}for(var a="function"==typeof require&&require,r=0;r<n.length;r++)o(n[r]);return o}({1:[function(t,i,e){"use strict";importScripts("./scripts/analytics.js"),self.analytics.trackingId="UA-77119321-2",self.addEventListener("push",function(t){console.log("Received push");var i="Hello",e={body:"Thanks for sending this push msg.",icon:"./images/icon-192x192.png",tag:"simple-push-demo-notification",data:{url:"https://developers.google.com/web/fundamentals/getting-started/push-notifications/"}};if(t.data){var n=t.data.text();i="Received Payload",e.body="Push data: '"+n+"'"}t.waitUntil(Promise.all([self.registration.showNotification(i,e),self.analytics.trackEvent("push-received")]))}),self.addEventListener("notificationclick",function(t){t.notification.close();var i=Promise.resolve();t.notification.data&&t.notification.data.url&&(i=clients.openWindow(t.notification.data.url)),t.waitUntil(Promise.all([i,self.analytics.trackEvent("notification-click")]))})},{}]},{},[1]);
-//# sourceMappingURL=service-worker.js.map
+'use strict';
+
+/* eslint-env browser, serviceworker */
+
+importScripts('./scripts/analytics.js');
+
+self.analytics.trackingId = 'UA-77119321-2';
+
+self.addEventListener('push', function(event) {
+  console.log('Received push');
+  let notificationTitle = 'Hello';
+  const notificationOptions = {
+    body: 'Thanks for sending this push msg.',
+    icon: './images/icon-192x192.png',
+    tag: 'simple-push-demo-notification',
+    data: {
+      url: 'https://developers.google.com/web/fundamentals/getting-started/push-notifications/'
+    }
+  };
+
+  if (event.data) {
+    const dataText = event.data.text();
+    notificationTitle = 'Received Payload';
+    notificationOptions.body = `Push data: '${dataText}'`;
+  }
+
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(
+        notificationTitle, notificationOptions),
+      self.analytics.trackEvent('push-received')
+    ])
+  );
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+
+  let clickResponsePromise = Promise.resolve();
+  if (event.notification.data && event.notification.data.url) {
+    clickResponsePromise = clients.openWindow(event.notification.data.url);
+  }
+
+  event.waitUntil(
+    Promise.all([
+      clickResponsePromise,
+      self.analytics.trackEvent('notification-click')
+    ])
+  );
+});

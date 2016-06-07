@@ -1,2 +1,35 @@
-!function n(e,t,r){function i(o,a){if(!t[o]){if(!e[o]){var f="function"==typeof require&&require;if(!a&&f)return f(o,!0);if(u)return u(o,!0);var c=new Error("Cannot find module '"+o+"'");throw c.code="MODULE_NOT_FOUND",c}var s=t[o]={exports:{}};e[o][0].call(s.exports,function(n){var t=e[o][1][n];return i(t?t:n)},s,s.exports,n,e,t,r)}return t[o].exports}for(var u="function"==typeof require&&require,o=0;o<r.length;o++)i(r[o]);return i}({1:[function(n,e,t){"use strict";function r(n,e){if(!(n instanceof e))throw new TypeError("Cannot call a class as a function")}var i=function(){function n(n,e){for(var t=0;t<e.length;t++){var r=e[t];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(n,r.key,r)}}return function(e,t,r){return t&&n(e.prototype,t),r&&n(e,r),e}}(),u=function(){function n(e){r(this,n),this._ikm=e}return i(n,[{key:"sign",value:function(n){return crypto.subtle.importKey("raw",this._ikm,{name:"HMAC",hash:"SHA-256"},!1,["sign"]).then(function(e){return crypto.subtle.sign("HMAC",e,n)})}}]),n}();"undefined"!=typeof window&&(window.gauntface=window.gauntface||{},window.gauntface.HMAC=u);var o=function(){function n(e,t){r(this,n),this._ikm=e,this._salt=t,this._hmac=new u(t)}return i(n,[{key:"generate",value:function(n,e){var t=new Uint8Array(n.byteLength+1);return t.set(n,0),t.set(new Uint8Array(1).fill(1),n.byteLength),this._hmac.sign(this._ikm).then(function(n){var e=new u(n);return e.sign(t)}).then(function(n){return n.slice(0,e)})}}]),n}();"undefined"!=typeof window&&(window.gauntface=window.gauntface||{},window.gauntface.HKDF=o),e.exports=o},{}]},{},[1]);
-//# sourceMappingURL=hkdf.js.map
+/* global HMAC */
+/* eslint-env browser */
+
+'use strict';
+
+class HKDF {
+  constructor(ikm, salt) {
+    this._ikm = ikm;
+    this._salt = salt;
+
+    this._hmac = new HMAC(salt);
+  }
+
+  generate(info, byteLength) {
+    const fullInfoBuffer = new Uint8Array(info.byteLength + 1);
+    fullInfoBuffer.set(info, 0);
+    fullInfoBuffer.set(new Uint8Array(1).fill(1), info.byteLength);
+
+    return this._hmac.sign(this._ikm)
+    .then(prk => {
+      const nextHmac = new HMAC(prk);
+      return nextHmac.sign(fullInfoBuffer);
+    })
+    .then(nextPrk => {
+      return nextPrk.slice(0, byteLength);
+    });
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.gauntface = window.gauntface || {};
+  window.gauntface.HKDF = HKDF;
+} else if (module && module.exports) {
+  module.exports = HKDF;
+}
