@@ -234,7 +234,7 @@ class AppController {
         bodyFormat.textContent = 'String';
         bodyContent.textContent = requestInfo.body;
 
-        curlCommand += ` -d "${requestInfo.body}"`;
+        curlCommand += ` -d ${JSON.stringify(requestInfo.body)}`;
       } else {
         bodyFormat.textContent = 'No Body';
         bodyContent.textContent = 'N/A';
