@@ -24,6 +24,8 @@ const fs = require('fs');
 const del = require('del');
 const path = require('path');
 const mkdirp = require('mkdirp');
+const exec = require('child_process').exec;
+const seleniumAssistant = require('selenium-assistant');
 const SWTestingHelpers = require('sw-testing-helpers');
 const TestServer = SWTestingHelpers.TestServer;
 const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
@@ -108,7 +110,10 @@ describe('Test simple-push-demo', function() {
           // browserInfo.setSeleniumOptions(newOptions);
         }
 
-        globalDriverReference = browserInfo.getSeleniumDriver();
+        return browserInfo.getSeleniumDriver()
+        .then(driver => {
+          globalDriverReference = driver;
+        });
       });
 
       afterEach(function() {
@@ -230,7 +235,122 @@ describe('Test simple-push-demo', function() {
               });
             });
           })
-          /** .then(() => {
+          .then(() => {
+            // Click XHR Button
+            return globalDriverReference.executeScript(function() {
+              const pushButton = document.querySelector('.js-send-push-button');
+              pushButton.click();
+            });
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeAsyncScript(function() {
+                const cb = arguments[arguments.length - 1];
+                navigator.serviceWorker.getRegistration()
+                .then(registration => {
+                  return registration.getNotifications();
+                })
+                .then(notifications => {
+                  cb(notifications.length > 0);
+                });
+              }, 2000);
+            });
+          })
+          .then(() => {
+            // Detect notification
+            return globalDriverReference.executeAsyncScript(function() {
+              const cb = arguments[arguments.length - 1];
+              navigator.serviceWorker.getRegistration()
+              .then(registration => {
+                return registration.getNotifications();
+              })
+              .then(notifications => {
+                const notificationInfo = [];
+                notifications.forEach(notification => {
+                  notificationInfo.push({
+                    title: notification.title,
+                    body: notification.body,
+                    icon: notification.icon,
+                    tag: notification.tag
+                  });
+
+                  notification.close();
+                });
+                cb(notificationInfo);
+              });
+            }, 2000);
+          })
+          .then(notificationInfo => {
+            notificationInfo.length.should.equal(1);
+            notificationInfo[0].title.should.equal('Hello');
+            notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
+            notificationInfo[0].tag.should.equal('simple-push-demo-notification');
+
+            // Chrome adds the origin, FF doesn't
+            const notifcationImg = '/images/icon-192x192.png';
+            notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+          })
+          .then(resolve)
+          .thenCatch(reject);
+        });
+      });
+
+      it(`should be able to trigger and receive a tickle via CURL`, function() {
+        // This is to handle the fact that selenium-webdriver doesn't use native
+        // promises.
+        return new Promise((resolve, reject) => {
+          // Load simple push demo page
+          globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .then(() => {
+            return globalDriverReference.get(`${testServerURL}/build/`);
+          })
+          .then(() => {
+            if (browserInfo.getSeleniumBrowserId() === 'firefox') {
+              return globalDriverReference.executeScript(function() {
+                /* eslint-env browser */
+                /* globals Components,Services */
+                window.netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+                Components.utils.import('resource://gre/modules/Services.jsm');
+                const uri = Services.io.newURI(window.location.origin, null, null);
+                const principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(uri);
+                Services.perms.addFromPrincipal(principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
+              });
+            }
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                return document.body.dataset.simplePushDemoLoaded;
+              });
+            });
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+                return toggleSwitch.disabled === false;
+              });
+            });
+          })
+          .then(() => {
+            // Toggle subscription switch
+            return globalDriverReference.executeScript(function() {
+              /* eslint-env browser */
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              if (!toggleSwitch.checked) {
+                toggleSwitch.click();
+              }
+            });
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+                return toggleSwitch.disabled === false && toggleSwitch.checked;
+              });
+            });
+          })
+          .then(() => {
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeScript(function() {
                 const curlCodeElement = document.querySelector('.js-curl-code');
@@ -247,12 +367,25 @@ describe('Test simple-push-demo', function() {
           })
           .then(curlCommand => {
             curlCommand.length.should.be.above(0);
-          })**/
-          .then(() => {
-            // Click XHR Button
-            return globalDriverReference.executeScript(function() {
-              const pushButton = document.querySelector('.js-send-push-button');
-              pushButton.click();
+
+            // Need to use the curl command
+            return new Promise((resolve, reject) => {
+              exec(curlCommand, (error, stdout) => {
+                if (error !== null) {
+                  return reject(error);
+                }
+
+                if (stdout) {
+                  const gcmResponse = JSON.parse(stdout);
+                  if (gcmResponse.failure === 0) {
+                    resolve();
+                  } else {
+                    reject('Bad GCM Response: ' + stdout);
+                  }
+                } else {
+                  resolve();
+                }
+              });
             });
           })
           .then(() => {
@@ -363,15 +496,6 @@ describe('Test simple-push-demo', function() {
               });
             });
           })
-          /** .then(() => {
-            // Wait until curl command / general state is good to go
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const curlCodeElement = document.querySelector('.js-curl-code');
-                return curlCodeElement.textContent.length > 0;
-              });
-            });
-          })**/
           .then(() => {
             // Add Payload text
             return globalDriverReference.executeScript(function(payloadText) {
@@ -383,15 +507,6 @@ describe('Test simple-push-demo', function() {
               textfield.oninput();
             }, PAYLOAD_TEST);
           })
-          /** .then(() => {
-            // Wait until curl command / general state is good to go
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const stateMsg = document.querySelector('.js-state-msg');
-                return stateMsg.textContent.length > 0;
-              });
-            });
-          })**/
           .then(() => {
             // Attempt to trigger push via fetch button
             return globalDriverReference.executeScript(function() {
@@ -399,30 +514,6 @@ describe('Test simple-push-demo', function() {
               pushButton.click();
             });
           })
-          /** .then(() => {
-            // Trigger notification via curl
-            return globalDriverReference.executeScript(function() {
-              const curlCodeElement = document.querySelector('.js-curl-code');
-              return curlCodeElement.textContent;
-            })
-            .then(curlCommand => {
-              // Need to use the curl command
-              return new Promise((resolve, reject) => {
-                exec(curlCommand, (error, stdout) => {
-                  if (error !== null) {
-                    return reject(error);
-                  }
-
-                  const gcmResponse = JSON.parse(stdout);
-                  if (gcmResponse.failure === 0) {
-                    resolve();
-                  } else {
-                    reject('Bad GCM Response: ' + stdout);
-                  }
-                });
-              });
-            });
-          })**/
           .then(() => {
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeAsyncScript(function() {
@@ -475,24 +566,185 @@ describe('Test simple-push-demo', function() {
           .thenCatch(reject);
         });
       });
+
+      it(`should be able to trigger and receive a message with payload via CURL or unless no CURL command is shown`, function() {
+        // This is to handle the fact that selenium-webdriver doesn't use native
+        // promises.
+        return new Promise((resolve, reject) => {
+          // Load simple push demo page
+          globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .then(() => {
+            return globalDriverReference.get(`${testServerURL}/build/`);
+          })
+          .then(() => {
+            if (browserInfo.getSeleniumBrowserId() === 'firefox') {
+              return globalDriverReference.executeScript(function() {
+                /* eslint-env browser */
+                /* globals Components,Services */
+                window.netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
+                Components.utils.import('resource://gre/modules/Services.jsm');
+                const uri = Services.io.newURI(window.location.origin, null, null);
+                const principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(uri);
+                Services.perms.addFromPrincipal(principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
+              });
+            }
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                return document.body.dataset.simplePushDemoLoaded;
+              });
+            });
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+                return toggleSwitch.disabled === false;
+              });
+            });
+          })
+          .then(() => {
+            // Toggle subscription switch
+            return globalDriverReference.executeScript(function() {
+              /* eslint-env browser */
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              if (!toggleSwitch.checked) {
+                toggleSwitch.click();
+              }
+            });
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+                return toggleSwitch.disabled === false && toggleSwitch.checked;
+              });
+            });
+          })
+          .then(() => {
+            // Add Payload text
+            return globalDriverReference.executeScript(function(payloadText) {
+              const textfield = document.querySelector('.js-payload-textfield');
+              textfield.value = payloadText;
+
+              // This triggers the logic to hide / display options for
+              // triggering push messages
+              textfield.oninput();
+            }, PAYLOAD_TEST);
+          })
+          .then(() => {
+            return globalDriverReference.wait(function() {
+              return globalDriverReference.executeScript(function() {
+                const curlCodeElement = document.querySelector('.js-curl-code');
+                return curlCodeElement.textContent.length > 0;
+              });
+            });
+          })
+          .then(() => {
+            // Check curl command exists
+            return globalDriverReference.executeScript(function() {
+              const curlCodeElement = document.querySelector('.js-curl-code');
+              if (curlCodeElement.style.display === 'none') {
+                return '';
+              }
+
+              return curlCodeElement.textContent;
+            });
+          })
+          .then(curlCommand => {
+            if (curlCommand.length > 0) {
+              // Need to use the curl command
+              return new Promise((resolve, reject) => {
+                exec(curlCommand, (error, stdout) => {
+                  if (error !== null) {
+                    return reject(error);
+                  }
+
+                  if (stdout) {
+                    const gcmResponse = JSON.parse(stdout);
+                    if (gcmResponse.failure === 0) {
+                      resolve();
+                    } else {
+                      reject('Bad GCM Response: ' + stdout);
+                    }
+                  } else {
+                    resolve();
+                  }
+                });
+              })
+              .then(() => {
+                return globalDriverReference.wait(function() {
+                  return globalDriverReference.executeAsyncScript(function() {
+                    const cb = arguments[arguments.length - 1];
+                    navigator.serviceWorker.getRegistration()
+                    .then(registration => {
+                      return registration.getNotifications();
+                    })
+                    .then(notifications => {
+                      cb(notifications.length > 0);
+                    });
+                  }, 2000);
+                });
+              })
+              .then(() => {
+                // Detect notification
+                return globalDriverReference.executeAsyncScript(function() {
+                  const cb = arguments[arguments.length - 1];
+                  navigator.serviceWorker.getRegistration()
+                  .then(registration => {
+                    return registration.getNotifications();
+                  })
+                  .then(notifications => {
+                    const notificationInfo = [];
+                    notifications.forEach(notification => {
+                      notificationInfo.push({
+                        title: notification.title,
+                        body: notification.body,
+                        icon: notification.icon,
+                        tag: notification.tag
+                      });
+
+                      notification.close();
+                    });
+                    cb(notificationInfo);
+                  });
+                }, 2000);
+              })
+              .then(notificationInfo => {
+                notificationInfo.length.should.equal(1);
+                notificationInfo[0].title.should.equal('Received Payload');
+                notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
+                notificationInfo[0].tag.should.equal('simple-push-demo-notification');
+
+                // Chrome adds the origin, FF doesn't
+                const notifcationImg = '/images/icon-192x192.png';
+                notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+              });
+            }
+          })
+          .then(resolve)
+          .thenCatch(reject);
+        });
+      });
     });
   };
 
-  const automatedBrowsers = automatedBrowserTesting.getDiscoverableBrowsers();
-  automatedBrowsers.forEach(browserInfo => {
+  seleniumAssistant.printAvailableBrowserInfo();
+  const browsers = seleniumAssistant.getAvailableBrowsers();
+  browsers.forEach(browserInfo => {
     if (process.env.TRAVIS || process.env.RELEASE_SCRIPT) {
+      if (browserInfo.getSeleniumBrowserId() === 'firefox') {
+          // Marionette doesn't allow tests to auto-approve notifications :(
+          // No firefox tests for now.
+          return;
+      }
+
       if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
         browserInfo.getVersionNumber() <= 49) {
         // 49 has issues with marionette / permission issues.
         return;
       }
-    }
-
-    if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
-        browserInfo.getVersionNumber() <= 47) {
-      // There is a bug in Firefox version 47 that prevents mocha tests
-      // results being returned
-      return;
     }
 
     if (browserInfo.getSeleniumBrowserId() === 'opera' &&
