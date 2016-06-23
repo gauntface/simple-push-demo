@@ -653,6 +653,7 @@ describe('Test simple-push-demo', function() {
             });
           })
           .then(curlCommand => {
+            console.log('CURL Command: ' + curlCommand);
             if (curlCommand.length > 0) {
               // Need to use the curl command
               return new Promise((resolve, reject) => {
