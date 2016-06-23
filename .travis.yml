@@ -9,26 +9,20 @@ node_js:
 env:
   global:
   - GH_REF: github.com/gauntface/simple-push-demo.git
-  - FF_BETA_PATH: './firefox/firefox'
-addons:
-  # You can't install latest and beta as addons
-  firefox: latest
-  apt:
-    sources:
-      - google-chrome
-    packages:
-      - google-chrome-stable
-      - google-chrome-beta
 
 before_install:
   # Get firefox beta and extract to tar for the test runner to use.
   - wget 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' -O firefox-beta.tar.bz2 && tar xvjf firefox-beta.tar.bz2
+
 install:
-- npm install
+  - npm install
+
 # Read more here: https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
 before_script:
   - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
+  - "sh -e /etc/init.d/xvfb start || echo \"Unable to start virtual display.\""
+  - sleep 3 # give xvfb some time to start
+
 script:
 - npm run test
 - "./project/publish-gh-pages.sh"
