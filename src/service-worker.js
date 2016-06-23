@@ -48,3 +48,11 @@ self.addEventListener('notificationclick', function(event) {
     ])
   );
 });
+
+self.addEventListener('notificationclose', function(event) {
+  event.waitUntil(
+    Promise.all([
+      self.analytics.trackEvent('notification-close')
+    ])
+  );
+});
