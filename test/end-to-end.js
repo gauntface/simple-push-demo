@@ -634,6 +634,12 @@ describe('Test simple-push-demo', function() {
             }, PAYLOAD_TEST);
           })
           .then(() => {
+            return new Promise(resolve => {
+              // Slight timeout to ensure the payload is updated on Travis
+              setTimeout(resolve, 500);
+            });
+          })
+          .then(() => {
             return globalDriverReference.wait(function() {
               return globalDriverReference.executeScript(function() {
                 const curlCodeElement = document.querySelector('.js-curl-code');
