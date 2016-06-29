@@ -89,7 +89,7 @@ class AppController {
         this.showErrorMessage(
           'Unable to Register SW',
           'Sorry this demo requires a service worker to work and it ' +
-          'was didn\'t seem to install - sorry :('
+          'failed to install - sorry :('
         );
         console.error(err);
       });
