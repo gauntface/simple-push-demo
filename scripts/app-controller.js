@@ -103,7 +103,6 @@ class AppController {
   }
 
   _stateChangeListener(state, data) {
-    // console.log(state);
     if (typeof state.interactive !== 'undefined') {
       if (state.interactive) {
         this._toggleSwitch.enable();
@@ -386,8 +385,6 @@ class AppController {
     }
 
     fetchOptions.body = JSON.stringify(requestInfo);
-
-    console.log(fetchOptions);
 
     fetch('https://simple-push-demo.appspot.com/api/v2/sendpush', fetchOptions)
     .then(function(response) {
