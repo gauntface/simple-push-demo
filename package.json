@@ -17,7 +17,6 @@
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
     "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.0.4",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-streamify": "^1.0.2",
     "gulp-util": "^3.0.6",

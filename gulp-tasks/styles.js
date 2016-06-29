@@ -40,7 +40,7 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 
 gulp.task('styles:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/**/*.scss',
+  gulp.watch(GLOBAL.config.src + '/**/*.css',
     ['styles', GLOBAL.config.browserSyncReload]);
 });
 
@@ -52,16 +52,15 @@ gulp.task('styles:clean', function(cb) {
     });
 });
 
-gulp.task('styles:sass', function() {
-  let stream = gulp.src(GLOBAL.config.src + '/**/*.scss');
+gulp.task('styles:css', function() {
+  let stream = gulp.src(GLOBAL.config.src + '/**/*.css');
 
   if (GLOBAL.config.env !== 'prod') {
     // Only create sourcemaps for dev
     stream = stream.pipe(sourcemaps.init());
   }
 
-  stream = stream.pipe(sass().on('error', sass.logError))
-    .pipe(autoprefixer(AUTOPREFIXER_BROWSERS));
+  stream = stream.pipe(autoprefixer(AUTOPREFIXER_BROWSERS));
 
   if (GLOBAL.config.env !== 'prod') {
     // Only create sourcemaps for dev
@@ -76,7 +75,7 @@ gulp.task('styles:sass', function() {
 gulp.task('styles', function(cb) {
   runSequence(
     'styles:clean',
-    'styles:sass',
+    'styles:css',
     cb
   );
 });

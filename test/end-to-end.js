@@ -653,7 +653,6 @@ describe('Test simple-push-demo', function() {
             });
           })
           .then(curlCommand => {
-            console.log('CURL Command: ' + curlCommand);
             if (curlCommand.length > 0) {
               // Need to use the curl command
               return new Promise((resolve, reject) => {
@@ -734,18 +733,12 @@ describe('Test simple-push-demo', function() {
   seleniumAssistant.printAvailableBrowserInfo();
   const browsers = seleniumAssistant.getAvailableBrowsers();
   browsers.forEach(browserInfo => {
-    if (process.env.TRAVIS || process.env.RELEASE_SCRIPT) {
-      if (browserInfo.getSeleniumBrowserId() === 'firefox') {
-          // Marionette doesn't allow tests to auto-approve notifications :(
-          // No firefox tests for now.
-          return;
-      }
-
-      if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
-        browserInfo.getVersionNumber() <= 49) {
-        // 49 has issues with marionette / permission issues.
-        return;
-      }
+    // Marionette doesn't support tests auto-approving notifications :(
+    // No firefox tests for now.
+    if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
+      browserInfo.getVersionNumber() <= 50) {
+      // 49 has issues with marionette / permission issues.
+      return;
     }
 
     if (browserInfo.getSeleniumBrowserId() === 'opera' &&
