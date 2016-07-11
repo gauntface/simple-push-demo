@@ -22,6 +22,7 @@ const gulp = require('gulp');
 const del = require('del');
 const eslint = require('gulp-eslint');
 const runSequence = require('run-sequence');
+const babel = require('gulp-babel');
 
 gulp.task('scripts:watch', function() {
   gulp.watch(GLOBAL.config.src + '/**/*.js',
@@ -38,6 +39,9 @@ gulp.task('scripts:copy', ['scripts:clean'], () => {
   return gulp.src([
     GLOBAL.config.src + '/**/*.js'
   ])
+  .pipe(babel({
+    presets: ['es2015']
+  }))
   .pipe(gulp.dest(GLOBAL.config.dest));
 });
 
