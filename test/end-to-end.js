@@ -31,11 +31,12 @@ const TestServer = SWTestingHelpers.TestServer;
 const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
 const mochaUtils = SWTestingHelpers.mochaUtils;
 const seleniumFirefox = require('selenium-webdriver/firefox');
-const seleniumChrome = require('selenium-webdriver/chrome');
 
 describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
+  // Add retries as end to end tests are error prone
+  this.retries(3);
 
   let testServer;
   let testServerURL;
