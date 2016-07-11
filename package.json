@@ -12,7 +12,7 @@
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-clean-css": "^2.0.6",
-    "gulp-eslint": "^2.0.0",
+    "gulp-eslint": "^3.0.0",
     "gulp-imagemin": "^3.0.1",
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
