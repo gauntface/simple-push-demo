@@ -432,8 +432,8 @@ var EncryptionHelperFactory = function () {
       var key = {
         kty: 'EC',
         crv: 'P-256',
-        x: window.uint8ArrayToBase64Url(vapidKeys.publicKey.slice(1, 33)),
-        y: window.uint8ArrayToBase64Url(vapidKeys.publicKey.slice(33, 65)),
+        x: window.uint8ArrayToBase64Url(vapidKeys.publicKey.subarray(1, 33)),
+        y: window.uint8ArrayToBase64Url(vapidKeys.publicKey.subarray(33, 65)),
         d: window.uint8ArrayToBase64Url(vapidKeys.privateKey)
       };
 
