@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "atob": "^2.0.0",
-    "base64url": "^1.0.5",
+    "base64url": "^2.0.0",
     "body-parser": "^1.14.1",
     "request-promise": "^3.0.0",
     "urlsafe-base64": "^1.0.0"
