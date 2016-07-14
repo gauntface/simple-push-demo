@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-es2015": "^6.9.0",
     "babelify": "^7.2.0",
     "browser-sync": "^2.10.0",
     "chai": "^3.4.1",
@@ -11,6 +11,7 @@
     "glob": "^7.0.3",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.1.0",
+    "gulp-babel": "^6.1.2",
     "gulp-clean-css": "^2.0.6",
     "gulp-eslint": "^2.0.0",
     "gulp-imagemin": "^3.0.1",
@@ -25,7 +26,7 @@
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
-    "selenium-assistant": "^0.1.5",
+    "selenium-assistant": "^0.2.0",
     "selenium-webdriver": "^2.53.2",
     "sw-testing-helpers": "0.1.1"
   },
@@ -38,7 +39,7 @@
   },
   "dependencies": {
     "atob": "^2.0.0",
-    "base64url": "^1.0.5",
+    "base64url": "^2.0.0",
     "body-parser": "^1.14.1",
     "request-promise": "^3.0.0",
     "urlsafe-base64": "^1.0.0"
