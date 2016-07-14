@@ -18,12 +18,11 @@ var MaterialComponentsSnippets = function () {
   _createClass(MaterialComponentsSnippets, [{
     key: 'init',
     value: function init() {
-      var _this = this;
-
-      Array.from(this.snippets).forEach(function (snippet) {
-        snippet.addEventListener('click', _this.onMouseClickHandler(snippet));
-        snippet.addEventListener('mouseout', _this.onMouseOutHandler(snippet));
-      });
+      for (var i = 0; i < this.snippets.length; i++) {
+        var snippet = this.snippets[i];
+        snippet.addEventListener('click', this.onMouseClickHandler(snippet));
+        snippet.addEventListener('mouseout', this.onMouseOutHandler(snippet));
+      }
     }
   }, {
     key: 'copyToClipboard',
@@ -45,11 +44,11 @@ var MaterialComponentsSnippets = function () {
   }, {
     key: 'onMouseClickHandler',
     value: function onMouseClickHandler(snippet) {
-      var _this2 = this;
+      var _this = this;
 
       return function () {
         if (!(window.getSelection().toString().length > 0)) {
-          var successful = _this2.copyToClipboard(snippet);
+          var successful = _this.copyToClipboard(snippet);
           snippet.classList.add(successful ? MaterialComponentsSnippets.CssClasses_.COPIED : MaterialComponentsSnippets.CssClasses_.NOT_SUPPORTED);
         }
       };
