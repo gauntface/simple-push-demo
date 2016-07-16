@@ -5,6 +5,11 @@
 The goal of this repo is to demonstrate how to implement push
 notifications into your web app.
 
+## Relevant Docs / Blogs
+
+- [Encrypting Payload Data](https://developers.google.com/web/updates/2016/03/web-push-encryption)
+- [Server Side Libraries to Help Send Push Message](https://github.com/web-push-libs/)
+
 ## Github Pages Demo
 
 Just visit [Github Pages Demo](https://gauntface.github.io/simple-push-demo/).
