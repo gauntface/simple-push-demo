@@ -120,6 +120,9 @@ var AppController = function () {
       }
 
       switch (state.id) {
+        case 'UNSUPPORTED':
+          this.showErrorMessage('Push Not Supported', data);
+          break;
         case 'ERROR':
           this.showErrorMessage('Ooops a Problem Occurred', data);
           break;

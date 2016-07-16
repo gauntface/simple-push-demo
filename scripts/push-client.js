@@ -70,17 +70,17 @@ var PushClient = function () {
     };
 
     if (!('serviceWorker' in navigator)) {
-      this._stateChangeCb(this._state.UNSUPPORTED);
+      this._stateChangeCb(this._state.UNSUPPORTED, 'Service worker not ' + 'available on this browser');
       return;
     }
 
     if (!('PushManager' in window)) {
-      this._stateChangeCb(this._state.UNSUPPORTED);
+      this._stateChangeCb(this._state.UNSUPPORTED, 'PushManager not ' + 'available on this browser');
       return;
     }
 
     if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-      this._stateChangeCb(this._state.UNSUPPORTED);
+      this._stateChangeCb(this._state.UNSUPPORTED, 'Showing Notifications ' + 'from a service worker is not available on this browser');
       return;
     }
 
