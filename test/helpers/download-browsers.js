@@ -7,7 +7,10 @@ const promises = [
   seleniumAssistant.downloadBrowser('firefox', 'unstable'),
   seleniumAssistant.downloadBrowser('chrome', 'stable'),
   seleniumAssistant.downloadBrowser('chrome', 'beta'),
-  seleniumAssistant.downloadBrowser('chrome', 'unstable')
+  seleniumAssistant.downloadBrowser('chrome', 'unstable'),
+  seleniumAssistant.downloadBrowser('opera', 'stable'),
+  seleniumAssistant.downloadBrowser('opera', 'beta'),
+  seleniumAssistant.downloadBrowser('opera', 'unstable')
 ];
 
 Promise.all(promises)
