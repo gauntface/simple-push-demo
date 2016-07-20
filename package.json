@@ -14,7 +14,7 @@
     "gulp-babel": "^6.1.2",
     "gulp-clean-css": "^2.0.6",
     "gulp-eslint": "^2.0.0",
-    "gulp-imagemin": "^3.0.1",
+    "gulp-imagemin": "^3.0.2",
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
     "gulp-rename": "^1.2.2",
