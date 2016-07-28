@@ -6,16 +6,11 @@ window.onload = function() {
   .then(() => {
     document.body.dataset.simplePushDemoLoaded = true;
 
+    const host = "gauntface.github.io";
     if (
-      window.location.protocol.indexOf('https') === -1 &&
-      window.location.hostname !== 'localhost') {
-      appController.showErrorMessage(
-        'You Need to be HTTPs',
-        'Please check out the ' +
-        '<a href="https://gauntface.github.io/simple-push-demo/">HTTPs ' +
-        'version of this page here</a>'
-      );
-      return;
+      window.location.host === host &&
+      window.location.protocol !== "https:") {
+      window.location.protocol = "https";
     }
 
     appController.registerServiceWorker();
