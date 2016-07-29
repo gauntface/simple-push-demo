@@ -8,6 +8,6 @@
       "sizes": "192x192"
     }
   ],
-  "start_url": "/?homescreen=1",
+  "start_url": "https://gauntface.github.io/simple-push-demo/?utm_source=homescreen",
   "display": "standalone"
 }
