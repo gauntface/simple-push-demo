@@ -23,7 +23,6 @@ const del = require('del');
 const runSequence = require('run-sequence');
 const cleanCSS = require('gulp-clean-css');
 const autoprefixer = require('gulp-autoprefixer');
-const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const license = require('gulp-license');
 
