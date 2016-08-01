@@ -22,7 +22,7 @@
     "gulp-streamify": "^1.0.2",
     "gulp-util": "^3.0.6",
     "mkdirp": "^0.5.1",
-    "mocha": "^2.3.4",
+    "mocha": "^3.0.0",
     "operadriver": "^0.2.2",
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
