@@ -12,6 +12,7 @@ self.addEventListener('push', function (event) {
   var notificationOptions = {
     body: 'Thanks for sending this push msg.',
     icon: './images/icon-192x192.png',
+    badge: './images/icon-192x192.png',
     tag: 'simple-push-demo-notification',
     data: {
       url: 'https://developers.google.com/web/fundamentals/getting-started/push-notifications/'
