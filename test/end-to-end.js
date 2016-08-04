@@ -36,7 +36,7 @@ describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  this.retries(3);
+  this.retries(4);
 
   let testServer;
   let testServerURL;
