@@ -754,6 +754,11 @@ describe('Test simple-push-demo', function() {
       return;
     }
 
+    if (browserInfo.getSeleniumBrowserId() === 'safari') {
+      // Safari not supported at the moment
+      return;
+    }
+
     queueUnitTest(browserInfo);
   });
 });
