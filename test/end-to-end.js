@@ -743,7 +743,7 @@ describe('Test simple-push-demo', function() {
     // Marionette doesn't support tests auto-approving notifications :(
     // No firefox tests for now.
     if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
-      browserInfo.getVersionNumber() <= 50) {
+      browserInfo.getVersionNumber() <= 51) {
       // 49 has issues with marionette / permission issues.
       return;
     }
