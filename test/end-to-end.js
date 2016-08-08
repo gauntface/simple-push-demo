@@ -36,7 +36,7 @@ describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  this.retries(3);
+  this.retries(4);
 
   let testServer;
   let testServerURL;
@@ -751,6 +751,11 @@ describe('Test simple-push-demo', function() {
     if (browserInfo.getSeleniumBrowserId() === 'opera' &&
         browserInfo.getVersionNumber() <= 39) {
       // Opera has no feature detect for push support, so bail
+      return;
+    }
+
+    if (browserInfo.getSeleniumBrowserId() === 'safari') {
+      // Safari not supported at the moment
       return;
     }
 

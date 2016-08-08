@@ -24,19 +24,17 @@ const fs = require('fs');
 const del = require('del');
 const path = require('path');
 const mkdirp = require('mkdirp');
-const exec = require('child_process').exec;
 const seleniumAssistant = require('selenium-assistant');
 const SWTestingHelpers = require('sw-testing-helpers');
 const TestServer = SWTestingHelpers.TestServer;
 const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
 const mochaUtils = SWTestingHelpers.mochaUtils;
-const seleniumFirefox = require('selenium-webdriver/firefox');
 
 describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  this.retries(3);
+  this.retries(4);
 
   let testServer;
   let testServerURL;
@@ -59,7 +57,6 @@ describe('Test simple-push-demo', function() {
       // where the desired browser isn't installed / fails to load
       // Null allows afterEach a safe way to skip quiting the driver
       let globalDriverReference = null;
-      const PAYLOAD_TEST = 'Hello, world!';
 
       beforeEach(function() {
         // Enable Notifications
