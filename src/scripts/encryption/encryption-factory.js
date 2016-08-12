@@ -131,7 +131,7 @@ class EncryptionHelper {
     .then(keys => {
       const utf8Encoder = new TextEncoder('utf-8');
       const labelUnit8Array = utf8Encoder.encode('P-256');
-      const paddingUnit8Array = new Uint8Array(1).fill(0);
+      const paddingUnit8Array = new Uint8Array([0]);
 
       const clientPublicKeyLengthUnit8Array = new Uint8Array(2);
       clientPublicKeyLengthUnit8Array[0] = 0x00;
@@ -158,7 +158,7 @@ class EncryptionHelper {
       const utf8Encoder = new TextEncoder('utf-8');
       const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: aesgcm');
-      const paddingUnit8Array = new Uint8Array(1).fill(0);
+      const paddingUnit8Array = new Uint8Array([0]);
       return this.generateContext(publicKeyString)
       .then(contextBuffer => {
         return joinUnit8Arrays([
@@ -176,7 +176,7 @@ class EncryptionHelper {
       const utf8Encoder = new TextEncoder('utf-8');
       const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: nonce');
-      const paddingUnit8Array = new Uint8Array(1).fill(0);
+      const paddingUnit8Array = new Uint8Array([0]);
       return this.generateContext(publicKeyString)
       .then(contextBuffer => {
         return joinUnit8Arrays([
