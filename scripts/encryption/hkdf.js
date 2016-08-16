@@ -22,7 +22,7 @@ var HKDF = function () {
     value: function generate(info, byteLength) {
       var fullInfoBuffer = new Uint8Array(info.byteLength + 1);
       fullInfoBuffer.set(info, 0);
-      fullInfoBuffer.set(new Uint8Array(1).fill(1), info.byteLength);
+      fullInfoBuffer.set(new Uint8Array([1]), info.byteLength);
 
       return this._hmac.sign(this._ikm).then(function (prk) {
         var nextHmac = new HMAC(prk);

@@ -135,7 +135,7 @@ var EncryptionHelper = function () {
       }).then(function (keys) {
         var utf8Encoder = new TextEncoder('utf-8');
         var labelUnit8Array = utf8Encoder.encode('P-256');
-        var paddingUnit8Array = new Uint8Array(1).fill(0);
+        var paddingUnit8Array = new Uint8Array([0]);
 
         var clientPublicKeyLengthUnit8Array = new Uint8Array(2);
         clientPublicKeyLengthUnit8Array[0] = 0x00;
@@ -156,7 +156,7 @@ var EncryptionHelper = function () {
       return Promise.resolve().then(function () {
         var utf8Encoder = new TextEncoder('utf-8');
         var contentEncoding8Array = utf8Encoder.encode('Content-Encoding: aesgcm');
-        var paddingUnit8Array = new Uint8Array(1).fill(0);
+        var paddingUnit8Array = new Uint8Array([0]);
         return _this3.generateContext(publicKeyString).then(function (contextBuffer) {
           return joinUnit8Arrays([contentEncoding8Array, paddingUnit8Array, contextBuffer]);
         });
@@ -170,7 +170,7 @@ var EncryptionHelper = function () {
       return Promise.resolve().then(function () {
         var utf8Encoder = new TextEncoder('utf-8');
         var contentEncoding8Array = utf8Encoder.encode('Content-Encoding: nonce');
-        var paddingUnit8Array = new Uint8Array(1).fill(0);
+        var paddingUnit8Array = new Uint8Array([0]);
         return _this4.generateContext(publicKeyString).then(function (contextBuffer) {
           return joinUnit8Arrays([contentEncoding8Array, paddingUnit8Array, contextBuffer]);
         });
