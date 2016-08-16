@@ -14,7 +14,7 @@ class HKDF {
   generate(info, byteLength) {
     const fullInfoBuffer = new Uint8Array(info.byteLength + 1);
     fullInfoBuffer.set(info, 0);
-    fullInfoBuffer.set(new Uint8Array(1).fill(1), info.byteLength);
+    fullInfoBuffer.set(new Uint8Array([1]), info.byteLength);
 
     return this._hmac.sign(this._ikm)
     .then(prk => {
