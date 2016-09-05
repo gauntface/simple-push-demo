@@ -81,10 +81,10 @@ class PushClient {
     }
 
     navigator.serviceWorker.ready
-    .then(() => {
-      this._stateChangeCb(this._state.INITIALISING);
-      this.setUpPushPermission();
-    });
+      .then(() => {
+        this._stateChangeCb(this._state.INITIALISING);
+        this.setUpPushPermission();
+      });
   }
 
   _permissionStateChange(permissionState) {
