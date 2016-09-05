@@ -51,11 +51,6 @@ describe('Test simple-push-demo', function() {
   });
 
   const queueUnitTest = browserInfo => {
-    if (process.env.TRAVIS) {
-      // At the moment opera driver is bust :(
-      return;
-    }
-
     describe(`Perform Tests in ${browserInfo.getPrettyName()}`, function() {
       // Driver is initialised to null to handle scenarios
       // where the desired browser isn't installed / fails to load
