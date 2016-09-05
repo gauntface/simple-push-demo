@@ -288,7 +288,7 @@ describe('Test simple-push-demo', function() {
             notificationInfo[0].tag.should.equal('simple-push-demo-notification');
 
             // Chrome adds the origin, FF doesn't
-            const notifcationImg = '/images/icon-192x192.png';
+            const notifcationImg = '/images/logo-192x192.png';
             notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
           })
           .then(resolve)
@@ -434,7 +434,7 @@ describe('Test simple-push-demo', function() {
             notificationInfo[0].tag.should.equal('simple-push-demo-notification');
 
             // Chrome adds the origin, FF doesn't
-            const notifcationImg = '/images/icon-192x192.png';
+            const notifcationImg = '/images/logo-192x192.png';
             notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
           })
           .then(resolve)
@@ -560,7 +560,7 @@ describe('Test simple-push-demo', function() {
             notificationInfo[0].tag.should.equal('simple-push-demo-notification');
 
             // Chrome adds the origin, FF doesn't
-            const notifcationImg = '/images/icon-192x192.png';
+            const notifcationImg = '/images/logo-192x192.png';
             notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
           })
           .then(resolve)
@@ -725,7 +725,7 @@ describe('Test simple-push-demo', function() {
                 notificationInfo[0].tag.should.equal('simple-push-demo-notification');
 
                 // Chrome adds the origin, FF doesn't
-                const notifcationImg = '/images/icon-192x192.png';
+                const notifcationImg = '/images/logo-192x192.png';
                 notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
               });
             }
