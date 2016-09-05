@@ -2,7 +2,7 @@
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
     "babelify": "^7.2.0",
-    "browser-sync": "^2.10.0",
+    "browser-sync": "^2.14.1",
     "chai": "^3.4.1",
     "del": "^2.2.0",
     "eslint": "^3.2.2",
