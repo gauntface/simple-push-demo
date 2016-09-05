@@ -14,7 +14,7 @@
     "gulp-babel": "^6.1.2",
     "gulp-clean-css": "^2.0.6",
     "gulp-eslint": "^2.0.0",
-    "gulp-imagemin": "^3.0.2",
+    "gulp-imagemin": "^3.0.3",
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
     "gulp-rename": "^1.2.2",
@@ -27,9 +27,9 @@
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
-    "selenium-assistant": "^0.3.0",
+    "selenium-assistant": "^0.4.0",
     "selenium-webdriver": "^2.53.2",
-    "sw-testing-helpers": "0.1.1"
+    "sw-testing-helpers": "0.1.4"
   },
   "engines": {
     "node": ">=0.10.0"

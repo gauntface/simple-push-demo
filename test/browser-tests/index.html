@@ -57,14 +57,6 @@
       // before any tests are run.
       window.chai.should();
 
-      if (typeof netscape !== 'undefined' && typeof window.netscape.security.PrivilegeManager !== 'undefined') {
-        window.netscape.security.PrivilegeManager.enablePrivilege('UniversalXPConnect');
-        Components.utils.import('resource://gre/modules/Services.jsm');
-        const uri = Services.io.newURI(window.location.origin, null, null);
-        const principal = Services.scriptSecurityManager.getNoAppCodebasePrincipal(uri);
-        Services.perms.addFromPrincipal(principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
-      }
-
       window.goog.mochaUtils.startInBrowserMochaTests()
       .then(results => {
         window.testsuite = results;

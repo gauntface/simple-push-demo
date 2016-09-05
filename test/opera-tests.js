@@ -27,7 +27,6 @@ const mkdirp = require('mkdirp');
 const seleniumAssistant = require('selenium-assistant');
 const SWTestingHelpers = require('sw-testing-helpers');
 const TestServer = SWTestingHelpers.TestServer;
-const automatedBrowserTesting = SWTestingHelpers.automatedBrowserTesting;
 const mochaUtils = SWTestingHelpers.mochaUtils;
 
 describe('Test simple-push-demo', function() {
@@ -42,9 +41,9 @@ describe('Test simple-push-demo', function() {
   before(function() {
     testServer = new TestServer();
     return testServer.startServer(path.join(__dirname, '..'))
-    .then(portNumber => {
-      testServerURL = `http://localhost:${portNumber}`;
-    });
+      .then(portNumber => {
+        testServerURL = `http://localhost:${portNumber}`;
+      });
   });
 
   after(function() {
@@ -89,18 +88,18 @@ describe('Test simple-push-demo', function() {
         }
 
         return browserInfo.getSeleniumDriver()
-        .then(driver => {
-          globalDriverReference = driver;
-        });
+          .then(driver => {
+            globalDriverReference = driver;
+          });
       });
 
       afterEach(function() {
         this.timeout(10000);
 
-        return automatedBrowserTesting.killWebDriver(globalDriverReference)
-        .then(() => {
-          return del('./test/output/');
-        });
+        return seleniumAssistant.killWebDriver(globalDriverReference)
+          .then(() => {
+            return del('./test/output/');
+          });
       });
 
       it(`should pass all browser tests`, () => {
@@ -109,24 +108,21 @@ describe('Test simple-push-demo', function() {
           globalDriverReference,
           `${testServerURL}/test/browser-tests/`
         )
-        .then(testResults => {
-          if (testResults.failed.length > 0) {
-            const errorMessage = mochaUtils.prettyPrintErrors(
-              browserInfo.prettyName,
-              testResults
-            );
+          .then(testResults => {
+            if (testResults.failed.length > 0) {
+              const errorMessage = mochaUtils.prettyPrintErrors(
+                browserInfo.prettyName,
+                testResults
+              );
 
-            throw new Error(errorMessage);
-          }
-        });
+              throw new Error(errorMessage);
+            }
+          });
       });
 
       it(`should be blocked with no push service error`, function() {
-        // This is to handle the fact that selenium-webdriver doesn't use native
-        // promises.
-        return new Promise((resolve, reject) => {
-          // Load simple push demo page
-          globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+        // Load simple push demo page
+        return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
           .then(() => {
             return globalDriverReference.get(`${testServerURL}/build/`);
           })
@@ -201,10 +197,7 @@ describe('Test simple-push-demo', function() {
                 return (errorMsg.indexOf('push service not available') !== -1);
               });
             });
-          })
-          .then(resolve)
-          .thenCatch(reject);
-        });
+          });
       });
     });
   };
