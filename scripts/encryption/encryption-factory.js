@@ -452,7 +452,7 @@ var EncryptionHelperFactory = function () {
         var p256ecdsa = window.uint8ArrayToBase64Url(vapidKeys.publicKey);
 
         return {
-          bearer: jsonWebToken,
+          authorization: jsonWebToken,
           p256ecdsa: p256ecdsa
         };
       });

@@ -285,7 +285,7 @@ var AppController = function () {
       }
 
       if (vapidHeaders) {
-        headers.Authorization = 'Bearer ' + vapidHeaders.bearer;
+        headers.Authorization = 'WebPush ' + vapidHeaders.authorization;
 
         if (headers['Crypto-Key']) {
           headers['Crypto-Key'] = headers['Crypto-Key'] + '; ' + ('p256ecdsa=' + vapidHeaders.p256ecdsa);
