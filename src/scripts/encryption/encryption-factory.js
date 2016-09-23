@@ -506,7 +506,7 @@ class EncryptionHelperFactory {
         vapidKeys.publicKey);
 
       return {
-        bearer: jsonWebToken,
+        authorization: jsonWebToken,
         p256ecdsa: p256ecdsa
       };
     });

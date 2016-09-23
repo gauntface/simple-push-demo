@@ -82,10 +82,10 @@ describe('Test VAPID', function() {
     })
     .then(authHeaders => {
       (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders.bearer === 'string').should.equal(true);
+      (typeof authHeaders.authorization === 'string').should.equal(true);
       (typeof authHeaders.p256ecdsa === 'string').should.equal(true);
 
-      (authHeaders.bearer.length).should.equal(246);
+      (authHeaders.authorization.length).should.equal(246);
       (authHeaders.p256ecdsa.length).should.equal(87);
     });
   });
@@ -98,11 +98,11 @@ describe('Test VAPID', function() {
     }, 'https://fcm.googleapis.com', 'mailto:simple-push-demo@gauntface.co.uk', VALID_OUTPUT.expiration)
     .then(authHeaders => {
       (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders.bearer === 'string').should.equal(true);
+      (typeof authHeaders.authorization === 'string').should.equal(true);
       (typeof authHeaders.p256ecdsa === 'string').should.equal(true);
 
       authHeaders.p256ecdsa.should.equal(VALID_OUTPUT.p256ecdsa);
-      authHeaders.bearer.indexOf(VALID_OUTPUT.unsignedToken).should.equal(0);
+      authHeaders.authorization.indexOf(VALID_OUTPUT.unsignedToken).should.equal(0);
     });
   });
 });

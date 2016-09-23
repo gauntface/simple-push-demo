@@ -305,7 +305,7 @@ class AppController {
     }
 
     if (vapidHeaders) {
-      headers.Authorization = `Bearer ${vapidHeaders.bearer}`;
+      headers.Authorization = `WebPush ${vapidHeaders.authorization}`;
 
       if (headers['Crypto-Key']) {
         headers['Crypto-Key'] = `${headers['Crypto-Key']}; ` +
