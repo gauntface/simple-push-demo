@@ -10,7 +10,8 @@
 
 'use strict';
 
-// Length, in bytes, of a P-256 field element. Expected format of the private key.
+// Length, in bytes, of a P-256 field element. Expected format of the private
+// key.
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -18,8 +19,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var PRIVATE_KEY_BYTES = 32;
 
-// Length, in bytes, of a P-256 public key in uncompressed EC form per SEC 2.3.3. This sequence must
-// start with 0x04. Expected format of the public key.
+// Length, in bytes, of a P-256 public key in uncompressed EC form per SEC
+// 2.3.3. This sequence must start with 0x04. Expected format of the public key.
 var PUBLIC_KEY_BYTES = 65;
 
 // Length, in bytes, of the salt that should be used for the message.
@@ -404,7 +405,8 @@ var EncryptionHelperFactory = function () {
       }
 
       if (typeof exp !== 'number') {
-        // The `exp` field will contain the current timestamp in UTC plus twelve hours.
+        // The `exp` field will contain the current timestamp in UTC plus
+        // twelve hours.
         exp = Math.floor(Date.now() / 1000 + 12 * 60 * 60);
       }
 
@@ -425,7 +427,8 @@ var EncryptionHelperFactory = function () {
       // Utility function for UTF-8 encoding a string to an ArrayBuffer.
       var utf8Encoder = new TextEncoder('utf-8');
 
-      // The unsigned token is the concatenation of the URL-safe base64 encoded header and body.
+      // The unsigned token is the concatenation of the URL-safe base64 encoded
+      // header and body.
       var unsignedToken = window.uint8ArrayToBase64Url(utf8Encoder.encode(JSON.stringify(tokenHeader))) + '.' + window.uint8ArrayToBase64Url(utf8Encoder.encode(JSON.stringify(tokenBody)));
 
       // Sign the |unsignedToken| using ES256 (SHA-256 over ECDSA).
@@ -437,7 +440,8 @@ var EncryptionHelperFactory = function () {
         d: window.uint8ArrayToBase64Url(vapidKeys.privateKey)
       };
 
-      // Sign the |unsignedToken| with the server's private key to generate the signature.
+      // Sign the |unsignedToken| with the server's private key to generate
+      // the signature.
       return crypto.subtle.importKey('jwk', key, {
         name: 'ECDSA', namedCurve: 'P-256'
       }, true, ['sign']).then(function (key) {
