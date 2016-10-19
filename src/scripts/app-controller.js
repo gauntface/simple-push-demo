@@ -12,7 +12,7 @@ class AppController {
         'BDd3_hVL9fZi9Ybo2UUzA284WG5FZR30_95YeZJsiA' +
         'pwXKpNcF1rRPF3foIiBHXRdJI2Qhumhf6_LFTeZaNndIo'),
       privateKey: window.base64UrlToUint8Array(
-        'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI')
+        'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI'),
     };
 
     // This div contains the UI for CURL commands to trigger a push
@@ -29,7 +29,7 @@ class AppController {
       this.ready = Promise.resolve();
       this._uiInitialised(toggleSwitch.MaterialSwitch);
     } else {
-      this.ready = new Promise(resolve => {
+      this.ready = new Promise((resolve) => {
         const mdlUpgradeCb = () => {
           if (!toggleSwitch.classList.contains('is-upgraded')) {
             return;
@@ -59,7 +59,7 @@ class AppController {
     );
 
     document.querySelector('.js-push-toggle-switch > input')
-    .addEventListener('click', event => {
+    .addEventListener('click', (event) => {
       // Inverted because clicking will change the checked state by
       // the time we get here
       if (event.target.checked) {
@@ -85,7 +85,7 @@ class AppController {
     // Check that service workers are supported
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js')
-      .catch(err => {
+      .catch((err) => {
         this.showErrorMessage(
           'Unable to Register SW',
           'Sorry this demo requires a service worker to work and it ' +
@@ -173,7 +173,7 @@ class AppController {
     let payloadPromise = Promise.resolve(null);
     if (payloadText && payloadText.trim().length > 0) {
       payloadPromise = EncryptionHelperFactory.generateHelper()
-      .then(encryptionHelper => {
+      .then((encryptionHelper) => {
         return encryptionHelper.encryptMessage(
           JSON.parse(JSON.stringify(this._currentSubscription)), payloadText);
       });
@@ -187,9 +187,9 @@ class AppController {
 
     return Promise.all([
       payloadPromise,
-      vapidPromise
+      vapidPromise,
     ])
-    .then(results => {
+    .then((results) => {
       const payload = results[0];
       const vapidHeaders = results[1];
 
@@ -216,7 +216,7 @@ class AppController {
       while (headersList.hasChildNodes()) {
         headersList.removeChild(headersList.firstChild);
       }
-      Object.keys(requestInfo.headers).forEach(header => {
+      Object.keys(requestInfo.headers).forEach((header) => {
         const liElement = document.createElement('p');
         liElement.innerHTML = `<span>${header}</span>: ` +
           `${requestInfo.headers[header]}`;
@@ -272,7 +272,7 @@ class AppController {
     const endpointSections = subscription.endpoint.split('/');
     const subscriptionId = endpointSections[endpointSections.length - 1];
     const gcmAPIData = {
-      to: subscriptionId
+      to: subscriptionId,
     };
 
     if (payload) {
@@ -285,7 +285,7 @@ class AppController {
     return {
       headers: headers,
       body: JSON.stringify(gcmAPIData),
-      endpoint: 'https://android.googleapis.com/gcm/send'
+      endpoint: 'https://android.googleapis.com/gcm/send',
     };
   }
 
@@ -317,7 +317,7 @@ class AppController {
 
     const response = {
       headers: headers,
-      endpoint: subscription.endpoint
+      endpoint: subscription.endpoint,
     };
 
     if (body) {
@@ -332,7 +332,7 @@ class AppController {
     let payloadPromise = Promise.resolve(null);
     if (payloadText && payloadText.trim().length > 0) {
       payloadPromise = EncryptionHelperFactory.generateHelper()
-      .then(encryptionHelper => {
+      .then((encryptionHelper) => {
         return encryptionHelper.encryptMessage(
           JSON.parse(JSON.stringify(this._currentSubscription)), payloadText);
       });
@@ -346,9 +346,9 @@ class AppController {
 
     return Promise.all([
       payloadPromise,
-      vapidPromise
+      vapidPromise,
     ])
-    .then(results => {
+    .then((results) => {
       const payload = results[0];
       const vapidHeaders = results[1];
 
@@ -379,7 +379,7 @@ class AppController {
     console.log('Sending XHR Proxy Server', requestInfo);
 
     const fetchOptions = {
-      method: 'post'
+      method: 'post',
     };
 
     // Can't send a stream like is needed for web push protocol,
@@ -399,7 +399,7 @@ class AppController {
         throw new Error('Failed to send push message via web push protocol');
       }
     })
-    .catch(err => {
+    .catch((err) => {
       this.showErrorMessage(
         'Ooops Unable to Send a Push',
         err

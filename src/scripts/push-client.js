@@ -14,52 +14,52 @@ class PushClient {
       UNSUPPORTED: {
         id: 'UNSUPPORTED',
         interactive: false,
-        pushEnabled: false
+        pushEnabled: false,
       },
       INITIALISING: {
         id: 'INITIALISING',
         interactive: false,
-        pushEnabled: false
+        pushEnabled: false,
       },
       PERMISSION_DENIED: {
         id: 'PERMISSION_DENIED',
         interactive: false,
-        pushEnabled: false
+        pushEnabled: false,
       },
       PERMISSION_GRANTED: {
         id: 'PERMISSION_GRANTED',
-        interactive: true
+        interactive: true,
       },
       PERMISSION_PROMPT: {
         id: 'PERMISSION_PROMPT',
         interactive: true,
-        pushEnabled: false
+        pushEnabled: false,
       },
       ERROR: {
         id: 'ERROR',
         interactive: false,
-        pushEnabled: false
+        pushEnabled: false,
       },
       STARTING_SUBSCRIBE: {
         id: 'STARTING_SUBSCRIBE',
         interactive: false,
-        pushEnabled: true
+        pushEnabled: true,
       },
       SUBSCRIBED: {
         id: 'SUBSCRIBED',
         interactive: true,
-        pushEnabled: true
+        pushEnabled: true,
       },
       STARTING_UNSUBSCRIBE: {
         id: 'STARTING_UNSUBSCRIBE',
         interactive: false,
-        pushEnabled: false
+        pushEnabled: false,
       },
       UNSUBSCRIBED: {
         id: 'UNSUBSCRIBED',
         interactive: true,
-        pushEnabled: false
-      }
+        pushEnabled: false,
+      },
     };
 
     if (!('serviceWorker' in navigator)) {
@@ -109,11 +109,11 @@ class PushClient {
     this._permissionStateChange(Notification.permission);
 
     return navigator.serviceWorker.ready
-    .then(serviceWorkerRegistration => {
+    .then((serviceWorkerRegistration) => {
       // Let's see if we have a subscription already
       return serviceWorkerRegistration.pushManager.getSubscription();
     })
-    .then(subscription => {
+    .then((subscription) => {
       if (!subscription) {
         // NOOP since we have no subscription and the permission state
         // will inform whether to enable or disable the push UI
@@ -126,7 +126,7 @@ class PushClient {
       // subscriptionid and endpoint
       this._subscriptionUpdate(subscription);
     })
-    .catch(err => {
+    .catch((err) => {
       console.log('setUpPushPermission() ', err);
       this._stateChangeCb(this._state.ERROR, err);
     });
@@ -145,7 +145,7 @@ class PushClient {
       }
 
       if (Notification.permission === 'default') {
-        Notification.requestPermission(result => {
+        Notification.requestPermission((result) => {
           if (result !== 'granted') {
             reject(new Error('Bad permission result'));
           }
@@ -157,21 +157,21 @@ class PushClient {
     .then(() => {
       // We need the service worker registration to access the push manager
       return navigator.serviceWorker.ready
-      .then(serviceWorkerRegistration => {
+      .then((serviceWorkerRegistration) => {
         let publicServerKey = new Uint8Array(65);
         publicServerKey[0] = 0x04;
         return serviceWorkerRegistration.pushManager.subscribe(
           {
             userVisibleOnly: true,
-            applicationServerKey: this._publicApplicationKey
+            applicationServerKey: this._publicApplicationKey,
           }
         );
       })
-      .then(subscription => {
+      .then((subscription) => {
         this._stateChangeCb(this._state.SUBSCRIBED);
         this._subscriptionUpdate(subscription);
       })
-      .catch(subscriptionErr => {
+      .catch((subscriptionErr) => {
         this._stateChangeCb(this._state.ERROR, subscriptionErr);
       });
     })
@@ -189,10 +189,10 @@ class PushClient {
     this._stateChangeCb(this._state.STARTING_UNSUBSCRIBE);
 
     navigator.serviceWorker.ready
-    .then(serviceWorkerRegistration => {
+    .then((serviceWorkerRegistration) => {
       return serviceWorkerRegistration.pushManager.getSubscription();
     })
-    .then(pushSubscription => {
+    .then((pushSubscription) => {
       // Check we have everything we need to unsubscribe
       if (!pushSubscription) {
         this._stateChangeCb(this._state.UNSUBSCRIBED);
@@ -217,7 +217,7 @@ class PushClient {
       this._stateChangeCb(this._state.UNSUBSCRIBED);
       this._subscriptionUpdate(null);
     })
-    .catch(err => {
+    .catch((err) => {
       console.error('Error thrown while revoking push notifications. ' +
         'Most likely because push was never registered', err);
     });

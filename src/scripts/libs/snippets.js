@@ -17,7 +17,7 @@ class MaterialComponentsSnippets {
   static get CssClasses_() {
     return {
       COPIED: 'copied',
-      NOT_SUPPORTED: 'nosupport'
+      NOT_SUPPORTED: 'nosupport',
     };
   }
 

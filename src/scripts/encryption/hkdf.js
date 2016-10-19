@@ -17,11 +17,11 @@ class HKDF {
     fullInfoBuffer.set(new Uint8Array(1).fill(1), info.byteLength);
 
     return this._hmac.sign(this._ikm)
-    .then(prk => {
+    .then((prk) => {
       const nextHmac = new HMAC(prk);
       return nextHmac.sign(fullInfoBuffer);
     })
-    .then(nextPrk => {
+    .then((nextPrk) => {
       return nextPrk.slice(0, byteLength);
     });
   }

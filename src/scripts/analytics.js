@@ -22,7 +22,7 @@ class Analytics {
     }
 
     return self.registration.pushManager.getSubscription()
-    .then(subscription => {
+    .then((subscription) => {
       if (subscription === null) {
         // The user has not subscribed yet.
         throw new Error('No subscription currently available.');
@@ -44,14 +44,14 @@ class Analytics {
         // Event Action
         ea: eventAction,
         // Event Value
-        ev: eventValue
+        ev: eventValue,
       };
 
       const payloadString = Object.keys(payloadData)
-      .filter(analyticsKey => {
+      .filter((analyticsKey) => {
         return payloadData[analyticsKey];
       })
-      .map(analyticsKey => {
+      .map((analyticsKey) => {
         return `${analyticsKey}=` +
           encodeURIComponent(payloadData[analyticsKey]);
       })
@@ -59,20 +59,20 @@ class Analytics {
 
       return fetch('https://www.google-analytics.com/collect', {
         method: 'post',
-        body: payloadString
+        body: payloadString,
       });
     })
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         return response.text()
-        .then(responseText => {
+        .then((responseText) => {
           throw new Error(
             `Bad response from Google Analytics ` +
             `[${response.status}] ${responseText}`);
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.warn('Unable to send the analytics event', err);
     });
   }

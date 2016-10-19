@@ -6,11 +6,11 @@ window.onload = function() {
   .then(() => {
     document.body.dataset.simplePushDemoLoaded = true;
 
-    const host = "gauntface.github.io";
+    const host = 'gauntface.github.io';
     if (
       window.location.host === host &&
-      window.location.protocol !== "https:") {
-      window.location.protocol = "https";
+      window.location.protocol !== 'https:') {
+      window.location.protocol = 'https';
     }
 
     appController.registerServiceWorker();

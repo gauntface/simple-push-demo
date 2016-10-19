@@ -15,8 +15,8 @@ self.addEventListener('push', function(event) {
     badge: './images/badge-72x72.png',
     tag: 'simple-push-demo-notification',
     data: {
-      url: 'https://developers.google.com/web/fundamentals/getting-started/push-notifications/'
-    }
+      url: 'https://developers.google.com/web/fundamentals/getting-started/push-notifications/',
+    },
   };
 
   if (event.data) {
@@ -29,7 +29,7 @@ self.addEventListener('push', function(event) {
     Promise.all([
       self.registration.showNotification(
         notificationTitle, notificationOptions),
-      self.analytics.trackEvent('push-received')
+      self.analytics.trackEvent('push-received'),
     ])
   );
 });
@@ -45,7 +45,7 @@ self.addEventListener('notificationclick', function(event) {
   event.waitUntil(
     Promise.all([
       clickResponsePromise,
-      self.analytics.trackEvent('notification-click')
+      self.analytics.trackEvent('notification-click'),
     ])
   );
 });
@@ -53,7 +53,7 @@ self.addEventListener('notificationclick', function(event) {
 self.addEventListener('notificationclose', function(event) {
   event.waitUntil(
     Promise.all([
-      self.analytics.trackEvent('notification-close')
+      self.analytics.trackEvent('notification-close'),
     ])
   );
 });

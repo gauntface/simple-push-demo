@@ -10,17 +10,18 @@
 
 'use strict';
 
-// Length, in bytes, of a P-256 field element. Expected format of the private key.
+// Length, in bytes, of a P-256 field element. Expected format of the private
+// key.
 const PRIVATE_KEY_BYTES = 32;
 
-// Length, in bytes, of a P-256 public key in uncompressed EC form per SEC 2.3.3. This sequence must
-// start with 0x04. Expected format of the public key.
+// Length, in bytes, of a P-256 public key in uncompressed EC form per SEC
+// 2.3.3. This sequence must start with 0x04. Expected format of the public key.
 const PUBLIC_KEY_BYTES = 65;
 
 // Length, in bytes, of the salt that should be used for the message.
 const SALT_BYTES = 16;
 
-const joinUnit8Arrays = allUint8Arrays => {
+const joinUnit8Arrays = (allUint8Arrays) => {
   // Super inefficient. But easier to follow than allocating the
   // array with the correct size and position values in that array
   // as required.
@@ -85,10 +86,10 @@ class EncryptionHelper {
     .then(() => {
       return EncryptionHelper.stringKeysToCryptoKeys(publicKeyString);
     })
-    .then(keys => {
+    .then((keys) => {
       return keys.publicKey;
     })
-    .then(publicKey => {
+    .then((publicKey) => {
       if (!(publicKey instanceof CryptoKey)) {
         throw new Error('The publicKey must be a CryptoKey.');
       }
@@ -96,7 +97,7 @@ class EncryptionHelper {
       const algorithm = {
         name: 'ECDH',
         namedCurve: 'P-256',
-        public: publicKey
+        public: publicKey,
       };
 
       return crypto.subtle.deriveBits(
@@ -113,22 +114,22 @@ class EncryptionHelper {
     .then(() => {
       return EncryptionHelper.stringKeysToCryptoKeys(publicKeyString);
     })
-    .then(keys => {
+    .then((keys) => {
       return EncryptionHelper.exportCryptoKeys(keys.publicKey)
-      .then(keys => {
+      .then((keys) => {
         return keys.publicKey;
       });
     })
-    .then(clientPublicKey => {
+    .then((clientPublicKey) => {
       return EncryptionHelper.exportCryptoKeys(this.getPublicServerKey())
-      .then(keys => {
+      .then((keys) => {
         return {
           clientPublicKey: clientPublicKey,
-          serverPublicKey: keys.publicKey
+          serverPublicKey: keys.publicKey,
         };
       });
     })
-    .then(keys => {
+    .then((keys) => {
       const utf8Encoder = new TextEncoder('utf-8');
       const labelUnit8Array = utf8Encoder.encode('P-256');
       const paddingUnit8Array = new Uint8Array(1).fill(0);
@@ -147,7 +148,7 @@ class EncryptionHelper {
         clientPublicKeyLengthUnit8Array,
         keys.clientPublicKey,
         serverPublicKeyLengthBuffer,
-        keys.serverPublicKey
+        keys.serverPublicKey,
       ]);
     });
   }
@@ -160,11 +161,11 @@ class EncryptionHelper {
         .encode('Content-Encoding: aesgcm');
       const paddingUnit8Array = new Uint8Array(1).fill(0);
       return this.generateContext(publicKeyString)
-      .then(contextBuffer => {
+      .then((contextBuffer) => {
         return joinUnit8Arrays([
           contentEncoding8Array,
           paddingUnit8Array,
-          contextBuffer
+          contextBuffer,
         ]);
       });
     });
@@ -178,11 +179,11 @@ class EncryptionHelper {
         .encode('Content-Encoding: nonce');
       const paddingUnit8Array = new Uint8Array(1).fill(0);
       return this.generateContext(publicKeyString)
-      .then(contextBuffer => {
+      .then((contextBuffer) => {
         return joinUnit8Arrays([
           contentEncoding8Array,
           paddingUnit8Array,
-          contextBuffer
+          contextBuffer,
         ]);
       });
     });
@@ -190,7 +191,7 @@ class EncryptionHelper {
 
   generatePRK(subscription) {
     return this.getSharedSecret(subscription.keys.p256dh)
-    .then(sharedSecret => {
+    .then((sharedSecret) => {
       const utf8Encoder = new TextEncoder('utf-8');
       const authInfoUint8Array = utf8Encoder
         .encode('Content-Encoding: auth\0');
@@ -206,9 +207,9 @@ class EncryptionHelper {
     return Promise.all([
       this.generatePRK(subscription),
       this.generateCEKInfo(subscription.keys.p256dh),
-      this.generateNonceInfo(subscription.keys.p256dh)
+      this.generateNonceInfo(subscription.keys.p256dh),
     ])
-    .then(results => {
+    .then((results) => {
       const prk = results[0];
       const cekInfo = results[1];
       const nonceInfo = results[2];
@@ -217,30 +218,30 @@ class EncryptionHelper {
       const nonceHKDF = new HKDF(prk, this._salt);
       return Promise.all([
         cekHKDF.generate(cekInfo, 16),
-        nonceHKDF.generate(nonceInfo, 12)
+        nonceHKDF.generate(nonceInfo, 12),
       ]);
     })
-    .then(results => {
+    .then((results) => {
       return {
         contentEncryptionKey: results[0],
-        nonce: results[1]
+        nonce: results[1],
       };
     });
   }
 
   encryptMessage(subscription, payload) {
     return this.generateEncryptionKeys(subscription)
-    .then(encryptionKeys => {
+    .then((encryptionKeys) => {
       return crypto.subtle.importKey('raw',
         encryptionKeys.contentEncryptionKey, 'AES-GCM', true,
         ['decrypt', 'encrypt'])
-        .then(contentEncryptionCryptoKey => {
+        .then((contentEncryptionCryptoKey) => {
           encryptionKeys.contentEncryptionCryptoKey =
             contentEncryptionCryptoKey;
           return encryptionKeys;
         });
     })
-    .then(encryptionKeys => {
+    .then((encryptionKeys) => {
       const paddingBytes = 0;
       const paddingUnit8Array = new Uint8Array(2 + paddingBytes);
       const utf8Encoder = new TextEncoder('utf-8');
@@ -253,21 +254,21 @@ class EncryptionHelper {
       const algorithm = {
         name: 'AES-GCM',
         tagLength: 128,
-        iv: encryptionKeys.nonce
+        iv: encryptionKeys.nonce,
       };
 
       return crypto.subtle.encrypt(
         algorithm, encryptionKeys.contentEncryptionCryptoKey, recordUint8Array);
     })
-    .then(encryptedPayloadArrayBuffer => {
+    .then((encryptedPayloadArrayBuffer) => {
       return EncryptionHelper.exportCryptoKeys(
         this.getPublicServerKey())
-      .then(keys => {
+      .then((keys) => {
         return {
           cipherText: encryptedPayloadArrayBuffer,
           salt: window.uint8ArrayToBase64Url(this.getSalt()),
           publicServerKey:
-            window.uint8ArrayToBase64Url(keys.publicKey)
+            window.uint8ArrayToBase64Url(keys.publicKey),
         };
       });
     });
@@ -279,7 +280,7 @@ class EncryptionHelper {
       const promises = [];
       promises.push(
         crypto.subtle.exportKey('jwk', publicKey)
-        .then(jwk => {
+        .then((jwk) => {
           const x = window.base64UrlToUint8Array(jwk.x);
           const y = window.base64UrlToUint8Array(jwk.y);
 
@@ -296,7 +297,7 @@ class EncryptionHelper {
         promises.push(
           crypto.subtle
             .exportKey('jwk', privateKey)
-          .then(jwk => {
+          .then((jwk) => {
             return window.base64UrlToUint8Array(jwk.d);
           })
         );
@@ -304,9 +305,9 @@ class EncryptionHelper {
 
       return Promise.all(promises);
     })
-    .then(exportedKeys => {
+    .then((exportedKeys) => {
       const result = {
-        publicKey: exportedKeys[0]
+        publicKey: exportedKeys[0],
       };
 
       if (exportedKeys.length > 1) {
@@ -339,7 +340,7 @@ class EncryptionHelper {
       crv: 'P-256',
       x: window.uint8ArrayToBase64Url(publicBuffer, 1, 33),
       y: window.uint8ArrayToBase64Url(publicBuffer, 33, 65),
-      ext: true
+      ext: true,
     };
 
     const keyPromises = [];
@@ -365,9 +366,9 @@ class EncryptionHelper {
     }
 
     return Promise.all(keyPromises)
-    .then(keys => {
+    .then((keys) => {
       const keyPair = {
-        publicKey: keys[0]
+        publicKey: keys[0],
       };
       if (keys.length > 1) {
         keyPair.privateKey = keys[1];
@@ -382,7 +383,7 @@ class EncryptionHelperFactory {
     return Promise.resolve()
     .then(() => {
       const keyPromises = [
-        EncryptionHelperFactory.generateKeys(options)
+        EncryptionHelperFactory.generateKeys(options),
       ];
 
       if (options && options.vapidKeys) {
@@ -391,7 +392,7 @@ class EncryptionHelperFactory {
 
       return Promise.all(keyPromises);
     })
-    .then(results => {
+    .then((results) => {
       let salt = null;
       if (options && options.salt) {
         salt = window.base64UrlToUint8Array(options.salt);
@@ -429,7 +430,7 @@ class EncryptionHelperFactory {
   static generateVapidKeys() {
     return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
       true, ['deriveBits'])
-      .then(keys => {
+      .then((keys) => {
         return EncryptionHelper.exportCryptoKeys(
           keys.publicKey, keys.privateKey);
       });
@@ -447,7 +448,8 @@ class EncryptionHelperFactory {
     }
 
     if (typeof exp !== 'number') {
-      // The `exp` field will contain the current timestamp in UTC plus twelve hours.
+      // The `exp` field will contain the current timestamp in UTC plus
+      // twelve hours.
       exp = Math.floor((Date.now() / 1000) + 12 * 60 * 60);
     }
 
@@ -456,19 +458,20 @@ class EncryptionHelperFactory {
 
     const tokenHeader = {
       typ: 'JWT',
-      alg: 'ES256'
+      alg: 'ES256',
     };
 
     const tokenBody = {
       aud: audience,
       exp: exp,
-      sub: subject
+      sub: subject,
     };
 
     // Utility function for UTF-8 encoding a string to an ArrayBuffer.
     const utf8Encoder = new TextEncoder('utf-8');
 
-    // The unsigned token is the concatenation of the URL-safe base64 encoded header and body.
+    // The unsigned token is the concatenation of the URL-safe base64 encoded
+    // header and body.
     const unsignedToken =
       window.uint8ArrayToBase64Url(
         utf8Encoder.encode(JSON.stringify(tokenHeader))
@@ -484,22 +487,23 @@ class EncryptionHelperFactory {
         vapidKeys.publicKey.subarray(1, 33)),
       y: window.uint8ArrayToBase64Url(
         vapidKeys.publicKey.subarray(33, 65)),
-      d: window.uint8ArrayToBase64Url(vapidKeys.privateKey)
+      d: window.uint8ArrayToBase64Url(vapidKeys.privateKey),
     };
 
-      // Sign the |unsignedToken| with the server's private key to generate the signature.
+    // Sign the |unsignedToken| with the server's private key to generate
+    // the signature.
     return crypto.subtle.importKey('jwk', key, {
-      name: 'ECDSA', namedCurve: 'P-256'
+      name: 'ECDSA', namedCurve: 'P-256',
     }, true, ['sign'])
-    .then(key => {
+    .then((key) => {
       return crypto.subtle.sign({
         name: 'ECDSA',
         hash: {
-          name: 'SHA-256'
-        }
+          name: 'SHA-256',
+        },
       }, key, utf8Encoder.encode(unsignedToken));
     })
-    .then(signature => {
+    .then((signature) => {
       const jsonWebToken = unsignedToken + '.' +
         window.uint8ArrayToBase64Url(new Uint8Array(signature));
       const p256ecdsa = window.uint8ArrayToBase64Url(
@@ -507,7 +511,7 @@ class EncryptionHelperFactory {
 
       return {
         authorization: jsonWebToken,
-        p256ecdsa: p256ecdsa
+        p256ecdsa: p256ecdsa,
       };
     });
   }

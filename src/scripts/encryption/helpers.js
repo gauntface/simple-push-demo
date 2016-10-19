@@ -34,6 +34,6 @@ if (window) {
 } else if (module && module.exports) {
   module.exports = {
     uint8ArrayToBase64Url: uint8ArrayToBase64Url,
-    base64UrlToUint8Array: base64UrlToUint8Array
+    base64UrlToUint8Array: base64UrlToUint8Array,
   };
 }
