@@ -22,12 +22,12 @@ const runSequence = require('run-sequence');
 const del = require('del');
 
 gulp.task('copy:watch', () => {
-  gulp.watch(GLOBAL.config.src + '/*.*',
-    ['copy:root', GLOBAL.config.browserSyncReload]);
+  gulp.watch(global.config.src + '/*.*',
+    ['copy:root', global.config.browserSyncReload]);
 });
 
 gulp.task('copy:cleanRoot', cb => {
-  del([GLOBAL.config.dest + '/*.{json,txt,ico}'], {dot: true})
+  del([global.config.dest + '/*.{json,txt,ico}'], {dot: true})
     .then(function() {
       cb();
     });
@@ -35,9 +35,9 @@ gulp.task('copy:cleanRoot', cb => {
 
 gulp.task('copy:root', ['copy:cleanRoot'], () => {
   return gulp.src([
-    GLOBAL.config.src + '/*.{json,txt,ico}'
+    global.config.src + '/*.{json,txt,ico}'
   ])
-  .pipe(gulp.dest(GLOBAL.config.dest));
+  .pipe(gulp.dest(global.config.dest));
 });
 
 gulp.task('copy', cb => {

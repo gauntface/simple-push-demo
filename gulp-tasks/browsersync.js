@@ -21,12 +21,12 @@ const gulp = require('gulp');
 const browserSync = require('browser-sync').create();
 
 // Stash this in case other tasks want to use it
-GLOBAL.config.browserSyncReload = browserSync.reload;
+global.config.browserSyncReload = browserSync.reload;
 
 gulp.task('browsersync', () => {
   browserSync.init({
     server: {
-      baseDir: GLOBAL.config.dest
+      baseDir: global.config.dest
     },
     port: 8080,
     open: false

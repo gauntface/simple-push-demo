@@ -22,21 +22,21 @@ const del = require('del');
 const imagemin = require('gulp-imagemin');
 
 gulp.task('images:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/images/**/*.*',
-    ['images', GLOBAL.config.browserSyncReload]);
+  gulp.watch(global.config.src + '/images/**/*.*',
+    ['images', global.config.browserSyncReload]);
 });
 
 gulp.task('images:clean', function(cb) {
-  del([GLOBAL.config.dest + '/*.{png,jpg,jpeg,gif,svg}'], {dot: true})
+  del([global.config.dest + '/*.{png,jpg,jpeg,gif,svg}'], {dot: true})
     .then(function() {
       cb();
     });
 });
 
 gulp.task('images', ['images:clean'], function() {
-  let stream = gulp.src(GLOBAL.config.src + '/**/*.{png,jpg,jpeg,gif,svg}');
+  let stream = gulp.src(global.config.src + '/**/*.{png,jpg,jpeg,gif,svg}');
 
-  if (GLOBAL.config.env === 'prod') {
+  if (global.config.env === 'prod') {
     stream = stream.pipe(imagemin({
       progressive: true,
       interlaced: true,
@@ -44,5 +44,5 @@ gulp.task('images', ['images:clean'], function() {
     }));
   }
 
-  return stream.pipe(gulp.dest(GLOBAL.config.dest));
+  return stream.pipe(gulp.dest(global.config.dest));
 });

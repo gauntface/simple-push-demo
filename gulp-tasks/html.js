@@ -21,18 +21,18 @@ const gulp = require('gulp');
 const minifyHtml = require('gulp-minify-html');
 
 gulp.task('html:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/**/*.html',
-    ['html', GLOBAL.config.browserSyncReload]);
+  gulp.watch(global.config.src + '/**/*.html',
+    ['html', global.config.browserSyncReload]);
 });
 
 gulp.task('html', function() {
   let stream = gulp.src([
-    GLOBAL.config.src + '/**/*.html'
+    global.config.src + '/**/*.html'
   ]);
 
-  if (GLOBAL.config.env === 'prod') {
+  if (global.config.env === 'prod') {
     stream = stream.pipe(minifyHtml());
   }
 
-  return stream.pipe(gulp.dest(GLOBAL.config.dest));
+  return stream.pipe(gulp.dest(global.config.dest));
 });

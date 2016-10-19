@@ -22,7 +22,7 @@
 const gulp = require('gulp');
 const runSequence = require('run-sequence');
 
-GLOBAL.config = {
+global.config = {
   env: 'prod',
   src: 'src',
   dest: 'build',
@@ -35,7 +35,7 @@ GLOBAL.config = {
 // Get tasks from gulp-tasks directory
 require('require-dir')('gulp-tasks');
 
-var allTasks = ['styles', 'scripts', 'copy', 'html', 'images'];
+const allTasks = ['styles', 'scripts', 'copy', 'html', 'images'];
 
 gulp.task('default', function(cb) {
   runSequence(
@@ -45,6 +45,6 @@ gulp.task('default', function(cb) {
 });
 
 gulp.task('dev', function() {
-  GLOBAL.config.env = 'dev';
+  global.config.env = 'dev';
   return runSequence('clean', allTasks, 'watch', 'browsersync');
 });

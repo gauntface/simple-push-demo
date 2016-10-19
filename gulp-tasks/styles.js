@@ -39,36 +39,36 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 
 gulp.task('styles:watch', function() {
-  gulp.watch(GLOBAL.config.src + '/**/*.css',
-    ['styles', GLOBAL.config.browserSyncReload]);
+  gulp.watch(global.config.src + '/**/*.css',
+    ['styles', global.config.browserSyncReload]);
 });
 
 // Delete any files currently in the scripts destination path
 gulp.task('styles:clean', function(cb) {
-  del([GLOBAL.config.dest + '/**/*.css'], {dot: true})
+  del([global.config.dest + '/**/*.css'], {dot: true})
     .then(function() {
       cb();
     });
 });
 
 gulp.task('styles:css', function() {
-  let stream = gulp.src(GLOBAL.config.src + '/**/*.css');
+  let stream = gulp.src(global.config.src + '/**/*.css');
 
-  if (GLOBAL.config.env !== 'prod') {
+  if (global.config.env !== 'prod') {
     // Only create sourcemaps for dev
     stream = stream.pipe(sourcemaps.init());
   }
 
   stream = stream.pipe(autoprefixer(AUTOPREFIXER_BROWSERS));
 
-  if (GLOBAL.config.env !== 'prod') {
+  if (global.config.env !== 'prod') {
     // Only create sourcemaps for dev
     stream = stream.pipe(cleanCSS())
-      .pipe(license(GLOBAL.config.license, GLOBAL.config.licenseOptions))
+      .pipe(license(global.config.license, global.config.licenseOptions))
       .pipe(sourcemaps.write());
   }
 
-  return stream.pipe(gulp.dest(GLOBAL.config.dest));
+  return stream.pipe(gulp.dest(global.config.dest));
 });
 
 gulp.task('styles', function(cb) {

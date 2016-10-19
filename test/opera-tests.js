@@ -29,6 +29,8 @@ const SWTestingHelpers = require('sw-testing-helpers');
 const TestServer = SWTestingHelpers.TestServer;
 const mochaUtils = SWTestingHelpers.mochaUtils;
 
+require('operadriver');
+
 describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
