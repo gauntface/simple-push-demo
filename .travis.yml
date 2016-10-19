@@ -10,14 +10,8 @@ env:
   global:
   - GH_REF: github.com/gauntface/simple-push-demo.git
 
-before_install:
-  # Get firefox beta and extract to tar for the test runner to use.
-  - wget 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' -O firefox-beta.tar.bz2 && tar xvjf firefox-beta.tar.bz2
-
 install:
   - npm install
-  - npm install chromedriver -g
-  - npm install operadriver -g
 
 # Read more here: https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
 before_script:
