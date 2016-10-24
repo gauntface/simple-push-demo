@@ -662,12 +662,6 @@ describe('Test simple-push-demo', function() {
       return;
     }
 
-    if (browserInfo.getSeleniumBrowserId() === 'chrome' &&
-        browserInfo.getVersionNumber() === 54) {
-      // Opera has no feature detect for push support, so bail
-      return;
-    }
-
     if (browserInfo.getSeleniumBrowserId() === 'opera' &&
         browserInfo.getVersionNumber() <= 39) {
       // Opera has no feature detect for push support, so bail

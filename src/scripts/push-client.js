@@ -158,8 +158,6 @@ class PushClient {
       // We need the service worker registration to access the push manager
       return navigator.serviceWorker.ready
       .then((serviceWorkerRegistration) => {
-        let publicServerKey = new Uint8Array(65);
-        publicServerKey[0] = 0x04;
         return serviceWorkerRegistration.pushManager.subscribe(
           {
             userVisibleOnly: true,
