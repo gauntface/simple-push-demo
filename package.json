@@ -33,7 +33,7 @@
     "sw-testing-helpers": "0.1.4"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">= 4"
   },
   "private": true,
   "scripts": {
