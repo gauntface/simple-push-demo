@@ -26,9 +26,9 @@ global.config.browserSyncReload = browserSync.reload;
 gulp.task('browsersync', () => {
   browserSync.init({
     server: {
-      baseDir: global.config.dest
+      baseDir: global.config.dest,
     },
     port: 8080,
-    open: false
+    open: false,
   });
 });

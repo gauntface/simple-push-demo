@@ -27,7 +27,7 @@ gulp.task('html:watch', function() {
 
 gulp.task('html', function() {
   let stream = gulp.src([
-    global.config.src + '/**/*.html'
+    global.config.src + '/**/*.html',
   ]);
 
   if (global.config.env === 'prod') {

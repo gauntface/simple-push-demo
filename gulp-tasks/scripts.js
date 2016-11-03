@@ -20,49 +20,22 @@
 
 const gulp = require('gulp');
 const del = require('del');
-const eslint = require('gulp-eslint');
 const runSequence = require('run-sequence');
 const babel = require('gulp-babel');
 
 gulp.task('scripts:watch', function() {
   gulp.watch(global.config.src + '/**/*.js',
     ['scripts', global.config.browserSyncReload]);
-  gulp.watch(['./.eslintrc', './.eslintignore'], ['scripts'])
-    .on('change', function() {
-      if (global.config.browserSync) {
-        global.config.browserSync.reload();
-      }
-    });
 });
 
 gulp.task('scripts:copy', ['scripts:clean'], () => {
   return gulp.src([
-    global.config.src + '/**/*.js'
+    global.config.src + '/**/*.js',
   ])
   .pipe(babel({
-    presets: ['es2015']
+    presets: ['es2015'],
   }))
   .pipe(gulp.dest(global.config.dest));
-});
-
-gulp.task('scripts:eslint', function() {
-  let stream = gulp.src([global.config.src + '/**/*.js'])
-
-    // eslint() attaches the lint output to the eslint property,
-    // of the file object so it can be used by other modules.
-    .pipe(eslint())
-
-    // eslint.format() outputs the lint results to the console.
-    // Alternatively use eslint.formatEach() (see Docs).
-    .pipe(eslint.format());
-
-  // To have the process exit with an error code (1) on
-  // lint error, return the stream and pipe to failOnError last.
-  if (global.config.env === 'prod') {
-    stream = stream.pipe(eslint.failOnError());
-  }
-
-  return stream;
 });
 
 // Delete any files currently in the scripts destination path
@@ -75,7 +48,6 @@ gulp.task('scripts:clean', function(cb) {
 
 gulp.task('scripts', function(cb) {
   runSequence(
-    'scripts:eslint',
     'scripts:copy',
     cb
   );

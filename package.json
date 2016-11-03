@@ -6,6 +6,7 @@
     "chai": "^3.4.1",
     "chromedriver": "^2.24.1",
     "del": "^2.2.2",
+    "eslint": "^3.9.1",
     "eslint-config-google": "^0.7.0",
     "express": "^4.13.3",
     "geckodriver": "^1.2.0",
@@ -14,7 +15,6 @@
     "gulp-autoprefixer": "^3.1.1",
     "gulp-babel": "^6.1.2",
     "gulp-clean-css": "^2.0.6",
-    "gulp-eslint": "^3.0.1",
     "gulp-imagemin": "^3.1.1",
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
@@ -36,7 +36,8 @@
   },
   "private": true,
   "scripts": {
-    "test": "gulp && node ./test/helpers/download-browsers.js && mocha"
+    "lint": "eslint '.'",
+    "test": "gulp && npm run lint && node ./test/helpers/download-browsers.js && mocha"
   },
   "dependencies": {
     "atob": "^2.0.0",

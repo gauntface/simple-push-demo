@@ -25,7 +25,7 @@ const runSequence = require('run-sequence');
 gulp.task('test:manual', function() {
   const testServer = new TestServer();
   testServer.startServer(path.join(__dirname, '..'), 8888)
-  .then(portNumber => {
+  .then((portNumber) => {
     console.log('http://localhost:' + portNumber);
   });
 

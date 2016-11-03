@@ -28,8 +28,8 @@ global.config = {
   dest: 'build',
   license: 'Apache',
   licenseOptions: {
-    organization: 'Google Inc. All rights reserved.'
-  }
+    organization: 'Google Inc. All rights reserved.',
+  },
 };
 
 // Get tasks from gulp-tasks directory

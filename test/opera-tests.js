@@ -19,13 +19,15 @@
 // These tests make use of selenium-webdriver. You can find the relevant
 // documentation here: http://selenium.googlecode.com/git/docs/api/javascript/index.html
 
-require('chai').should();
 const fs = require('fs');
 const del = require('del');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const seleniumAssistant = require('selenium-assistant');
 const SWTestingHelpers = require('sw-testing-helpers');
+
+require('chai').should();
+
 const TestServer = SWTestingHelpers.TestServer;
 const mochaUtils = SWTestingHelpers.mochaUtils;
 
@@ -43,7 +45,7 @@ describe('Test simple-push-demo', function() {
   before(function() {
     testServer = new TestServer();
     return testServer.startServer(path.join(__dirname, '..'))
-      .then(portNumber => {
+      .then((portNumber) => {
         testServerURL = `http://localhost:${portNumber}`;
       });
   });
@@ -52,7 +54,7 @@ describe('Test simple-push-demo', function() {
     testServer.killServer();
   });
 
-  const queueUnitTest = browserInfo => {
+  const queueUnitTest = (browserInfo) => {
     describe(`Perform Tests in ${browserInfo.getPrettyName()}`, function() {
       // Driver is initialised to null to handle scenarios
       // where the desired browser isn't installed / fails to load
@@ -67,14 +69,14 @@ describe('Test simple-push-demo', function() {
             profile: {
               content_settings: {
                 exceptions: {
-                  notifications: {}
-                }
-              }
-            }
+                  notifications: {},
+                },
+              },
+            },
           };
           operaPreferences.profile.content_settings.exceptions.notifications[testServerURL + ',*'] = {
             last_used: 1464967088.793686,
-            setting: [1, 1464967088.793686]
+            setting: [1, 1464967088.793686],
           };
           // Write to file
           const tempPreferenceFile = './test/output/temp/opera';
@@ -90,7 +92,7 @@ describe('Test simple-push-demo', function() {
         }
 
         return browserInfo.getSeleniumDriver()
-          .then(driver => {
+          .then((driver) => {
             globalDriverReference = driver;
           });
       });
@@ -110,7 +112,7 @@ describe('Test simple-push-demo', function() {
           globalDriverReference,
           `${testServerURL}/test/browser-tests/`
         )
-          .then(testResults => {
+          .then((testResults) => {
             if (testResults.failed.length > 0) {
               const errorMessage = mochaUtils.prettyPrintErrors(
                 browserInfo.prettyName,
@@ -154,14 +156,14 @@ describe('Test simple-push-demo', function() {
               return JSON.stringify(window.performance.getEntries());
             });
           })
-          .then(performanceEntries => {
+          .then((performanceEntries) => {
             const requiredFiles = [
               '/scripts/main.js',
-              '/styles/main.css'
+              '/styles/main.css',
             ];
             performanceEntries = JSON.parse(performanceEntries);
-            performanceEntries.forEach(entry => {
-              requiredFiles.forEach(requiredFile => {
+            performanceEntries.forEach((entry) => {
+              requiredFiles.forEach((requiredFile) => {
                 if (entry.name.indexOf(requiredFile) === (entry.name.length - requiredFile.length)) {
                   requiredFiles.splice(requiredFiles.indexOf(requiredFile), 1);
                 }
@@ -206,7 +208,7 @@ describe('Test simple-push-demo', function() {
 
   seleniumAssistant.printAvailableBrowserInfo();
   const browsers = seleniumAssistant.getAvailableBrowsers();
-  browsers.forEach(browserInfo => {
+  browsers.forEach((browserInfo) => {
     // Marionette doesn't support tests auto-approving notifications :(
     // No firefox tests for now.
     if (browserInfo.getSeleniumBrowserId() !== 'opera') {
