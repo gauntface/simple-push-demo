@@ -2,7 +2,8 @@
 
 /* eslint-env browser, serviceworker */
 
-importScripts('./scripts/analytics.js');
+importScripts('./scripts/libs/idb-keyval.js');
+importScripts('./scripts/analytics-sw.js');
 
 self.analytics.trackingId = 'UA-77119321-2';
 

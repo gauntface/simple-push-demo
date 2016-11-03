@@ -2,6 +2,8 @@
 
 /* eslint-env browser, serviceworker */
 
+/* globals idbKeyval */
+
 // Make use of Google Analytics Measurement Protocol.
 // https://developers.google.com/analytics/devguides/collection/protocol/v1/reference
 class Analytics {
@@ -21,18 +23,21 @@ class Analytics {
       return Promise.resolve();
     }
 
-    return self.registration.pushManager.getSubscription()
-    .then((subscription) => {
-      if (subscription === null) {
+    return idbKeyval.get('google-analytics-client-id')
+    .catch(() => {
+      return null;
+    })
+    .then((clientId) => {
+      if (clientId === null) {
         // The user has not subscribed yet.
-        throw new Error('No subscription currently available.');
+        throw new Error('No Client ID currently available.');
       }
 
       const payloadData = {
         // Version Number
         v: 1,
         // Client ID
-        cid: subscription.endpoint,
+        cid: clientId,
         // Tracking ID
         tid: this.trackingId,
         // Hit Type

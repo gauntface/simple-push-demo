@@ -43,6 +43,7 @@
     "atob": "^2.0.0",
     "base64url": "^2.0.0",
     "body-parser": "^1.14.1",
+    "idb-keyval": "^2.1.2",
     "request-promise": "^4.0.2",
     "urlsafe-base64": "^1.0.0"
   }
