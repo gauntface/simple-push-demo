@@ -9,6 +9,7 @@
     "require-jsdoc": 0,
     "no-console": 0,
     "padded-blocks": 0,
-    "max-nested-callbacks": 0
+    "max-nested-callbacks": 0,
+    "no-invalid-this": 0
   }
 }

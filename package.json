@@ -8,14 +8,14 @@
     "del": "^2.2.2",
     "eslint-config-google": "^0.7.0",
     "express": "^4.13.3",
-    "geckodriver": "^1.1.3",
+    "geckodriver": "^1.2.0",
     "glob": "^7.1.0",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.1.1",
     "gulp-babel": "^6.1.2",
     "gulp-clean-css": "^2.0.6",
     "gulp-eslint": "^3.0.1",
-    "gulp-imagemin": "^3.0.3",
+    "gulp-imagemin": "^3.1.1",
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
     "gulp-rename": "^1.2.2",
@@ -29,11 +29,10 @@
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
     "selenium-assistant": "^2.0.5",
-    "selenium-webdriver": "^2.53.2",
     "sw-testing-helpers": "0.1.4"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">= 4"
   },
   "private": true,
   "scripts": {
