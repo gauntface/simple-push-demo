@@ -7,7 +7,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // from Material Design Lite website
 // @see https://getmdl.io/assets/snippets.js
 /* eslint-env browser */
-
 var MaterialComponentsSnippets = function () {
   function MaterialComponentsSnippets() {
     _classCallCheck(this, MaterialComponentsSnippets);
