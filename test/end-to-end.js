@@ -67,7 +67,6 @@ describe('Test simple-push-demo', function() {
       const PAYLOAD_TEST = 'Hello, world!';
 
       beforeEach(function() {
-        console.log(`${browserInfo.getSeleniumBrowserId()} ${browserInfo.getVersionNumber()}`);
         // Enable Notifications
         switch(browserInfo.getSeleniumBrowserId()) {
           case 'firefox': {
