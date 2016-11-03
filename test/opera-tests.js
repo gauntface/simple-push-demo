@@ -206,7 +206,6 @@ describe('Test simple-push-demo', function() {
     });
   };
 
-  seleniumAssistant.printAvailableBrowserInfo();
   const browsers = seleniumAssistant.getAvailableBrowsers();
   browsers.forEach((browserInfo) => {
     // Marionette doesn't support tests auto-approving notifications :(
