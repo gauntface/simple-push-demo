@@ -35,7 +35,7 @@ const AUTOPREFIXER_BROWSERS = [
   'opera >= 23',
   'ios >= 7',
   'android >= 4.4',
-  'bb >= 10'
+  'bb >= 10',
 ];
 
 gulp.task('styles:watch', function() {

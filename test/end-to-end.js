@@ -33,6 +33,7 @@ const seleniumFirefox = require('selenium-webdriver/firefox');
 
 require('geckodriver');
 require('chromedriver');
+require('operadriver');
 
 describe('Test simple-push-demo', function() {
   // Browser tests can be slow
@@ -48,16 +49,16 @@ describe('Test simple-push-demo', function() {
   before(function() {
     testServer = new TestServer();
     return testServer.startServer(path.join(__dirname, '..'))
-      .then(portNumber => {
-        testServerURL = `http://localhost:${portNumber}`;
-      });
+    .then((portNumber) => {
+      testServerURL = `http://localhost:${portNumber}`;
+    });
   });
 
   after(function() {
     testServer.killServer();
   });
 
-  const queueUnitTest = browserInfo => {
+  const queueUnitTest = (browserInfo) => {
     describe(`Perform Tests in ${browserInfo.getPrettyName()}`, function() {
       // Driver is initialised to null to handle scenarios
       // where the desired browser isn't installed / fails to load
@@ -67,62 +68,88 @@ describe('Test simple-push-demo', function() {
 
       beforeEach(function() {
         // Enable Notifications
-        if (browserInfo.getSeleniumBrowserId() === 'firefox') {
-          // This is based off of: https://bugzilla.mozilla.org/show_bug.cgi?id=1275521
-          // Unfortunately it doesn't seem to work :(
-          const ffProfile = new seleniumFirefox.Profile();
-          ffProfile.setPreference('dom.push.testing.ignorePermission', true);
-          ffProfile.setPreference('notification.prompt.testing', true);
-          ffProfile.setPreference('notification.prompt.testing.allow', true);
-          browserInfo.getSeleniumOptions().setProfile(ffProfile);
-        } else if (browserInfo.getSeleniumBrowserId() === 'chrome') {
-          /* eslint-disable camelcase */
-          const chromePreferences = {
-            profile: {
-              content_settings: {
-                exceptions: {
-                  notifications: {}
-                }
-              }
-            }
-          };
-          chromePreferences.profile.content_settings.exceptions.notifications[testServerURL + ',*'] = {
-            setting: 1
-          };
-          browserInfo.getSeleniumOptions().setUserPreferences(chromePreferences);
-          /* eslint-enable camelcase */
-        } else if (browserInfo.getSeleniumBrowserId() === 'opera') {
-          /* eslint-disable camelcase */
-          const operaPreferences = {
-            profile: {
-              content_settings: {
-                exceptions: {
-                  notifications: {}
-                }
-              }
-            }
-          };
-          operaPreferences.profile.content_settings.exceptions.notifications[testServerURL + ',*'] = {
-            last_used: 1464967088.793686,
-            setting: [1, 1464967088.793686]
-          };
-          // Write to file
-          const tempPreferenceFile = './test/output/temp/opera';
-          mkdirp.sync(tempPreferenceFile);
+        switch(browserInfo.getSeleniumBrowserId()) {
+          case 'firefox': {
+            // This is based off of: https://bugzilla.mozilla.org/show_bug.cgi?id=1275521
+            // Unfortunately it doesn't seem to work :(
+            const ffProfile = new seleniumFirefox.Profile();
+            ffProfile.setPreference('security.turn_off_all_security_so_that_' +
+              'viruses_can_take_over_this_computer', true);
+            ffProfile.setPreference('dom.push.testing.ignorePermission', true);
+            ffProfile.setPreference('notification.prompt.testing', true);
+            ffProfile.setPreference('notification.prompt.testing.allow', true);
+            browserInfo.getSeleniumOptions().setProfile(ffProfile);
+            break;
+          }
+          case 'opera': {
+            /* eslint-disable camelcase */
+            const operaPreferences = {
+              profile: {
+                content_settings: {
+                  exceptions: {
+                    notifications: {},
+                  },
+                },
+              },
+            };
+            operaPreferences.profile.content_settings.exceptions
+            .notifications[testServerURL + ',*'] = {
+              last_used: 1464967088.793686,
+              setting: [1, 1464967088.793686],
+            };
+            // Write to file
+            const tempPreferenceFile = './test/output/temp/opera';
+            mkdirp.sync(tempPreferenceFile);
 
-          fs.writeFileSync(`${tempPreferenceFile}/Preferences`, JSON.stringify(operaPreferences));
-          /* eslint-enable camelcase */
-          const options = browserInfo.getSeleniumOptions();
-          // const newOptions = new seleniumChrome.Options();
-          // newOptions.setChromeBinaryPath(browserInfo._getExecutablePath());
-          options.addArguments(`user-data-dir=${tempPreferenceFile}/`);
-          // browserInfo.setSeleniumOptions(newOptions);
+            fs.writeFileSync(`${tempPreferenceFile}/Preferences`, JSON.stringify(operaPreferences));
+            /* eslint-enable camelcase */
+            const options = browserInfo.getSeleniumOptions();
+            options.addArguments(`user-data-dir=${tempPreferenceFile}/`);
+            break;
+          }
+          case 'chrome': {
+            /* eslint-disable camelcase */
+            const chromePreferences = {
+              profile: {
+                content_settings: {
+                  exceptions: {
+                    notifications: {},
+                  },
+                },
+              },
+            };
+            chromePreferences.profile.content_settings.
+              exceptions.notifications[testServerURL + ',*'] = {
+              setting: 1,
+            };
+            browserInfo.getSeleniumOptions().setUserPreferences(chromePreferences);
+            /* eslint-enable camelcase */
+            break;
+          }
         }
 
         return browserInfo.getSeleniumDriver()
-          .then(driver => {
-            globalDriverReference = driver;
-          });
+        .then((driver) => {
+          globalDriverReference = driver;
+        })
+        .then(() => {
+          // This adds extra code to make notifications auto-grant perission
+          if (browserInfo.getSeleniumBrowserId() === 'firefox') {
+            globalDriverReference.setContext(seleniumFirefox.Context.CHROME);
+            return globalDriverReference.executeScript((url) => {
+              /* global Components, Services */
+              Components.utils.import('resource://gre/modules/Services.jsm');
+              const uri = Services.io.newURI(url, null, null);
+              const principal = Services.scriptSecurityManager
+                .getNoAppCodebasePrincipal(uri);
+              Services.perms.addFromPrincipal(
+                principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
+            }, testServerURL)
+            .then(() => {
+              globalDriverReference.setContext(seleniumFirefox.Context.CONTENT);
+            });
+          }
+        });
       });
 
       afterEach(function() {
@@ -140,7 +167,7 @@ describe('Test simple-push-demo', function() {
           globalDriverReference,
           `${testServerURL}/test/browser-tests/`
         )
-          .then(testResults => {
+          .then((testResults) => {
             if (testResults.failed.length > 0) {
               const errorMessage = mochaUtils.prettyPrintErrors(
                 browserInfo.prettyName,
@@ -184,14 +211,14 @@ describe('Test simple-push-demo', function() {
               return JSON.stringify(window.performance.getEntries());
             });
           })
-          .then(performanceEntries => {
+          .then((performanceEntries) => {
             const requiredFiles = [
               '/scripts/main.js',
-              '/styles/main.css'
+              '/styles/main.css',
             ];
             performanceEntries = JSON.parse(performanceEntries);
-            performanceEntries.forEach(entry => {
-              requiredFiles.forEach(requiredFile => {
+            performanceEntries.forEach((entry) => {
+              requiredFiles.forEach((requiredFile) => {
                 if (entry.name.indexOf(requiredFile) === (entry.name.length - requiredFile.length)) {
                   requiredFiles.splice(requiredFiles.indexOf(requiredFile), 1);
                 }
@@ -231,13 +258,13 @@ describe('Test simple-push-demo', function() {
           })
           .then(() => {
             return globalDriverReference.wait(function() {
-              return globalDriverReference.executeAsyncScript(function() {
-                const cb = arguments[arguments.length - 1];
+              return globalDriverReference.executeAsyncScript(function(...args) {
+                const cb = args[args.length - 1];
                 navigator.serviceWorker.getRegistration()
-                  .then(registration => {
+                  .then((registration) => {
                     return registration.getNotifications();
                   })
-                  .then(notifications => {
+                  .then((notifications) => {
                     cb(notifications.length > 0);
                   });
               }, 2000);
@@ -245,20 +272,20 @@ describe('Test simple-push-demo', function() {
           })
           .then(() => {
             // Detect notification
-            return globalDriverReference.executeAsyncScript(function() {
-              const cb = arguments[arguments.length - 1];
+            return globalDriverReference.executeAsyncScript(function(...args) {
+              const cb = args[args.length - 1];
               navigator.serviceWorker.getRegistration()
-                .then(registration => {
+                .then((registration) => {
                   return registration.getNotifications();
                 })
-                .then(notifications => {
+                .then((notifications) => {
                   const notificationInfo = [];
-                  notifications.forEach(notification => {
+                  notifications.forEach((notification) => {
                     notificationInfo.push({
                       title: notification.title,
                       body: notification.body,
                       icon: notification.icon,
-                      tag: notification.tag
+                      tag: notification.tag,
                     });
 
                     notification.close();
@@ -267,7 +294,7 @@ describe('Test simple-push-demo', function() {
                 });
             }, 2000);
           })
-          .then(notificationInfo => {
+          .then((notificationInfo) => {
             notificationInfo.length.should.equal(1);
             notificationInfo[0].title.should.equal('Hello');
             notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
@@ -327,7 +354,7 @@ describe('Test simple-push-demo', function() {
               return curlCodeElement.textContent;
             });
           })
-          .then(curlCommand => {
+          .then((curlCommand) => {
             curlCommand.length.should.be.above(0);
 
             // Need to use the curl command
@@ -352,13 +379,14 @@ describe('Test simple-push-demo', function() {
           })
           .then(() => {
             return globalDriverReference.wait(function() {
-              return globalDriverReference.executeAsyncScript(function() {
-                const cb = arguments[arguments.length - 1];
-                navigator.serviceWorker.getRegistration()
-                  .then(registration => {
+              return globalDriverReference.executeAsyncScript(
+                function(...args) {
+                  const cb = args[args.length - 1];
+                  navigator.serviceWorker.getRegistration()
+                  .then((registration) => {
                     return registration.getNotifications();
                   })
-                  .then(notifications => {
+                  .then((notifications) => {
                     cb(notifications.length > 0);
                   });
               }, 2000);
@@ -366,20 +394,20 @@ describe('Test simple-push-demo', function() {
           })
           .then(() => {
             // Detect notification
-            return globalDriverReference.executeAsyncScript(function() {
-              const cb = arguments[arguments.length - 1];
+            return globalDriverReference.executeAsyncScript(function(...args) {
+              const cb = args[args.length - 1];
               navigator.serviceWorker.getRegistration()
-                .then(registration => {
+                .then((registration) => {
                   return registration.getNotifications();
                 })
-                .then(notifications => {
+                .then((notifications) => {
                   const notificationInfo = [];
-                  notifications.forEach(notification => {
+                  notifications.forEach((notification) => {
                     notificationInfo.push({
                       title: notification.title,
                       body: notification.body,
                       icon: notification.icon,
-                      tag: notification.tag
+                      tag: notification.tag,
                     });
 
                     notification.close();
@@ -388,7 +416,7 @@ describe('Test simple-push-demo', function() {
                 });
             }, 2000);
           })
-          .then(notificationInfo => {
+          .then((notificationInfo) => {
             notificationInfo.length.should.equal(1);
             notificationInfo[0].title.should.equal('Hello');
             notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
@@ -453,13 +481,14 @@ describe('Test simple-push-demo', function() {
           })
           .then(() => {
             return globalDriverReference.wait(function() {
-              return globalDriverReference.executeAsyncScript(function() {
-                const cb = arguments[arguments.length - 1];
-                navigator.serviceWorker.getRegistration()
-                  .then(registration => {
+              return globalDriverReference.executeAsyncScript(
+                function(...args) {
+                  const cb = args[args.length - 1];
+                  navigator.serviceWorker.getRegistration()
+                  .then((registration) => {
                     return registration.getNotifications();
                   })
-                  .then(notifications => {
+                  .then((notifications) => {
                     cb(notifications.length > 0);
                   });
               }, 2000);
@@ -467,20 +496,20 @@ describe('Test simple-push-demo', function() {
           })
           .then(() => {
             // Detect notification
-            return globalDriverReference.executeAsyncScript(function() {
-              const cb = arguments[arguments.length - 1];
+            return globalDriverReference.executeAsyncScript(function(...args) {
+              const cb = args[args.length - 1];
               navigator.serviceWorker.getRegistration()
-                .then(registration => {
+                .then((registration) => {
                   return registration.getNotifications();
                 })
-                .then(notifications => {
+                .then((notifications) => {
                   const notificationInfo = [];
-                  notifications.forEach(notification => {
+                  notifications.forEach((notification) => {
                     notificationInfo.push({
                       title: notification.title,
                       body: notification.body,
                       icon: notification.icon,
-                      tag: notification.tag
+                      tag: notification.tag,
                     });
 
                     notification.close();
@@ -489,7 +518,7 @@ describe('Test simple-push-demo', function() {
                 });
             }, 2000);
           })
-          .then(notificationInfo => {
+          .then((notificationInfo) => {
             notificationInfo.length.should.equal(1);
             notificationInfo[0].title.should.equal('Received Payload');
             notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
@@ -552,7 +581,7 @@ describe('Test simple-push-demo', function() {
             }, PAYLOAD_TEST);
           })
           .then(() => {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
               // Slight timeout to ensure the payload is updated on Travis
               setTimeout(resolve, 500);
             });
@@ -576,7 +605,7 @@ describe('Test simple-push-demo', function() {
               return curlCodeElement.textContent;
             });
           })
-          .then(curlCommand => {
+          .then((curlCommand) => {
             if (curlCommand.length > 0) {
               // Need to use the curl command
               return new Promise((resolve, reject) => {
@@ -599,34 +628,36 @@ describe('Test simple-push-demo', function() {
               })
                 .then(() => {
                   return globalDriverReference.wait(function() {
-                    return globalDriverReference.executeAsyncScript(function() {
-                      const cb = arguments[arguments.length - 1];
-                      navigator.serviceWorker.getRegistration()
-                        .then(registration => {
+                    return globalDriverReference.executeAsyncScript(
+                      function(...args) {
+                        const cb = args[args.length - 1];
+                        navigator.serviceWorker.getRegistration()
+                        .then((registration) => {
                           return registration.getNotifications();
                         })
-                        .then(notifications => {
+                        .then((notifications) => {
                           cb(notifications.length > 0);
                         });
-                    }, 2000);
+                      }, 2000);
                   });
                 })
                 .then(() => {
                   // Detect notification
-                  return globalDriverReference.executeAsyncScript(function() {
-                    const cb = arguments[arguments.length - 1];
-                    navigator.serviceWorker.getRegistration()
-                      .then(registration => {
+                  return globalDriverReference.executeAsyncScript(
+                    function(...args) {
+                      const cb = args[args.length - 1];
+                      navigator.serviceWorker.getRegistration()
+                      .then((registration) => {
                         return registration.getNotifications();
                       })
-                      .then(notifications => {
+                      .then((notifications) => {
                         const notificationInfo = [];
-                        notifications.forEach(notification => {
+                        notifications.forEach((notification) => {
                           notificationInfo.push({
                             title: notification.title,
                             body: notification.body,
                             icon: notification.icon,
-                            tag: notification.tag
+                            tag: notification.tag,
                           });
 
                           notification.close();
@@ -635,7 +666,7 @@ describe('Test simple-push-demo', function() {
                       });
                   }, 2000);
                 })
-                .then(notificationInfo => {
+                .then((notificationInfo) => {
                   notificationInfo.length.should.equal(1);
                   notificationInfo[0].title.should.equal('Received Payload');
                   notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
@@ -653,17 +684,8 @@ describe('Test simple-push-demo', function() {
 
   seleniumAssistant.printAvailableBrowserInfo();
   const browsers = seleniumAssistant.getAvailableBrowsers();
-  browsers.forEach(browserInfo => {
-    // Marionette doesn't support tests auto-approving notifications :(
-    // No firefox tests for now.
-    if (browserInfo.getSeleniumBrowserId() === 'firefox' &&
-      browserInfo.getVersionNumber() <= 48) {
-      // 49 has issues with marionette / permission issues.
-      return;
-    }
-
-    if (browserInfo.getSeleniumBrowserId() === 'opera' &&
-        browserInfo.getVersionNumber() <= 39) {
+  browsers.forEach((browserInfo) => {
+    if (browserInfo.getSeleniumBrowserId() === 'opera') {
       // Opera has no feature detect for push support, so bail
       return;
     }

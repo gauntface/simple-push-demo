@@ -40,7 +40,7 @@ gulp.task('images', ['images:clean'], function() {
     stream = stream.pipe(imagemin({
       progressive: true,
       interlaced: true,
-      svgoPlugins: [{removeViewBox: false}]
+      svgoPlugins: [{removeViewBox: false}],
     }));
   }
 

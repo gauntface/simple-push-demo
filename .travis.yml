@@ -5,7 +5,8 @@ cache:
   directories:
   - node_modules
 node_js:
-- stable
+# Node 7 a.k.a 'stable' has an issue with gulp or vinyl-fs :(
+- 6
 env:
   global:
   - GH_REF: github.com/gauntface/simple-push-demo.git
