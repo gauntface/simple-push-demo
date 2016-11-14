@@ -7,7 +7,7 @@
 // Make use of Google Analytics Measurement Protocol.
 // https://developers.google.com/analytics/devguides/collection/protocol/v1/reference
 class Analytics {
-  trackEvent(eventAction, eventValue) {
+  trackEvent(eventAction, eventValue, optionalParams) {
     if (!this.trackingId) {
       console.error('You need to set a trackingId, for example:');
       console.error('self.analytics.trackingId = \'UA-XXXXXXXX-X\';');
@@ -17,7 +17,8 @@ class Analytics {
       return Promise.resolve();
     }
 
-    if (!eventAction && !eventValue) {
+    if (typeof eventAction === 'undefined' ||
+      typeof eventValue === 'undefined') {
       console.warn('sendAnalyticsEvent() called with no eventAction or ' +
       'eventValue.');
       return Promise.resolve();
@@ -30,7 +31,7 @@ class Analytics {
     .then((clientId) => {
       if (clientId === null) {
         // The user has not subscribed yet.
-        throw new Error('No Client ID currently available.');
+        console.warn('No Client ID currently available.');
       }
 
       const payloadData = {
@@ -51,6 +52,10 @@ class Analytics {
         // Event Value
         ev: eventValue,
       };
+
+      Object.keys(optionalParams).forEach((key) => {
+        payloadData[key] = optionalParams[key];
+      });
 
       const payloadString = Object.keys(payloadData)
       .filter((analyticsKey) => {
