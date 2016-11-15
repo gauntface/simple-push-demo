@@ -6,7 +6,7 @@
     "chai": "^3.4.1",
     "chromedriver": "^2.24.1",
     "del": "^2.2.2",
-    "eslint": "^3.9.1",
+    "eslint": "^3.10.1",
     "eslint-config-google": "^0.7.0",
     "express": "^4.13.3",
     "geckodriver": "^1.2.0",
@@ -28,7 +28,7 @@
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
-    "selenium-assistant": "^2.0.5",
+    "selenium-assistant": "^3.0.0",
     "sw-testing-helpers": "0.1.4"
   },
   "engines": {
@@ -43,6 +43,7 @@
     "atob": "^2.0.0",
     "base64url": "^2.0.0",
     "body-parser": "^1.14.1",
+    "idb-keyval": "^2.1.2",
     "request-promise": "^4.0.2",
     "urlsafe-base64": "^1.0.0"
   }

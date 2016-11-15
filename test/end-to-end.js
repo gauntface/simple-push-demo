@@ -39,7 +39,7 @@ describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  if (process.env.TRAVIS) {
+  if (process.env.TRAVIS || process.env.RELEASE) {
     this.retries(4);
   }
 
@@ -66,7 +66,7 @@ describe('Test simple-push-demo', function() {
       let globalDriverReference = null;
       const PAYLOAD_TEST = 'Hello, world!';
 
-      beforeEach(function() {
+      function initDriver() {
         // Enable Notifications
         switch(browserInfo.getSeleniumBrowserId()) {
           case 'firefox': {
@@ -150,7 +150,7 @@ describe('Test simple-push-demo', function() {
             });
           }
         });
-      });
+      }
 
       afterEach(function() {
         this.timeout(10000);
@@ -162,116 +162,108 @@ describe('Test simple-push-demo', function() {
       });
 
       it(`should pass all browser tests`, () => {
-        return mochaUtils.startWebDriverMochaTests(
-          browserInfo.getPrettyName(),
-          globalDriverReference,
-          `${testServerURL}/test/browser-tests/`
-        )
-          .then((testResults) => {
-            if (testResults.failed.length > 0) {
-              const errorMessage = mochaUtils.prettyPrintErrors(
-                browserInfo.prettyName,
-                testResults
-              );
+        return initDriver()
+        .then(() => {
+          return mochaUtils.startWebDriverMochaTests(
+            browserInfo.getPrettyName(),
+            globalDriverReference,
+            `${testServerURL}/test/browser-tests/`
+          );
+        })
+        .then((testResults) => {
+          if (testResults.failed.length > 0) {
+            const errorMessage = mochaUtils.prettyPrintErrors(
+              browserInfo.prettyName,
+              testResults
+            );
 
-              throw new Error(errorMessage);
-            }
-          });
+            throw new Error(errorMessage);
+          }
+        });
       });
 
       it(`should pass sanity checks and be able to trigger and receive a tickle`, function() {
         // Load simple push demo page
-        return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
-          .then(() => {
-            return globalDriverReference.get(`${testServerURL}/build/`);
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                return document.body.dataset.simplePushDemoLoaded;
-              });
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                return toggleSwitch.disabled === false;
-              });
-            });
-          })
-          .then(() => {
-            // Check for network errors
+        return initDriver()
+        .then(() => {
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+        })
+        .then(() => {
+          return globalDriverReference.get(`${testServerURL}/build/`);
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
             return globalDriverReference.executeScript(function() {
-              /* eslint-env browser */
-              if (!window.performance) {
-                return null;
-              }
-
-              return JSON.stringify(window.performance.getEntries());
+              return document.body.dataset.simplePushDemoLoaded;
             });
-          })
-          .then((performanceEntries) => {
-            const requiredFiles = [
-              '/scripts/main.js',
-              '/styles/main.css',
-            ];
-            performanceEntries = JSON.parse(performanceEntries);
-            performanceEntries.forEach((entry) => {
-              requiredFiles.forEach((requiredFile) => {
-                if (entry.name.indexOf(requiredFile) === (entry.name.length - requiredFile.length)) {
-                  requiredFiles.splice(requiredFiles.indexOf(requiredFile), 1);
-                }
-              });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              return toggleSwitch.disabled === false;
             });
-
-            if (requiredFiles.length !== 0) {
-              throw new Error('Missing required files in the final page', requiredFiles);
+          });
+        })
+        .then(() => {
+          // Check for network errors
+          return globalDriverReference.executeScript(function() {
+            /* eslint-env browser */
+            if (!window.performance) {
+              return null;
             }
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                return toggleSwitch.disabled === false;
-              });
+
+            return JSON.stringify(window.performance.getEntries());
+          });
+        })
+        .then((performanceEntries) => {
+          const requiredFiles = [
+            '/scripts/main.js',
+            '/styles/main.css',
+          ];
+          performanceEntries = JSON.parse(performanceEntries);
+          performanceEntries.forEach((entry) => {
+            requiredFiles.forEach((requiredFile) => {
+              if (entry.name.indexOf(requiredFile) === (entry.name.length - requiredFile.length)) {
+                requiredFiles.splice(requiredFiles.indexOf(requiredFile), 1);
+              }
             });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                if (toggleSwitch.disabled === false && toggleSwitch.checked) {
-                  return true;
-                }
-                toggleSwitch.click();
-                return false;
-              });
-            });
-          })
-          .then(() => {
-            // Click XHR Button
+          });
+
+          if (requiredFiles.length !== 0) {
+            throw new Error('Missing required files in the final page', requiredFiles);
+          }
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
             return globalDriverReference.executeScript(function() {
-              const pushButton = document.querySelector('.js-send-push-button');
-              pushButton.click();
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              return toggleSwitch.disabled === false;
             });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeAsyncScript(function(...args) {
-                const cb = args[args.length - 1];
-                navigator.serviceWorker.getRegistration()
-                  .then((registration) => {
-                    return registration.getNotifications();
-                  })
-                  .then((notifications) => {
-                    cb(notifications.length > 0);
-                  });
-              }, 2000);
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              if (toggleSwitch.disabled === false && toggleSwitch.checked) {
+                return true;
+              }
+              toggleSwitch.click();
+              return false;
             });
-          })
-          .then(() => {
-            // Detect notification
+          });
+        })
+        .then(() => {
+          // Click XHR Button
+          return globalDriverReference.executeScript(function() {
+            const pushButton = document.querySelector('.js-send-push-button');
+            pushButton.click();
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
             return globalDriverReference.executeAsyncScript(function(...args) {
               const cb = args[args.length - 1];
               navigator.serviceWorker.getRegistration()
@@ -279,84 +271,357 @@ describe('Test simple-push-demo', function() {
                   return registration.getNotifications();
                 })
                 .then((notifications) => {
-                  const notificationInfo = [];
-                  notifications.forEach((notification) => {
-                    notificationInfo.push({
-                      title: notification.title,
-                      body: notification.body,
-                      icon: notification.icon,
-                      tag: notification.tag,
-                    });
-
-                    notification.close();
-                  });
-                  cb(notificationInfo);
+                  cb(notifications.length > 0);
                 });
             }, 2000);
-          })
-          .then((notificationInfo) => {
-            notificationInfo.length.should.equal(1);
-            notificationInfo[0].title.should.equal('Hello');
-            notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
-            notificationInfo[0].tag.should.equal('simple-push-demo-notification');
-
-            // Chrome adds the origin, FF doesn't
-            const notifcationImg = '/images/logo-192x192.png';
-            notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
           });
+        })
+        .then(() => {
+          // Detect notification
+          return globalDriverReference.executeAsyncScript(function(...args) {
+            const cb = args[args.length - 1];
+            navigator.serviceWorker.getRegistration()
+              .then((registration) => {
+                return registration.getNotifications();
+              })
+              .then((notifications) => {
+                const notificationInfo = [];
+                notifications.forEach((notification) => {
+                  notificationInfo.push({
+                    title: notification.title,
+                    body: notification.body,
+                    icon: notification.icon,
+                    tag: notification.tag,
+                  });
+
+                  notification.close();
+                });
+                cb(notificationInfo);
+              });
+          }, 2000);
+        })
+        .then((notificationInfo) => {
+          notificationInfo.length.should.equal(1);
+          notificationInfo[0].title.should.equal('Hello');
+          notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
+          notificationInfo[0].tag.should.equal('simple-push-demo-notification');
+
+          // Chrome adds the origin, FF doesn't
+          const notifcationImg = '/images/logo-192x192.png';
+          notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+        });
       });
 
       it(`should be able to trigger and receive a tickle via CURL`, function() {
         // Load simple push demo page
-        return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
-          .then(() => {
-            return globalDriverReference.get(`${testServerURL}/build/`);
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                return document.body.dataset.simplePushDemoLoaded;
-              });
+        return initDriver()
+        .then(() => {
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+        })
+        .then(() => {
+          return globalDriverReference.get(`${testServerURL}/build/`);
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              return document.body.dataset.simplePushDemoLoaded;
             });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                return toggleSwitch.disabled === false;
-              });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              return toggleSwitch.disabled === false;
             });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                if (toggleSwitch.disabled === false && toggleSwitch.checked) {
-                  return true;
-                }
-                toggleSwitch.click();
-                return false;
-              });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              if (toggleSwitch.disabled === false && toggleSwitch.checked) {
+                return true;
+              }
+              toggleSwitch.click();
+              return false;
             });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const curlCodeElement = document.querySelector('.js-curl-code');
-                return curlCodeElement.textContent.length > 0;
-              });
-            });
-          })
-          .then(() => {
-            // Check curl command exists
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
             return globalDriverReference.executeScript(function() {
               const curlCodeElement = document.querySelector('.js-curl-code');
-              return curlCodeElement.textContent;
+              return curlCodeElement.textContent.length > 0;
             });
-          })
-          .then((curlCommand) => {
-            curlCommand.length.should.be.above(0);
+          });
+        })
+        .then(() => {
+          // Check curl command exists
+          return globalDriverReference.executeScript(function() {
+            const curlCodeElement = document.querySelector('.js-curl-code');
+            return curlCodeElement.textContent;
+          });
+        })
+        .then((curlCommand) => {
+          curlCommand.length.should.be.above(0);
 
+          // Need to use the curl command
+          return new Promise((resolve, reject) => {
+            exec(curlCommand, (error, stdout) => {
+              if (error !== null) {
+                return reject(error);
+              }
+
+              if (stdout) {
+                const gcmResponse = JSON.parse(stdout);
+                if (gcmResponse.failure === 0) {
+                  resolve();
+                } else {
+                  reject('Bad GCM Response: ' + stdout);
+                }
+              } else {
+                resolve();
+              }
+            });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeAsyncScript(
+              function(...args) {
+                const cb = args[args.length - 1];
+                navigator.serviceWorker.getRegistration()
+                .then((registration) => {
+                  return registration.getNotifications();
+                })
+                .then((notifications) => {
+                  cb(notifications.length > 0);
+                });
+            }, 2000);
+          });
+        })
+        .then(() => {
+          // Detect notification
+          return globalDriverReference.executeAsyncScript(function(...args) {
+            const cb = args[args.length - 1];
+            navigator.serviceWorker.getRegistration()
+              .then((registration) => {
+                return registration.getNotifications();
+              })
+              .then((notifications) => {
+                const notificationInfo = [];
+                notifications.forEach((notification) => {
+                  notificationInfo.push({
+                    title: notification.title,
+                    body: notification.body,
+                    icon: notification.icon,
+                    tag: notification.tag,
+                  });
+
+                  notification.close();
+                });
+                cb(notificationInfo);
+              });
+          }, 2000);
+        })
+        .then((notificationInfo) => {
+          notificationInfo.length.should.equal(1);
+          notificationInfo[0].title.should.equal('Hello');
+          notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
+          notificationInfo[0].tag.should.equal('simple-push-demo-notification');
+
+          // Chrome adds the origin, FF doesn't
+          const notifcationImg = '/images/logo-192x192.png';
+          notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+        });
+      });
+
+      it(`should be able to enter payload text and receive a push message in ${browserInfo.getPrettyName()}`, function() {
+        // Load simple push demo page
+        return initDriver()
+        .then(() => {
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+        })
+        .then(() => {
+          return globalDriverReference.get(`${testServerURL}/build/`);
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              return document.body.dataset.simplePushDemoLoaded;
+            });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              return toggleSwitch.disabled === false;
+            });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              if (toggleSwitch.disabled === false && toggleSwitch.checked) {
+                return true;
+              }
+              toggleSwitch.click();
+              return false;
+            });
+          });
+        })
+        .then(() => {
+          // Add Payload text
+          return globalDriverReference.executeScript(function(payloadText) {
+            const textfield = document.querySelector('.js-payload-textfield');
+            textfield.value = payloadText;
+
+            // This triggers the logic to hide / display options for
+            // triggering push messages
+            textfield.oninput();
+          }, PAYLOAD_TEST);
+        })
+        .then(() => {
+          // Attempt to trigger push via fetch button
+          return globalDriverReference.executeScript(function() {
+            const pushButton = document.querySelector('.js-send-push-button');
+            pushButton.click();
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeAsyncScript(
+              function(...args) {
+                const cb = args[args.length - 1];
+                navigator.serviceWorker.getRegistration()
+                .then((registration) => {
+                  return registration.getNotifications();
+                })
+                .then((notifications) => {
+                  cb(notifications.length > 0);
+                });
+            }, 2000);
+          });
+        })
+        .then(() => {
+          // Detect notification
+          return globalDriverReference.executeAsyncScript(function(...args) {
+            const cb = args[args.length - 1];
+            navigator.serviceWorker.getRegistration()
+              .then((registration) => {
+                return registration.getNotifications();
+              })
+              .then((notifications) => {
+                const notificationInfo = [];
+                notifications.forEach((notification) => {
+                  notificationInfo.push({
+                    title: notification.title,
+                    body: notification.body,
+                    icon: notification.icon,
+                    tag: notification.tag,
+                  });
+
+                  notification.close();
+                });
+                cb(notificationInfo);
+              });
+          }, 2000);
+        })
+        .then((notificationInfo) => {
+          notificationInfo.length.should.equal(1);
+          notificationInfo[0].title.should.equal('Received Payload');
+          notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
+          notificationInfo[0].tag.should.equal('simple-push-demo-notification');
+
+          // Chrome adds the origin, FF doesn't
+          const notifcationImg = '/images/logo-192x192.png';
+          notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+        });
+      });
+
+      it(`should be able to trigger and receive a message with payload via CURL or unless no CURL command is shown`, function() {
+        // Load simple push demo page
+        return initDriver()
+        .then(() => {
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+        })
+        .then(() => {
+          return globalDriverReference.get(`${testServerURL}/build/`);
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              return document.body.dataset.simplePushDemoLoaded;
+            });
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              return toggleSwitch.disabled === false;
+            });
+          });
+        })
+        .then(() => {
+          // Toggle subscription switch
+          return globalDriverReference.executeScript(function() {
+            /* eslint-env browser */
+            const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+            if (!toggleSwitch.checked) {
+              toggleSwitch.click();
+            }
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
+              return toggleSwitch.disabled === false && toggleSwitch.checked;
+            });
+          });
+        })
+        .then(() => {
+          // Add Payload text
+          return globalDriverReference.executeScript(function(payloadText) {
+            const textfield = document.querySelector('.js-payload-textfield');
+            textfield.value = payloadText;
+
+            // This triggers the logic to hide / display options for
+            // triggering push messages
+            textfield.oninput();
+          }, PAYLOAD_TEST);
+        })
+        .then(() => {
+          return new Promise((resolve) => {
+            // Slight timeout to ensure the payload is updated on Travis
+            setTimeout(resolve, 500);
+          });
+        })
+        .then(() => {
+          return globalDriverReference.wait(function() {
+            return globalDriverReference.executeScript(function() {
+              const curlCodeElement = document.querySelector('.js-curl-code');
+              return curlCodeElement.textContent.length > 0;
+            });
+          });
+        })
+        .then(() => {
+          // Check curl command exists
+          return globalDriverReference.executeScript(function() {
+            const curlCodeElement = document.querySelector('.js-curl-code');
+            if (curlCodeElement.style.display === 'none') {
+              return '';
+            }
+
+            return curlCodeElement.textContent;
+          });
+        })
+        .then((curlCommand) => {
+          if (curlCommand.length > 0) {
             // Need to use the curl command
             return new Promise((resolve, reject) => {
               exec(curlCommand, (error, stdout) => {
@@ -375,274 +640,9 @@ describe('Test simple-push-demo', function() {
                   resolve();
                 }
               });
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeAsyncScript(
-                function(...args) {
-                  const cb = args[args.length - 1];
-                  navigator.serviceWorker.getRegistration()
-                  .then((registration) => {
-                    return registration.getNotifications();
-                  })
-                  .then((notifications) => {
-                    cb(notifications.length > 0);
-                  });
-              }, 2000);
-            });
-          })
-          .then(() => {
-            // Detect notification
-            return globalDriverReference.executeAsyncScript(function(...args) {
-              const cb = args[args.length - 1];
-              navigator.serviceWorker.getRegistration()
-                .then((registration) => {
-                  return registration.getNotifications();
-                })
-                .then((notifications) => {
-                  const notificationInfo = [];
-                  notifications.forEach((notification) => {
-                    notificationInfo.push({
-                      title: notification.title,
-                      body: notification.body,
-                      icon: notification.icon,
-                      tag: notification.tag,
-                    });
-
-                    notification.close();
-                  });
-                  cb(notificationInfo);
-                });
-            }, 2000);
-          })
-          .then((notificationInfo) => {
-            notificationInfo.length.should.equal(1);
-            notificationInfo[0].title.should.equal('Hello');
-            notificationInfo[0].body.should.equal('Thanks for sending this push msg.');
-            notificationInfo[0].tag.should.equal('simple-push-demo-notification');
-
-            // Chrome adds the origin, FF doesn't
-            const notifcationImg = '/images/logo-192x192.png';
-            notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
-          });
-      });
-
-      it(`should be able to enter payload text and receive a push message in ${browserInfo.getPrettyName()}`, function() {
-        // Load simple push demo page
-        return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
-          .then(() => {
-            return globalDriverReference.get(`${testServerURL}/build/`);
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                return document.body.dataset.simplePushDemoLoaded;
-              });
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                return toggleSwitch.disabled === false;
-              });
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                if (toggleSwitch.disabled === false && toggleSwitch.checked) {
-                  return true;
-                }
-                toggleSwitch.click();
-                return false;
-              });
-            });
-          })
-          .then(() => {
-            // Add Payload text
-            return globalDriverReference.executeScript(function(payloadText) {
-              const textfield = document.querySelector('.js-payload-textfield');
-              textfield.value = payloadText;
-
-              // This triggers the logic to hide / display options for
-              // triggering push messages
-              textfield.oninput();
-            }, PAYLOAD_TEST);
-          })
-          .then(() => {
-            // Attempt to trigger push via fetch button
-            return globalDriverReference.executeScript(function() {
-              const pushButton = document.querySelector('.js-send-push-button');
-              pushButton.click();
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeAsyncScript(
-                function(...args) {
-                  const cb = args[args.length - 1];
-                  navigator.serviceWorker.getRegistration()
-                  .then((registration) => {
-                    return registration.getNotifications();
-                  })
-                  .then((notifications) => {
-                    cb(notifications.length > 0);
-                  });
-              }, 2000);
-            });
-          })
-          .then(() => {
-            // Detect notification
-            return globalDriverReference.executeAsyncScript(function(...args) {
-              const cb = args[args.length - 1];
-              navigator.serviceWorker.getRegistration()
-                .then((registration) => {
-                  return registration.getNotifications();
-                })
-                .then((notifications) => {
-                  const notificationInfo = [];
-                  notifications.forEach((notification) => {
-                    notificationInfo.push({
-                      title: notification.title,
-                      body: notification.body,
-                      icon: notification.icon,
-                      tag: notification.tag,
-                    });
-
-                    notification.close();
-                  });
-                  cb(notificationInfo);
-                });
-            }, 2000);
-          })
-          .then((notificationInfo) => {
-            notificationInfo.length.should.equal(1);
-            notificationInfo[0].title.should.equal('Received Payload');
-            notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
-            notificationInfo[0].tag.should.equal('simple-push-demo-notification');
-
-            // Chrome adds the origin, FF doesn't
-            const notifcationImg = '/images/logo-192x192.png';
-            notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
-          });
-      });
-
-      it(`should be able to trigger and receive a message with payload via CURL or unless no CURL command is shown`, function() {
-        // Load simple push demo page
-        return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
-          .then(() => {
-            return globalDriverReference.get(`${testServerURL}/build/`);
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                return document.body.dataset.simplePushDemoLoaded;
-              });
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                return toggleSwitch.disabled === false;
-              });
-            });
-          })
-          .then(() => {
-            // Toggle subscription switch
-            return globalDriverReference.executeScript(function() {
-              /* eslint-env browser */
-              const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-              if (!toggleSwitch.checked) {
-                toggleSwitch.click();
-              }
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
-                return toggleSwitch.disabled === false && toggleSwitch.checked;
-              });
-            });
-          })
-          .then(() => {
-            // Add Payload text
-            return globalDriverReference.executeScript(function(payloadText) {
-              const textfield = document.querySelector('.js-payload-textfield');
-              textfield.value = payloadText;
-
-              // This triggers the logic to hide / display options for
-              // triggering push messages
-              textfield.oninput();
-            }, PAYLOAD_TEST);
-          })
-          .then(() => {
-            return new Promise((resolve) => {
-              // Slight timeout to ensure the payload is updated on Travis
-              setTimeout(resolve, 500);
-            });
-          })
-          .then(() => {
-            return globalDriverReference.wait(function() {
-              return globalDriverReference.executeScript(function() {
-                const curlCodeElement = document.querySelector('.js-curl-code');
-                return curlCodeElement.textContent.length > 0;
-              });
-            });
-          })
-          .then(() => {
-            // Check curl command exists
-            return globalDriverReference.executeScript(function() {
-              const curlCodeElement = document.querySelector('.js-curl-code');
-              if (curlCodeElement.style.display === 'none') {
-                return '';
-              }
-
-              return curlCodeElement.textContent;
-            });
-          })
-          .then((curlCommand) => {
-            if (curlCommand.length > 0) {
-              // Need to use the curl command
-              return new Promise((resolve, reject) => {
-                exec(curlCommand, (error, stdout) => {
-                  if (error !== null) {
-                    return reject(error);
-                  }
-
-                  if (stdout) {
-                    const gcmResponse = JSON.parse(stdout);
-                    if (gcmResponse.failure === 0) {
-                      resolve();
-                    } else {
-                      reject('Bad GCM Response: ' + stdout);
-                    }
-                  } else {
-                    resolve();
-                  }
-                });
-              })
-                .then(() => {
-                  return globalDriverReference.wait(function() {
-                    return globalDriverReference.executeAsyncScript(
-                      function(...args) {
-                        const cb = args[args.length - 1];
-                        navigator.serviceWorker.getRegistration()
-                        .then((registration) => {
-                          return registration.getNotifications();
-                        })
-                        .then((notifications) => {
-                          cb(notifications.length > 0);
-                        });
-                      }, 2000);
-                  });
-                })
-                .then(() => {
-                  // Detect notification
+            })
+              .then(() => {
+                return globalDriverReference.wait(function() {
                   return globalDriverReference.executeAsyncScript(
                     function(...args) {
                       const cb = args[args.length - 1];
@@ -651,33 +651,48 @@ describe('Test simple-push-demo', function() {
                         return registration.getNotifications();
                       })
                       .then((notifications) => {
-                        const notificationInfo = [];
-                        notifications.forEach((notification) => {
-                          notificationInfo.push({
-                            title: notification.title,
-                            body: notification.body,
-                            icon: notification.icon,
-                            tag: notification.tag,
-                          });
-
-                          notification.close();
-                        });
-                        cb(notificationInfo);
+                        cb(notifications.length > 0);
                       });
-                  }, 2000);
-                })
-                .then((notificationInfo) => {
-                  notificationInfo.length.should.equal(1);
-                  notificationInfo[0].title.should.equal('Received Payload');
-                  notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
-                  notificationInfo[0].tag.should.equal('simple-push-demo-notification');
-
-                  // Chrome adds the origin, FF doesn't
-                  const notifcationImg = '/images/logo-192x192.png';
-                  notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+                    }, 2000);
                 });
-            }
-          });
+              })
+              .then(() => {
+                // Detect notification
+                return globalDriverReference.executeAsyncScript(
+                  function(...args) {
+                    const cb = args[args.length - 1];
+                    navigator.serviceWorker.getRegistration()
+                    .then((registration) => {
+                      return registration.getNotifications();
+                    })
+                    .then((notifications) => {
+                      const notificationInfo = [];
+                      notifications.forEach((notification) => {
+                        notificationInfo.push({
+                          title: notification.title,
+                          body: notification.body,
+                          icon: notification.icon,
+                          tag: notification.tag,
+                        });
+
+                        notification.close();
+                      });
+                      cb(notificationInfo);
+                    });
+                }, 2000);
+              })
+              .then((notificationInfo) => {
+                notificationInfo.length.should.equal(1);
+                notificationInfo[0].title.should.equal('Received Payload');
+                notificationInfo[0].body.should.equal(`Push data: '${PAYLOAD_TEST}'`);
+                notificationInfo[0].tag.should.equal('simple-push-demo-notification');
+
+                // Chrome adds the origin, FF doesn't
+                const notifcationImg = '/images/logo-192x192.png';
+                notificationInfo[0].icon.indexOf(notifcationImg).should.equal(notificationInfo[0].icon.length - notifcationImg.length);
+              });
+          }
+        });
       });
     });
   };

@@ -2,10 +2,12 @@
 
 /* eslint-env browser, serviceworker */
 
+/* globals idbKeyval */
+
 // Make use of Google Analytics Measurement Protocol.
 // https://developers.google.com/analytics/devguides/collection/protocol/v1/reference
 class Analytics {
-  trackEvent(eventAction, eventValue) {
+  trackEvent(eventAction, eventValue, optionalParams) {
     if (!this.trackingId) {
       console.error('You need to set a trackingId, for example:');
       console.error('self.analytics.trackingId = \'UA-XXXXXXXX-X\';');
@@ -15,24 +17,38 @@ class Analytics {
       return Promise.resolve();
     }
 
-    if (!eventAction && !eventValue) {
+    if (typeof eventAction === 'undefined' &&
+      typeof eventValue === 'undefined') {
       console.warn('sendAnalyticsEvent() called with no eventAction or ' +
       'eventValue.');
       return Promise.resolve();
     }
 
-    return self.registration.pushManager.getSubscription()
-    .then((subscription) => {
-      if (subscription === null) {
-        // The user has not subscribed yet.
-        throw new Error('No subscription currently available.');
+    return idbKeyval.get('google-analytics-client-id')
+    .catch(() => {
+      return null;
+    })
+    .then((clientId) => {
+      if (!clientId) {
+        return self.registration.getSubscription()
+        .then((subscription) => {
+          if (!subscription) {
+            throw new Error('No Google Analytics Client ID and No ' +
+              'Push subscription.');
+          }
+
+          return subscription.endpoint;
+        });
       }
 
+      return clientId;
+    })
+    .then((clientId) => {
       const payloadData = {
         // Version Number
         v: 1,
         // Client ID
-        cid: subscription.endpoint,
+        cid: clientId,
         // Tracking ID
         tid: this.trackingId,
         // Hit Type
@@ -46,6 +62,10 @@ class Analytics {
         // Event Value
         ev: eventValue,
       };
+
+      Object.keys(optionalParams).forEach((key) => {
+        payloadData[key] = optionalParams[key];
+      });
 
       const payloadString = Object.keys(payloadData)
       .filter((analyticsKey) => {
