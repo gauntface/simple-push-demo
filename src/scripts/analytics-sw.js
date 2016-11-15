@@ -17,7 +17,7 @@ class Analytics {
       return Promise.resolve();
     }
 
-    if (typeof eventAction === 'undefined' ||
+    if (typeof eventAction === 'undefined' &&
       typeof eventValue === 'undefined') {
       console.warn('sendAnalyticsEvent() called with no eventAction or ' +
       'eventValue.');
