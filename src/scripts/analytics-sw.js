@@ -63,9 +63,11 @@ class Analytics {
         ev: eventValue,
       };
 
-      Object.keys(optionalParams).forEach((key) => {
-        payloadData[key] = optionalParams[key];
-      });
+      if (optionalParams) {
+        Object.keys(optionalParams).forEach((key) => {
+          payloadData[key] = optionalParams[key];
+        });
+      }
 
       const payloadString = Object.keys(payloadData)
       .filter((analyticsKey) => {
