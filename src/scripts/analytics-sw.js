@@ -29,11 +29,21 @@ class Analytics {
       return null;
     })
     .then((clientId) => {
-      if (clientId === null) {
-        // The user has not subscribed yet.
-        console.warn('No Client ID currently available.');
+      if (!clientId) {
+        return self.registration.getSubscription()
+        .then((subscription) => {
+          if (!subscription) {
+            throw new Error('No Google Analytics Client ID and No ' +
+              'Push subscription.');
+          }
+
+          return subscription.endpoint;
+        });
       }
 
+      return clientId;
+    })
+    .then((clientId) => {
       const payloadData = {
         // Version Number
         v: 1,
