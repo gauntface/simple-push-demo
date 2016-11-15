@@ -69,9 +69,11 @@ var Analytics = function () {
           ev: eventValue
         };
 
-        Object.keys(optionalParams).forEach(function (key) {
-          payloadData[key] = optionalParams[key];
-        });
+        if (optionalParams) {
+          Object.keys(optionalParams).forEach(function (key) {
+            payloadData[key] = optionalParams[key];
+          });
+        }
 
         var payloadString = Object.keys(payloadData).filter(function (analyticsKey) {
           return payloadData[analyticsKey];
