@@ -24,7 +24,7 @@
     "gulp-util": "^3.0.6",
     "mkdirp": "^0.5.1",
     "mocha": "^3.1.2",
-    "operadriver": "^0.2.2",
+    "operadriver": "^1.0.0",
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
