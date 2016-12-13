@@ -28,7 +28,7 @@
     "require-dir": "^0.3.0",
     "rollupify": "^0.3.1",
     "run-sequence": "^1.1.4",
-    "selenium-assistant": "^3.0.0",
+    "selenium-assistant": "^4.0.1",
     "sw-testing-helpers": "0.1.4"
   },
   "engines": {
