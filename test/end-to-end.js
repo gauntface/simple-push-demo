@@ -68,7 +68,7 @@ describe('Test simple-push-demo', function() {
 
       function initDriver() {
         // Enable Notifications
-        switch(browserInfo.getSeleniumBrowserId()) {
+        switch(browserInfo.getId()) {
           case 'firefox': {
             // This is based off of: https://bugzilla.mozilla.org/show_bug.cgi?id=1275521
             // Unfortunately it doesn't seem to work :(
@@ -134,7 +134,7 @@ describe('Test simple-push-demo', function() {
         })
         .then(() => {
           // This adds extra code to make notifications auto-grant perission
-          if (browserInfo.getSeleniumBrowserId() === 'firefox') {
+          if (browserInfo.getId() === 'firefox') {
             globalDriverReference.setContext(seleniumFirefox.Context.CHROME);
             return globalDriverReference.executeScript((url) => {
               /* global Components, Services */
@@ -698,14 +698,14 @@ describe('Test simple-push-demo', function() {
   };
 
   seleniumAssistant.printAvailableBrowserInfo();
-  const browsers = seleniumAssistant.getAvailableBrowsers();
+  const browsers = seleniumAssistant.getLocalBrowsers();
   browsers.forEach((browserInfo) => {
-    if (browserInfo.getSeleniumBrowserId() === 'opera') {
+    if (browserInfo.getId() === 'opera') {
       // Opera has no feature detect for push support, so bail
       return;
     }
 
-    if (browserInfo.getSeleniumBrowserId() === 'safari') {
+    if (browserInfo.getId() === 'safari') {
       // Safari not supported at the moment
       return;
     }

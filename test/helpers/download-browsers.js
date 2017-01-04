@@ -1,12 +1,12 @@
 const seleniumAssistant = require('selenium-assistant');
 
 const promises = [
-  seleniumAssistant.downloadBrowser('firefox', 'stable'),
-  seleniumAssistant.downloadBrowser('firefox', 'beta'),
-  seleniumAssistant.downloadBrowser('firefox', 'unstable'),
-  seleniumAssistant.downloadBrowser('chrome', 'stable'),
-  seleniumAssistant.downloadBrowser('chrome', 'beta'),
-  seleniumAssistant.downloadBrowser('chrome', 'unstable'),
+  seleniumAssistant.downloadLocalBrowser('firefox', 'stable'),
+  seleniumAssistant.downloadLocalBrowser('firefox', 'beta'),
+  seleniumAssistant.downloadLocalBrowser('firefox', 'unstable'),
+  seleniumAssistant.downloadLocalBrowser('chrome', 'stable'),
+  seleniumAssistant.downloadLocalBrowser('chrome', 'beta'),
+  seleniumAssistant.downloadLocalBrowser('chrome', 'unstable'),
 ];
 
 Promise.all(promises)
