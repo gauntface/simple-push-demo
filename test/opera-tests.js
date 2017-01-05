@@ -65,7 +65,7 @@ describe('Opera Tests', function() {
 
       beforeEach(function() {
         // Enable Notifications
-        if (browserInfo.getSeleniumBrowserId() === 'opera') {
+        if (browserInfo.getId() === 'opera') {
           /* eslint-disable camelcase */
           /**
           const operaPreferences = {
@@ -212,11 +212,11 @@ describe('Opera Tests', function() {
     });
   };
 
-  const browsers = seleniumAssistant.getAvailableBrowsers();
+  const browsers = seleniumAssistant.getLocalBrowsers();
   browsers.forEach((browserInfo) => {
     // Marionette doesn't support tests auto-approving notifications :(
     // No firefox tests for now.
-    if (browserInfo.getSeleniumBrowserId() !== 'opera') {
+    if (browserInfo.getId() !== 'opera') {
       // These tests cover Opera only (they have push API, but don't support
       // it).
       return;
