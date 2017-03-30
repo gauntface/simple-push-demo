@@ -1,6 +1,6 @@
 # Simple Service Worker Push Demo
 
-[![Build Status](https://travis-ci.org/gauntface/simple-push-demo.svg?branch=master)](https://travis-ci.org/gauntface/simple-push-demo) [![Dependency Status](https://david-dm.org/gauntface/simple-push-demo.svg)](https://david-dm.org/gauntface/simple-push-demo) [![devDependency Status](https://david-dm.org/gauntface/simple-push-demo/dev-status.svg)](https://david-dm.org/gauntface/simple-push-demo#info=devDependencies)
+[![Build Status](https://travis-ci.org/gauntface/simple-push-demo.svg?branch=master)](https://travis-ci.org/gauntface/simple-push-demo) [![Dependency Status](https://david-dm.org/gauntface/simple-push-demo.svg)](https://david-dm.org/gauntface/simple-push-demo) [![devDependencies Status](https://david-dm.org/gauntface/simple-push-demo/dev-status.svg)](https://david-dm.org/gauntface/simple-push-demo?type=dev)
 
 The goal of this repo is to demonstrate how to implement push
 notifications into your web app.
