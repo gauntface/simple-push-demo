@@ -39,9 +39,7 @@ describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  if (process.env.TRAVIS || process.env.RELEASE) {
-    this.retries(4);
-  }
+  this.retries(3);
 
   let testServer;
   let testServerURL;
