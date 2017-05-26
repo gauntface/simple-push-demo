@@ -31,8 +31,6 @@ const TestServer = SWTestingHelpers.TestServer;
 const mochaUtils = SWTestingHelpers.mochaUtils;
 const seleniumFirefox = require('selenium-webdriver/firefox');
 
-console.log('Hello ?? <---------------');
-
 describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
