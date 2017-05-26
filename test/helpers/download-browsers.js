@@ -9,6 +9,7 @@ const promises = [
   seleniumAssistant.downloadLocalBrowser('chrome', 'unstable'),
 ];
 
+console.log('Starting to download browsers.');
 Promise.all(promises)
 .then(function() {
   console.log('Download complete.');
