@@ -50,13 +50,29 @@
             <label class="mdl-textfield__label" for="payload-textfield">Add Payload Text</label>
           </div>
 
-          <p class="state-msg js-state-msg"></p>
-
           <p class="center js-xhr-button-container">
             <button class="xhr-button js-send-push-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
               Send a Push via XHR
             </button>
           </p>
+
+          <hr />
+
+          <h4>This Browsers Subscription</h4>
+          <p>Below is your current subscription.</p>
+          <pre class="snippet-code"><code class="code-example js-subscription-json language-json"></code></pre>
+
+          <hr />
+
+          <h4>Supported Content Encodings </h4>
+          <p>A change to the web push spec moves browsers from "aesgcm" to
+            "aesgcm128" content encoding.</p>
+          <p>To determine which is supported the current browser you can view
+            <code>PushManager.supportedContentEncodings</code>.</p>
+
+          <p>Below is the list of supported encodings.</p>
+
+          <pre class="snippet-code"><code class="code-example js-supported-content-encodings language-json"></code></pre>
 
           <div class="js-curl-container">
             <hr />
@@ -66,9 +82,7 @@
             browser.</p>
             <p class="js-curl-error-msg"></p>
 
-            <p class="snippet-code">
-              <code class="curl-code-example js-curl-code language-markup"></code>
-            </p>
+            <pre class="snippet-code"><code class="code-example js-curl-code language-markup"></code></pre>
           </div>
 
           <div class="js-api-request">

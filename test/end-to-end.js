@@ -134,8 +134,10 @@ describe('Test simple-push-demo', function() {
               /* global Components, Services */
               Components.utils.import('resource://gre/modules/Services.jsm');
               const uri = Services.io.newURI(url, null, null);
+              // const principal = Services.scriptSecurityManager
+              //   .getNoAppCodebasePrincipal(uri);
               const principal = Services.scriptSecurityManager
-                .getNoAppCodebasePrincipal(uri);
+                .getCodebasePrincipal(uri);
               Services.perms.addFromPrincipal(
                 principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
             }, testServerURL)

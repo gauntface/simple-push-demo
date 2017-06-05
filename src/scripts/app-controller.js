@@ -15,10 +15,18 @@ class AppController {
         'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI'),
     };
 
+    const contentEncodingCode = document.querySelector(
+      '.js-supported-content-encodings');
+    const supportedEncodings = PushManager.supportedContentEncodings ||
+      ['aesgcm'];
+    contentEncodingCode.textContent =
+      JSON.stringify(supportedEncodings, null, 2);
+
     // This div contains the UI for CURL commands to trigger a push
     this._sendPushOptions = document.querySelector('.js-send-push-options');
+    this._subscriptionJSONCode = document.querySelector(
+      '.js-subscription-json');
     this._payloadTextField = document.querySelector('.js-payload-textfield');
-    this._stateMsg = document.querySelector('.js-state-msg');
     this._payloadTextField.oninput = () => {
       this.updatePushInfo();
     };
@@ -139,12 +147,16 @@ class AppController {
 
   _subscriptionUpdate(subscription) {
     this._currentSubscription = subscription;
+    console.log(JSON.stringify(subscription));
     if (!subscription) {
       // Remove any subscription from your servers if you have
       // set it up.
       this._sendPushOptions.style.opacity = 0;
       return;
     }
+
+    this._subscriptionJSONCode.textContent =
+      JSON.stringify(subscription, null, 2);
 
     // This is too handle old versions of Firefox where keys would exist
     // but auth wouldn't
@@ -257,6 +269,7 @@ class AppController {
         curlErrorMsgElement.style.display = 'block';
       } else {
         curlCodeElement.textContent = curlCommand;
+        curlCodeElement.style.display = 'block';
         curlMsgElement.style.display = 'block';
         curlErrorMsgElement.style.display = 'none';
       }
