@@ -134,8 +134,6 @@ describe('Test simple-push-demo', function() {
               /* global Components, Services */
               Components.utils.import('resource://gre/modules/Services.jsm');
               const uri = Services.io.newURI(url, null, null);
-              // const principal = Services.scriptSecurityManager
-              //   .getNoAppCodebasePrincipal(uri);
               const principal = Services.scriptSecurityManager
                 .getCodebasePrincipal(uri);
               Services.perms.addFromPrincipal(

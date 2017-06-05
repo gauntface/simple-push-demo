@@ -153,12 +153,12 @@ class EncryptionHelper {
     });
   }
 
-  generateCEKInfo(publicKeyString) {
+  generateCEKInfo(publicKeyString, contentEncoding) {
     return Promise.resolve()
     .then(() => {
       const utf8Encoder = new TextEncoder('utf-8');
       const contentEncoding8Array = utf8Encoder
-        .encode('Content-Encoding: aesgcm');
+        .encode(`Content-Encoding: ${contentEncoding}`);
       const paddingUnit8Array = new Uint8Array(1).fill(0);
       return this.generateContext(publicKeyString)
       .then((contextBuffer) => {
@@ -203,10 +203,10 @@ class EncryptionHelper {
     });
   }
 
-  generateEncryptionKeys(subscription) {
+  generateEncryptionKeys(subscription, contentEncoding) {
     return Promise.all([
       this.generatePRK(subscription),
-      this.generateCEKInfo(subscription.keys.p256dh),
+      this.generateCEKInfo(subscription.keys.p256dh, contentEncoding),
       this.generateNonceInfo(subscription.keys.p256dh),
     ])
     .then((results) => {
@@ -230,16 +230,24 @@ class EncryptionHelper {
   }
 
   encryptMessage(subscription, payload) {
-    return this.generateEncryptionKeys(subscription)
+    let contentEncoding = 'aesgcm';
+    if (PushManager.supportedContentEncodings) {
+      contentEncoding = PushManager.supportedContentEncodings[0];
+    }
+
+    return this.generateEncryptionKeys(subscription, contentEncoding)
     .then((encryptionKeys) => {
-      return crypto.subtle.importKey('raw',
-        encryptionKeys.contentEncryptionKey, 'AES-GCM', true,
-        ['decrypt', 'encrypt'])
-        .then((contentEncryptionCryptoKey) => {
-          encryptionKeys.contentEncryptionCryptoKey =
-            contentEncryptionCryptoKey;
-          return encryptionKeys;
-        });
+      return crypto.subtle.importKey(
+        'raw',
+        encryptionKeys.contentEncryptionKey,
+        'AES-GCM',
+        true,
+        ['decrypt', 'encrypt']
+      )
+      .then((cekCryptoKey) => {
+        encryptionKeys.contentEncryptionCryptoKey = cekCryptoKey;
+        return encryptionKeys;
+      });
     })
     .then((encryptionKeys) => {
       const paddingBytes = 0;
@@ -265,6 +273,7 @@ class EncryptionHelper {
         this.getPublicServerKey())
       .then((keys) => {
         return {
+          contentEncoding: contentEncoding,
           cipherText: encryptedPayloadArrayBuffer,
           salt: window.uint8ArrayToBase64Url(this.getSalt()),
           publicServerKey:

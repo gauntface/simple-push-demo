@@ -292,7 +292,7 @@ class AppController {
       gcmAPIData['raw_data'] = this.toBase64(payload.cipherText); // eslint-disable-line
       headers.Encryption = `salt=${payload.salt}`;
       headers['Crypto-Key'] = `dh=${payload.publicServerKey}`;
-      headers['Content-Encoding'] = `aesgcm`;
+      headers['Content-Encoding'] = payload.contentEncoding;
     }
 
     return {
@@ -312,7 +312,7 @@ class AppController {
 
       headers.Encryption = `salt=${payload.salt}`;
       headers['Crypto-Key'] = `dh=${payload.publicServerKey}`;
-      headers['Content-Encoding'] = 'aesgcm';
+      headers['Content-Encoding'] = payload.contentEncoding;
     } else {
       headers['Content-Length'] = 0;
     }
