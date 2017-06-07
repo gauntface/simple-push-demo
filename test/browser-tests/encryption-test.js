@@ -12,9 +12,15 @@ describe('Test Web Push Encryption', function() {
 
   const VALID_SUBSCRIPTION = {
     endpoint: 'https://android.googleapis.com/gcm/send/FAKE_GCM_REGISTRATION_ID',
-    keys: {
-      p256dh: 'BCIWgsnyXDv1VkhqL2P7YRBvdeuDnlwAPT2guNhdIoW3IP7GmHh1SMKPLxRf7x8vJy6ZFK3ol2ohgn_-0yP7QQA=',
-      auth: '8eDyX_uCN0XRhSbY5hs7Hg==',
+    getKey: (keyId) => {
+      switch(keyId) {
+        case 'p256dh':
+          return window.base64UrlToUint8Array('BCIWgsnyXDv1VkhqL2P7YRBvdeuDnlwAPT2guNhdIoW3IP7GmHh1SMKPLxRf7x8vJy6ZFK3ol2ohgn_-0yP7QQA=');
+        case 'auth':
+          return window.base64UrlToUint8Array('8eDyX_uCN0XRhSbY5hs7Hg==');
+        default:
+          throw new Error('Oh dear. An unknown subscription key was requested: ', keyId);
+      }
     },
   };
 
@@ -56,12 +62,13 @@ describe('Test Web Push Encryption', function() {
     const factory = window.gauntface.EncryptionHelperFactory;
     const EncryptionHelper = window.gauntface.EncryptionHelper;
     return factory.generateHelper()
-    .then((testEncryption) => {
-      (testEncryption.getPublicServerKey() instanceof CryptoKey).should.equal(true);
-      (testEncryption.getPrivateServerKey() instanceof CryptoKey).should.equal(true);
+    .then((encryptionHelper) => {
+      const serverKeys = encryptionHelper.serverKeys;
+      (serverKeys.publicKey instanceof CryptoKey).should.equal(true);
+      (serverKeys.privateKey instanceof CryptoKey).should.equal(true);
       return EncryptionHelper.exportCryptoKeys(
-        testEncryption.getPublicServerKey(),
-        testEncryption.getPrivateServerKey()
+        serverKeys.publicKey,
+        serverKeys.privateKey
       );
     })
     .then((keys) => {
@@ -79,12 +86,13 @@ describe('Test Web Push Encryption', function() {
     return factory.generateHelper({
       serverKeys: VALID_SERVER_KEYS,
     })
-    .then((testEncryption) => {
-      (testEncryption.getPublicServerKey() instanceof CryptoKey).should.equal(true);
-      (testEncryption.getPrivateServerKey() instanceof CryptoKey).should.equal(true);
+    .then((encryptionHelper) => {
+      const serverKeys = encryptionHelper.serverKeys;
+      (serverKeys.publicKey instanceof CryptoKey).should.equal(true);
+      (serverKeys.privateKey instanceof CryptoKey).should.equal(true);
       return EncryptionHelper.exportCryptoKeys(
-        testEncryption.getPublicServerKey(),
-        testEncryption.getPrivateServerKey()
+        serverKeys.publicKey,
+        serverKeys.privateKey
       );
     })
     .then((keys) => {
@@ -110,7 +118,7 @@ describe('Test Web Push Encryption', function() {
       serverKeys: VALID_SERVER_KEYS,
     })
     .then((testEncryption) => {
-      return testEncryption.getSharedSecret(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.getSharedSecret(VALID_SUBSCRIPTION);
     })
     .then((sharedSecret) => {
       (sharedSecret instanceof ArrayBuffer).should.equal(true);
@@ -125,7 +133,7 @@ describe('Test Web Push Encryption', function() {
       serverKeys: VALID_SERVER_KEYS,
     })
     .then((testEncryption) => {
-      (testEncryption.getSalt() instanceof Uint8Array).should.equal(true);
+      (testEncryption.salt instanceof Uint8Array).should.equal(true);
     });
   });
 
@@ -136,8 +144,8 @@ describe('Test Web Push Encryption', function() {
       salt: VALID_SALT,
     })
     .then((testEncryption) => {
-      (testEncryption.getSalt() instanceof Uint8Array).should.equal(true);
-      const base64Salt = window.uint8ArrayToBase64Url(testEncryption.getSalt());
+      (testEncryption.salt instanceof Uint8Array).should.equal(true);
+      const base64Salt = window.uint8ArrayToBase64Url(testEncryption.salt);
       base64Salt.should.equal(VALID_SALT);
     });
   });
@@ -147,7 +155,7 @@ describe('Test Web Push Encryption', function() {
     const factory = window.gauntface.EncryptionHelperFactory;
     return factory.generateHelper()
     .then((testEncryption) => {
-      return testEncryption.generateContext(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.generateContext(VALID_SUBSCRIPTION);
     })
     .then((context) => {
       (context instanceof Uint8Array).should.equal(true);
@@ -162,7 +170,7 @@ describe('Test Web Push Encryption', function() {
       salt: VALID_SALT,
     })
     .then((testEncryption) => {
-      return testEncryption.generateContext(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.generateContext(VALID_SUBSCRIPTION);
     })
     .then((context) => {
       (context instanceof Uint8Array).should.equal(true);
@@ -176,7 +184,7 @@ describe('Test Web Push Encryption', function() {
     const factory = window.gauntface.EncryptionHelperFactory;
     return factory.generateHelper()
     .then((testEncryption) => {
-      return testEncryption.generateCEKInfo(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.generateCEKInfo(VALID_SUBSCRIPTION, 'aesgcm');
     })
     .then((cekInfo) => {
       (cekInfo instanceof Uint8Array).should.equal(true);
@@ -191,7 +199,7 @@ describe('Test Web Push Encryption', function() {
       salt: VALID_SALT,
     })
     .then((testEncryption) => {
-      return testEncryption.generateCEKInfo(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.generateCEKInfo(VALID_SUBSCRIPTION, 'aesgcm');
     })
     .then((cekInfo) => {
       (cekInfo instanceof Uint8Array).should.equal(true);
@@ -207,7 +215,7 @@ describe('Test Web Push Encryption', function() {
     const factory = window.gauntface.EncryptionHelperFactory;
     return factory.generateHelper()
     .then((testEncryption) => {
-      return testEncryption.generateNonceInfo(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.generateNonceInfo(VALID_SUBSCRIPTION);
     })
     .then((nonceInfo) => {
       (nonceInfo instanceof Uint8Array).should.equal(true);
@@ -222,7 +230,7 @@ describe('Test Web Push Encryption', function() {
       salt: VALID_SALT,
     })
     .then((testEncryption) => {
-      return testEncryption.generateNonceInfo(VALID_SUBSCRIPTION.keys.p256dh);
+      return testEncryption.generateNonceInfo(VALID_SUBSCRIPTION);
     })
     .then((nonceInfo) => {
       (nonceInfo instanceof Uint8Array).should.equal(true);
@@ -309,7 +317,7 @@ describe('Test Web Push Encryption', function() {
       salt: VALID_SALT,
     })
     .then((testEncryption) => {
-      return testEncryption.generateEncryptionKeys(VALID_SUBSCRIPTION);
+      return testEncryption.generateEncryptionKeys(VALID_SUBSCRIPTION, 'aesgcm');
     })
     .then((keys) => {
       (keys.contentEncryptionKey instanceof ArrayBuffer).should.equal(true);

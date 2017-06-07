@@ -37,3 +37,17 @@ if (window) {
     base64UrlToUint8Array: base64UrlToUint8Array,
   };
 }
+
+// Super inefficient. But easier to follow than allocating the
+// array with the correct size and position values in that array
+// as required.
+function joinUint8Arrays(allUint8Arrays) {
+  return allUint8Arrays.reduce(function(cumulativeValue, nextValue) {
+    const joinedArray = new Uint8Array(
+      cumulativeValue.byteLength + nextValue.byteLength
+    );
+    joinedArray.set(cumulativeValue, 0);
+    joinedArray.set(nextValue, cumulativeValue.byteLength);
+    return joinedArray;
+  }, new Uint8Array());
+}

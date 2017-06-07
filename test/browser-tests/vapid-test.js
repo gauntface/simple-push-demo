@@ -14,9 +14,17 @@ describe('Test VAPID', function() {
     p256ecdsa: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
   };
 
+  const generateVapidKeys = () => {
+    return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
+      true, ['deriveBits'])
+      .then((keys) => {
+        return window.gauntface.EncryptionHelper.exportCryptoKeys(
+          keys.publicKey, keys.privateKey);
+      });
+  };
+
   it('should be able to generate vapid keys', function() {
-    const factory = window.gauntface.EncryptionHelperFactory;
-    factory.generateVapidKeys()
+    return generateVapidKeys()
     .then((keys) => {
       keys.should.not.equal('undefined');
       keys.should.have.property('publicKey');
@@ -36,8 +44,7 @@ describe('Test VAPID', function() {
     const factory = window.gauntface.EncryptionHelperFactory;
     return factory.generateHelper()
     .then((testEncryption) => {
-      (testEncryption.getPublicVapidKey() === null).should.equal(true);
-      (testEncryption.getPrivateVapidKey() === null).should.equal(true);
+      (testEncryption.vapidKeys === null).should.equal(true);
     });
   });
 
@@ -52,11 +59,11 @@ describe('Test VAPID', function() {
       });
     })
     .then((testEncryption) => {
-      (testEncryption.getPublicVapidKey() instanceof CryptoKey).should.equal(true);
-      (testEncryption.getPrivateVapidKey() instanceof CryptoKey).should.equal(true);
+      (testEncryption.vapidKeys.publicKey instanceof CryptoKey).should.equal(true);
+      (testEncryption.vapidKeys.privateKey instanceof CryptoKey).should.equal(true);
       return EncryptionHelper.exportCryptoKeys(
-        testEncryption.getPublicVapidKey(),
-        testEncryption.getPrivateVapidKey()
+        testEncryption.vapidKeys.publicKey,
+        testEncryption.vapidKeys.privateKey
       );
     })
     .then((keys) => {
@@ -74,10 +81,9 @@ describe('Test VAPID', function() {
   });
 
   it('should be able to generate VAPID authentication headers', () => {
-    const factory = window.gauntface.EncryptionHelperFactory;
-    return factory.generateVapidKeys()
+    return generateVapidKeys()
     .then((keys) => {
-      return factory.createVapidAuthHeader(keys, 'http://localhost', 'mailto:simple-push-demo@gauntface.co.uk');
+      return window.gauntface.VapidHelper.createVapidAuthHeader(keys, 'http://localhost', 'mailto:simple-push-demo@gauntface.co.uk');
     })
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
@@ -90,8 +96,7 @@ describe('Test VAPID', function() {
   });
 
   it('should generate specific VAPID authentication headers', () => {
-    const factory = window.gauntface.EncryptionHelperFactory;
-    return factory.createVapidAuthHeader({
+    return window.gauntface.VapidHelper.createVapidAuthHeader({
       publicKey: window.base64UrlToUint8Array(VALID_VAPID_KEYS.publicKey),
       privateKey: window.base64UrlToUint8Array(VALID_VAPID_KEYS.privateKey),
     }, 'https://fcm.googleapis.com', 'mailto:simple-push-demo@gauntface.co.uk', VALID_OUTPUT.expiration)

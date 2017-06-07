@@ -1,6 +1,9 @@
 /* global PushClient, EncryptionHelperFactory, MaterialComponentsSnippets */
 /* eslint-env browser */
 
+// const BACKEND_ORIGIN = `https://simple-push-demo.appspot.com`;
+const BACKEND_ORIGIN = `http://localhost:8080`;
+
 class AppController {
   constructor() {
     // Define a different server URL here if desire.
@@ -187,12 +190,12 @@ class AppController {
       payloadPromise = EncryptionHelperFactory.generateHelper()
       .then((encryptionHelper) => {
         return encryptionHelper.encryptMessage(
-          JSON.parse(JSON.stringify(this._currentSubscription)), payloadText);
+          this._currentSubscription, payloadText);
       });
     }
 
     // Vapid support
-    const vapidPromise = EncryptionHelperFactory.createVapidAuthHeader(
+    const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
       this._applicationKeys,
       this._currentSubscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk');
@@ -347,12 +350,12 @@ class AppController {
       payloadPromise = EncryptionHelperFactory.generateHelper()
       .then((encryptionHelper) => {
         return encryptionHelper.encryptMessage(
-          JSON.parse(JSON.stringify(this._currentSubscription)), payloadText);
+          this._currentSubscription, payloadText);
       });
     }
 
     // Vapid support
-    const vapidPromise = EncryptionHelperFactory.createVapidAuthHeader(
+    const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
       this._applicationKeys,
       subscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk');
@@ -405,7 +408,7 @@ class AppController {
 
     fetchOptions.body = JSON.stringify(requestInfo);
 
-    fetch('https://simple-push-demo.appspot.com/api/v2/sendpush', fetchOptions)
+    fetch(`${BACKEND_ORIGIN}/api/v2/sendpush`, fetchOptions)
     .then(function(response) {
       if (response.status >= 400 && response.status < 500) {
         console.log('Failed web push response: ', response, response.status);
