@@ -18,7 +18,7 @@ describe('Test VAPID', function() {
     return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
       true, ['deriveBits'])
       .then((keys) => {
-        return window.gauntface.EncryptionHelper.exportCryptoKeys(
+        return window.cryptoKeysToUint8Array(
           keys.publicKey, keys.privateKey);
       });
   };
@@ -61,7 +61,7 @@ describe('Test VAPID', function() {
     .then((testEncryption) => {
       (testEncryption.vapidKeys.publicKey instanceof CryptoKey).should.equal(true);
       (testEncryption.vapidKeys.privateKey instanceof CryptoKey).should.equal(true);
-      return EncryptionHelper.exportCryptoKeys(
+      return window.cryptoKeysToUint8Array(
         testEncryption.vapidKeys.publicKey,
         testEncryption.vapidKeys.privateKey
       );

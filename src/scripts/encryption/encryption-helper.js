@@ -8,14 +8,6 @@
 /* global HKDF */
 /* eslint-env browser */
 
-// Length, in bytes, of a P-256 field element. Expected format of the private
-// key.
-const PRIVATE_KEY_BYTES = 32;
-
-// Length, in bytes, of a P-256 public key in uncompressed EC form per SEC
-// 2.3.3. This sequence must start with 0x04. Expected format of the public key.
-const PUBLIC_KEY_BYTES = 65;
-
 class EncryptionHelper {
   constructor(serverKeys, salt, vapidKeys) {
     if (!serverKeys || !serverKeys.publicKey || !serverKeys.privateKey) {
@@ -57,7 +49,7 @@ class EncryptionHelper {
   getSharedSecret(subscription) {
     return Promise.resolve()
     .then(() => {
-      return EncryptionHelper.arrayBuffersToCryptoKeys(
+      return window.arrayBuffersToCryptoKeys(
         subscription.getKey('p256dh'));
     })
     .then((keys) => {
@@ -79,20 +71,63 @@ class EncryptionHelper {
     });
   }
 
+  getKeyInfo(subscription) {
+    const utf8Encoder = new TextEncoder('utf-8');
+
+    return window.cryptoKeysToUint8Array(this.serverKeys.publicKey)
+    .then((uint8keys) => {
+      return window.joinUint8Arrays([
+        utf8Encoder.encode('WebPush: info'),
+        new Uint8Array(1).fill(0),
+        new Uint8Array(subscription.getKey('p256dh')),
+        uint8keys.publicKey,
+      ]);
+    });
+  }
+
+  generatePRK(subscription, contentEncoding) {
+    return this.getSharedSecret(subscription)
+    .then((sharedSecret) => {
+      const utf8Encoder = new TextEncoder('utf-8');
+      const authInfoUint8Array = utf8Encoder
+        .encode('Content-Encoding: auth\0');
+
+      const hkdf = new HKDF(
+        sharedSecret,
+        subscription.getKey('auth')
+      );
+
+      switch(contentEncoding) {
+        case 'aesgcm': {
+          return hkdf.generate(authInfoUint8Array, 32);
+        }
+        case 'aes128gcm': {
+          return this.getKeyInfo(subscription)
+          .then((keyInfoUint8Array) => {
+            return hkdf.generate(keyInfoUint8Array, 32);
+          });
+        }
+        default: {
+          throw new Error(`Unknown content encoding: '${contentEncoding}'`);
+        }
+      }
+    });
+  }
+
   generateContext(subscription) {
     return Promise.resolve()
     .then(() => {
-      return EncryptionHelper.arrayBuffersToCryptoKeys(
+      return window.arrayBuffersToCryptoKeys(
         subscription.getKey('p256dh'));
     })
     .then((keys) => {
-      return EncryptionHelper.exportCryptoKeys(keys.publicKey)
+      return window.cryptoKeysToUint8Array(keys.publicKey)
       .then((keys) => {
         return keys.publicKey;
       });
     })
     .then((clientPublicKey) => {
-      return EncryptionHelper.exportCryptoKeys(this.serverKeys.publicKey)
+      return window.cryptoKeysToUint8Array(this.serverKeys.publicKey)
       .then((keys) => {
         return {
           clientPublicKey: clientPublicKey,
@@ -124,67 +159,82 @@ class EncryptionHelper {
     });
   }
 
-  generateCEKInfo(subscription, contentEncoding) {
+  generateCEKInfo(contextBuffer, subscription, contentEncoding) {
     return Promise.resolve()
     .then(() => {
       const utf8Encoder = new TextEncoder('utf-8');
       const contentEncoding8Array = utf8Encoder
         .encode(`Content-Encoding: ${contentEncoding}`);
       const paddingUnit8Array = new Uint8Array(1).fill(0);
-      return this.generateContext(subscription)
-      .then((contextBuffer) => {
-        return window.joinUint8Arrays([
-          contentEncoding8Array,
-          paddingUnit8Array,
-          contextBuffer,
-        ]);
-      });
+
+      const uint8Arrays = [
+        contentEncoding8Array,
+        paddingUnit8Array,
+      ];
+
+      if (contextBuffer) {
+        uint8Arrays.push(contextBuffer);
+      }
+
+      return window.joinUint8Arrays(uint8Arrays);
     });
   }
 
-  generateNonceInfo(subscription) {
+  generateNonceInfo(contextBuffer, subscription) {
     return Promise.resolve()
     .then(() => {
       const utf8Encoder = new TextEncoder('utf-8');
       const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: nonce');
       const paddingUnit8Array = new Uint8Array(1).fill(0);
-      return this.generateContext(subscription)
-      .then((contextBuffer) => {
-        return window.joinUint8Arrays([
-          contentEncoding8Array,
-          paddingUnit8Array,
-          contextBuffer,
-        ]);
-      });
-    });
-  }
 
-  generatePRK(subscription) {
-    return this.getSharedSecret(subscription)
-    .then((sharedSecret) => {
-      const utf8Encoder = new TextEncoder('utf-8');
-      const authInfoUint8Array = utf8Encoder
-        .encode('Content-Encoding: auth\0');
+      const uint8Arrays = [
+        contentEncoding8Array,
+        paddingUnit8Array,
+      ];
 
-      const hkdf = new HKDF(
-        sharedSecret,
-        subscription.getKey('auth')
-      );
-      return hkdf.generate(authInfoUint8Array, 32);
+      if (contextBuffer) {
+        uint8Arrays.push(contextBuffer);
+      }
+
+      return window.joinUint8Arrays(uint8Arrays);
     });
   }
 
   generateEncryptionKeys(subscription, contentEncoding) {
+    const prkPromise = this.generatePRK(subscription, contentEncoding);
+    let cekAndNoncePromise;
+    switch (contentEncoding) {
+      case 'aesgcm': {
+        cekAndNoncePromise = this.generateContext(subscription)
+        .then((contextBuffer) => {
+          return Promise.all([
+            this.generateCEKInfo(contextBuffer, subscription, contentEncoding),
+            this.generateNonceInfo(contextBuffer, subscription),
+          ]);
+        });
+        break;
+      }
+      case 'aes128gcm': {
+        cekAndNoncePromise = Promise.all([
+          this.generateCEKInfo(null, subscription, contentEncoding),
+          this.generateNonceInfo(null, subscription),
+        ]);
+        break;
+      }
+      default: {
+        throw new Error(`Unknown content encoding: ${contentEncoding}`);
+      }
+    }
+
     return Promise.all([
-      this.generatePRK(subscription),
-      this.generateCEKInfo(subscription, contentEncoding),
-      this.generateNonceInfo(subscription),
+      prkPromise,
+      cekAndNoncePromise,
     ])
     .then((results) => {
       const prk = results[0];
-      const cekInfo = results[1];
-      const nonceInfo = results[2];
+      const cekInfo = results[1][0];
+      const nonceInfo = results[1][1];
 
       const cekHKDF = new HKDF(prk, this._salt);
       const nonceHKDF = new HKDF(prk, this._salt);
@@ -201,11 +251,41 @@ class EncryptionHelper {
     });
   }
 
+  addEncryptionContentCodingHeader(encryptedPayloadArrayBuffer) {
+    return window.cryptoKeysToUint8Array(this.serverKeys.publicKey)
+    .then((keys) => {
+      const recordSizeBuffer = new ArrayBuffer(4);
+      const recordSizeView = new DataView(recordSizeBuffer);
+      recordSizeView.setUint32(0, encryptedPayloadArrayBuffer.byteLength);
+
+      console.log(new Uint8Array(recordSizeBuffer));
+
+      const serverPublicKeyLengthBuffer = new Uint8Array(2);
+      serverPublicKeyLengthBuffer[0] = 0x00;
+      serverPublicKeyLengthBuffer[1] = keys.publicKey.byteLength;
+
+      const uint8arrays = [
+        this.salt,
+        // Record Size
+        new Uint8Array(recordSizeBuffer),
+        // Service Public Key Length
+        serverPublicKeyLengthBuffer,
+        // Server Public Key
+        keys.publicKey,
+        new Uint8Array(encryptedPayloadArrayBuffer),
+      ];
+
+      const joinedUint8Array = window.joinUint8Arrays(uint8arrays);
+      return joinedUint8Array.buffer;
+    });
+  }
+
   encryptMessage(subscription, payload) {
     let contentEncoding = 'aesgcm';
     if (PushManager.supportedContentEncodings) {
       contentEncoding = PushManager.supportedContentEncodings[0];
     }
+    console.log('ENCODING WITH: ', contentEncoding);
 
     return this.generateEncryptionKeys(subscription, contentEncoding)
     .then((encryptionKeys) => {
@@ -222,14 +302,37 @@ class EncryptionHelper {
       });
     })
     .then((encryptionKeys) => {
-      const paddingBytes = 0;
-      const paddingUnit8Array = new Uint8Array(2 + paddingBytes);
       const utf8Encoder = new TextEncoder('utf-8');
-      const payloadUint8Array = utf8Encoder.encode(payload);
-      const recordUint8Array = new Uint8Array(
-        paddingUnit8Array.byteLength + payloadUint8Array.byteLength);
-      recordUint8Array.set(paddingUnit8Array, 0);
-      recordUint8Array.set(payloadUint8Array, paddingUnit8Array.byteLength);
+      let recordUint8Array;
+      switch(contentEncoding) {
+        case 'aesgcm': {
+          const paddingBytes = 0;
+          const paddingUnit8Array = new Uint8Array(2 + paddingBytes);
+
+          const payloadUint8Array = utf8Encoder.encode(payload);
+
+          recordUint8Array = window.joinUint8Arrays([
+            paddingUnit8Array,
+            payloadUint8Array,
+          ]);
+          break;
+        }
+        case 'aes128gcm': {
+          // Add a specific byte at the end of the payload data
+          // https://tools.ietf.org/html/draft-ietf-httpbis-encryption-encoding-09#section-2
+          const paddingUnit8Array = new Uint8Array(1).fill(0x02);
+
+          const payloadUint8Array = utf8Encoder.encode(payload);
+
+          recordUint8Array = window.joinUint8Arrays([
+            payloadUint8Array,
+            paddingUnit8Array,
+          ]);
+          break;
+        }
+        default:
+          throw new Error(`Unknown content encoding: '${contentEncoding}'`);
+      }
 
       const algorithm = {
         name: 'AES-GCM',
@@ -241,7 +344,21 @@ class EncryptionHelper {
         algorithm, encryptionKeys.contentEncryptionCryptoKey, recordUint8Array);
     })
     .then((encryptedPayloadArrayBuffer) => {
-      return EncryptionHelper.exportCryptoKeys(
+      switch(contentEncoding) {
+        case 'aesgcm': {
+          return encryptedPayloadArrayBuffer;
+        }
+        case 'aes128gcm': {
+          return this.addEncryptionContentCodingHeader(
+            encryptedPayloadArrayBuffer);
+        }
+        default: {
+          throw new Error(`Unknown content encoding: '${contentEncoding}'`);
+        }
+      }
+    })
+    .then((encryptedPayloadArrayBuffer) => {
+      return window.cryptoKeysToUint8Array(
         this.serverKeys.publicKey)
       .then((keys) => {
         return {
@@ -252,99 +369,6 @@ class EncryptionHelper {
             window.uint8ArrayToBase64Url(keys.publicKey),
         };
       });
-    });
-  }
-
-  static exportCryptoKeys(publicKey, privateKey) {
-    return Promise.resolve()
-    .then(() => {
-      const promises = [];
-      promises.push(
-        crypto.subtle.exportKey('jwk', publicKey)
-        .then((jwk) => {
-          const x = window.base64UrlToUint8Array(jwk.x);
-          const y = window.base64UrlToUint8Array(jwk.y);
-
-          const publicKey = new Uint8Array(65);
-          publicKey.set([0x04], 0);
-          publicKey.set(x, 1);
-          publicKey.set(y, 33);
-
-          return publicKey;
-        })
-      );
-
-      if (privateKey) {
-        promises.push(
-          crypto.subtle
-            .exportKey('jwk', privateKey)
-          .then((jwk) => {
-            return window.base64UrlToUint8Array(jwk.d);
-          })
-        );
-      }
-
-      return Promise.all(promises);
-    })
-    .then((exportedKeys) => {
-      const result = {
-        publicKey: exportedKeys[0],
-      };
-
-      if (exportedKeys.length > 1) {
-        result.privateKey = exportedKeys[1];
-      }
-
-      return result;
-    });
-  }
-
-  static arrayBuffersToCryptoKeys(publicKey, privateKey) {
-    if (publicKey.byteLength !== PUBLIC_KEY_BYTES) {
-      throw new Error('The publicKey is expected to be ' +
-        PUBLIC_KEY_BYTES + ' bytes.');
-    }
-
-    // Cast ArrayBuffer to Uint8Array
-    const publicBuffer = new Uint8Array(publicKey);
-    if (publicBuffer[0] !== 0x04) {
-      throw new Error('The publicKey is expected to start with an ' +
-        '0x04 byte.');
-    }
-
-    const jwk = {
-      kty: 'EC',
-      crv: 'P-256',
-      x: window.uint8ArrayToBase64Url(publicBuffer, 1, 33),
-      y: window.uint8ArrayToBase64Url(publicBuffer, 33, 65),
-      ext: true,
-    };
-
-    const keyPromises = [];
-    keyPromises.push(crypto.subtle.importKey('jwk', jwk,
-      {name: 'ECDH', namedCurve: 'P-256'}, true, []));
-
-    if (privateKey) {
-      if (privateKey.byteLength !== PRIVATE_KEY_BYTES) {
-        throw new Error('The privateKey is expected to be ' +
-          PRIVATE_KEY_BYTES + ' bytes.');
-      }
-
-      // d must be defined after the importKey call for public
-      jwk.d = window.uint8ArrayToBase64Url(privateKey);
-      keyPromises.push(crypto.subtle.importKey('jwk', jwk,
-        {name: 'ECDH', namedCurve: 'P-256'}, true, ['deriveBits']));
-    }
-
-    return Promise.all(keyPromises)
-    .then((keys) => {
-      const keyPair = {
-        publicKey: keys[0],
-      };
-      if (keys.length > 1) {
-        keyPair.privateKey = keys[1];
-      }
-      return keyPair;
     });
   }
 }

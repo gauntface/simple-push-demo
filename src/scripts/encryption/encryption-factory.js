@@ -51,7 +51,7 @@ class EncryptionHelperFactory {
 
     return Promise.resolve()
     .then(() => {
-      return window.gauntface.EncryptionHelper.arrayBuffersToCryptoKeys(
+      return window.arrayBuffersToCryptoKeys(
         window.base64UrlToUint8Array(keys.publicKey),
         window.base64UrlToUint8Array(keys.privateKey)
       );
