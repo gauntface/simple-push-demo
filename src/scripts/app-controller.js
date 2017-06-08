@@ -1,8 +1,8 @@
 /* global PushClient, EncryptionHelperFactory, MaterialComponentsSnippets */
 /* eslint-env browser */
 
-// const BACKEND_ORIGIN = `https://simple-push-demo.appspot.com`;
-const BACKEND_ORIGIN = `http://localhost:8080`;
+const BACKEND_ORIGIN = `https://simple-push-demo.appspot.com`;
+// const BACKEND_ORIGIN = `http://localhost:8080`;
 
 class AppController {
   constructor() {
