@@ -182,7 +182,10 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            console.warn('WARNING: setScriptTimeout threw an error: ', err);
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
