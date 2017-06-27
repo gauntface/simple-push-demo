@@ -4,8 +4,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/* global PushClient, EncryptionHelperFactory, MaterialComponentsSnippets */
+/* global PushClient, MaterialComponentsSnippets */
 /* eslint-env browser */
+
+var BACKEND_ORIGIN = 'https://simple-push-demo.appspot.com';
+// const BACKEND_ORIGIN = `http://localhost:8080`;
 
 var AppController = function () {
   function AppController() {
@@ -13,18 +16,10 @@ var AppController = function () {
 
     _classCallCheck(this, AppController);
 
-    // Define a different server URL here if desire.
-    this._PUSH_SERVER_URL = '';
-    this._API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
-
-    this._applicationKeys = {
-      publicKey: window.base64UrlToUint8Array('BDd3_hVL9fZi9Ybo2UUzA284WG5FZR30_95YeZJsiA' + 'pwXKpNcF1rRPF3foIiBHXRdJI2Qhumhf6_LFTeZaNndIo'),
-      privateKey: window.base64UrlToUint8Array('xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI')
-    };
+    this._encryptionHelper = window.gauntface.EncryptionHelperFactory.generateHelper();
 
     var contentEncodingCode = document.querySelector('.js-supported-content-encodings');
-    var supportedEncodings = PushManager.supportedContentEncodings || ['aesgcm'];
-    contentEncodingCode.textContent = JSON.stringify(supportedEncodings, null, 2);
+    contentEncodingCode.textContent = JSON.stringify(PushManager.supportedContentEncodings || ['aesgcm'], null, 2);
 
     // This div contains the UI for CURL commands to trigger a push
     this._sendPushOptions = document.querySelector('.js-send-push-options');
@@ -67,7 +62,7 @@ var AppController = function () {
       this._subscriptionUpdate = this._subscriptionUpdate.bind(this);
 
       this._toggleSwitch = toggleSwitch;
-      this._pushClient = new PushClient(this._stateChangeListener, this._subscriptionUpdate, this._applicationKeys.publicKey);
+      this._pushClient = new PushClient(this._stateChangeListener, this._subscriptionUpdate, window.gauntface.CONSTANTS.APPLICATION_KEYS.publicKey);
 
       document.querySelector('.js-push-toggle-switch > input').addEventListener('click', function (event) {
         // Inverted because clicking will change the checked state by
@@ -138,7 +133,6 @@ var AppController = function () {
     key: '_subscriptionUpdate',
     value: function _subscriptionUpdate(subscription) {
       this._currentSubscription = subscription;
-      console.log(JSON.stringify(subscription));
       if (!subscription) {
         // Remove any subscription from your servers if you have
         // set it up.
@@ -166,71 +160,42 @@ var AppController = function () {
   }, {
     key: 'updatePushInfo',
     value: function updatePushInfo() {
-      var _this4 = this;
-
       // Let's look at payload
       var payloadText = this._payloadTextField.value;
-      var payloadPromise = Promise.resolve(null);
-      if (payloadText && payloadText.trim().length > 0) {
-        payloadPromise = EncryptionHelperFactory.generateHelper().then(function (encryptionHelper) {
-          return encryptionHelper.encryptMessage(JSON.parse(JSON.stringify(_this4._currentSubscription)), payloadText);
-        });
-      }
-
-      // Vapid support
-      var vapidPromise = EncryptionHelperFactory.createVapidAuthHeader(this._applicationKeys, this._currentSubscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk');
-
-      return Promise.all([payloadPromise, vapidPromise]).then(function (results) {
-        var payload = results[0];
-        var vapidHeaders = results[1];
-
-        var infoFunction = _this4.getWebPushInfo;
-        infoFunction = function infoFunction() {
-          return _this4.getWebPushInfo(_this4._currentSubscription, payload, vapidHeaders);
-        };
-        if (_this4._currentSubscription.endpoint.indexOf('https://android.googleapis.com/gcm/send') === 0) {
-          infoFunction = function infoFunction() {
-            return _this4.getGCMInfo(_this4._currentSubscription, payload, _this4._API_KEY);
-          };
-        }
-
-        var requestInfo = infoFunction();
-
-        var curlCommand = 'curl "' + requestInfo.endpoint + '" --request POST';
+      return this._encryptionHelper.getRequestDetails(this._currentSubscription, payloadText).then(function (requestDetails) {
+        var curlCommand = 'curl "' + requestDetails.endpoint + '" --request POST';
         var curlError = null;
 
-        document.querySelector('.js-endpoint').textContent = requestInfo.endpoint;
+        document.querySelector('.js-endpoint').textContent = requestDetails.endpoint;
         var headersList = document.querySelector('.js-headers-list');
         while (headersList.hasChildNodes()) {
           headersList.removeChild(headersList.firstChild);
         }
-        Object.keys(requestInfo.headers).forEach(function (header) {
+        Object.keys(requestDetails.headers).forEach(function (header) {
           var liElement = document.createElement('p');
-          liElement.innerHTML = '<span>' + header + '</span>: ' + ('' + requestInfo.headers[header]);
+          liElement.innerHTML = '<span>' + header + '</span>: ' + ('' + requestDetails.headers[header]);
           headersList.appendChild(liElement);
 
-          curlCommand += ' --header "' + header + ': ' + requestInfo.headers[header] + '"';
+          curlCommand += ' --header "' + header + ': ' + requestDetails.headers[header] + '"';
         });
 
         var bodyFormat = document.querySelector('.js-body-format');
         var bodyContent = document.querySelector('.js-body-content');
-        if (requestInfo.body && requestInfo.body instanceof ArrayBuffer) {
+        if (requestDetails.body && requestDetails.body instanceof ArrayBuffer) {
           bodyFormat.textContent = 'Stream';
           bodyContent.textContent = 'Unable to display';
 
           curlCommand = null;
           curlError = 'Sorry, but because the web push ' + 'protocol requires a stream as the body of the request, there is ' + 'no CURL command that will stream an encrypted payload.';
-        } else if (requestInfo.body) {
+        } else if (requestDetails.body) {
           bodyFormat.textContent = 'String';
-          bodyContent.textContent = requestInfo.body;
+          bodyContent.textContent = requestDetails.body;
 
-          curlCommand += ' -d ' + JSON.stringify(requestInfo.body);
+          curlCommand += ' -d ' + JSON.stringify(requestDetails.body);
         } else {
           bodyFormat.textContent = 'No Body';
           bodyContent.textContent = 'N/A';
         }
-
-        _this4._latestPushInfo = requestInfo;
 
         var curlCodeElement = document.querySelector('.js-curl-code');
         var curlMsgElement = document.querySelector('.js-curl-copy-msg');
@@ -247,6 +212,35 @@ var AppController = function () {
           curlErrorMsgElement.style.display = 'none';
         }
       });
+
+      /**
+       // Vapid support
+      const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
+        this._applicationKeys,
+        this._currentSubscription.endpoint,
+        'mailto:simple-push-demo@gauntface.co.uk');
+       return Promise.all([
+        payloadPromise,
+        vapidPromise,
+      ])
+      .then((results) => {
+        const payload = results[0];
+        const vapidHeaders = results[1];
+         let infoFunction = this.getWebPushInfo;
+        infoFunction = () => {
+          return this.getWebPushInfo(this._currentSubscription, payload,
+            vapidHeaders);
+        };
+        if (this._currentSubscription.endpoint.indexOf(
+          'https://android.googleapis.com/gcm/send') === 0) {
+          infoFunction = () => {
+            return this.getGCMInfo(this._currentSubscription, payload,
+              window.gauntface.CONSTANTS.GCM_API_KEY);
+          };
+        }
+         const requestInfo = infoFunction();
+         this._latestPushInfo = requestInfo;
+      });**/
     }
   }, {
     key: 'getGCMInfo',
@@ -266,7 +260,7 @@ var AppController = function () {
         gcmAPIData['raw_data'] = this.toBase64(payload.cipherText); // eslint-disable-line
         headers.Encryption = 'salt=' + payload.salt;
         headers['Crypto-Key'] = 'dh=' + payload.publicServerKey;
-        headers['Content-Encoding'] = 'aesgcm';
+        headers['Content-Encoding'] = payload.contentEncoding;
       }
 
       return {
@@ -276,86 +270,58 @@ var AppController = function () {
       };
     }
   }, {
-    key: 'getWebPushInfo',
-    value: function getWebPushInfo(subscription, payload, vapidHeaders) {
-      var body = null;
-      var headers = {};
-      headers.TTL = 60;
-
-      if (payload) {
-        body = payload.cipherText;
-
-        headers.Encryption = 'salt=' + payload.salt;
-        headers['Crypto-Key'] = 'dh=' + payload.publicServerKey;
-        headers['Content-Encoding'] = 'aesgcm';
-      } else {
-        headers['Content-Length'] = 0;
-      }
-
-      if (vapidHeaders) {
-        headers.Authorization = 'WebPush ' + vapidHeaders.authorization;
-
-        if (headers['Crypto-Key']) {
-          headers['Crypto-Key'] = headers['Crypto-Key'] + '; ' + ('p256ecdsa=' + vapidHeaders.p256ecdsa);
-        } else {
-          headers['Crypto-Key'] = 'p256ecdsa=' + vapidHeaders.p256ecdsa;
-        }
-      }
-
-      var response = {
-        headers: headers,
-        endpoint: subscription.endpoint
-      };
-
-      if (body) {
-        response.body = body;
-      }
-
-      return response;
-    }
-  }, {
     key: 'sendPushMessage',
     value: function sendPushMessage(subscription, payloadText) {
-      var _this5 = this;
+      var _this4 = this;
 
-      // Let's look at payload
-      var payloadPromise = Promise.resolve(null);
-      if (payloadText && payloadText.trim().length > 0) {
-        payloadPromise = EncryptionHelperFactory.generateHelper().then(function (encryptionHelper) {
-          return encryptionHelper.encryptMessage(JSON.parse(JSON.stringify(_this5._currentSubscription)), payloadText);
-        });
-      }
-
-      // Vapid support
-      var vapidPromise = EncryptionHelperFactory.createVapidAuthHeader(this._applicationKeys, subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk');
-
-      return Promise.all([payloadPromise, vapidPromise]).then(function (results) {
-        var payload = results[0];
-        var vapidHeaders = results[1];
-
-        var infoFunction = _this5.getWebPushInfo;
-        infoFunction = function infoFunction() {
-          return _this5.getWebPushInfo(subscription, payload, vapidHeaders);
-        };
-        if (subscription.endpoint.indexOf('https://android.googleapis.com/gcm/send') === 0) {
-          infoFunction = function infoFunction() {
-            return _this5.getGCMInfo(subscription, payload, _this5._API_KEY);
-          };
-        }
-
-        var requestInfo = infoFunction();
-
+      return this._encryptionHelper.getRequestDetails(this._currentSubscription, payloadText).then(function (requestDetails) {
         // Some push services don't allow CORS so have to forward
         // it to a different server to make the request which does support
         // CORs
 
-        _this5.sendRequestToProxyServer(requestInfo);
+        return _this4.sendRequestToProxyServer(requestDetails);
       });
+
+      // Let's look at payload
+      /** let payloadPromise = Promise.resolve(null);
+      if (payloadText && payloadText.trim().length > 0) {
+        payloadPromise = EncryptionHelperFactory.generateHelper()
+        .then((encryptionHelper) => {
+          return encryptionHelper.encryptMessage(
+            this._currentSubscription, payloadText);
+        });
+      }
+       // Vapid support
+      const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
+        this._applicationKeys,
+        subscription.endpoint,
+        'mailto:simple-push-demo@gauntface.co.uk');
+       return Promise.all([
+        payloadPromise,
+        vapidPromise,
+      ])
+      .then((results) => {
+        const payload = results[0];
+        const vapidHeaders = results[1];
+         let infoFunction = this.getWebPushInfo;
+        infoFunction = () => {
+          return this.getWebPushInfo(subscription, payload,
+            vapidHeaders);
+        };
+        if (subscription.endpoint.indexOf(
+          'https://android.googleapis.com/gcm/send') === 0) {
+          infoFunction = () => {
+            return this.getGCMInfo(subscription, payload,
+              window.gauntface.CONSTANTS.GCM_API_KEY);
+          };
+        }
+         const requestInfo = infoFunction();
+        });**/
     }
   }, {
     key: 'sendRequestToProxyServer',
     value: function sendRequestToProxyServer(requestInfo) {
-      var _this6 = this;
+      var _this5 = this;
 
       console.log('Sending XHR Proxy Server', requestInfo);
 
@@ -373,13 +339,15 @@ var AppController = function () {
 
       fetchOptions.body = JSON.stringify(requestInfo);
 
-      fetch('https://simple-push-demo.appspot.com/api/v2/sendpush', fetchOptions).then(function (response) {
+      fetch(BACKEND_ORIGIN + '/api/v2/sendpush', fetchOptions).then(function (response) {
         if (response.status >= 400 && response.status < 500) {
-          console.log('Failed web push response: ', response, response.status);
-          throw new Error('Failed to send push message via web push protocol');
+          return response.text().then(function (responseText) {
+            console.log('Failed web push response: ', response, response.status);
+            throw new Error('Failed to send push message via web push protocol: ' + ('<pre>' + encodeURI(responseText) + '</pre>'));
+          });
         }
       }).catch(function (err) {
-        _this6.showErrorMessage('Ooops Unable to Send a Push', err);
+        _this5.showErrorMessage('Ooops Unable to Send a Push', err);
       });
     }
   }, {
@@ -411,5 +379,18 @@ var AppController = function () {
 }();
 
 if (window) {
-  window.AppController = AppController;
+  window.onload = function () {
+    var appController = new AppController();
+    appController.ready.then(function () {
+      document.body.dataset.simplePushDemoLoaded = true;
+
+      var host = 'gauntface.github.io';
+      if (window.location.host === host && window.location.protocol !== 'https:') {
+        // Enforce HTTPS
+        window.location.protocol = 'https';
+      }
+
+      appController.registerServiceWorker();
+    });
+  };
 }

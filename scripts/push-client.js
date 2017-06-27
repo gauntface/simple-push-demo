@@ -15,7 +15,7 @@ var PushClient = function () {
     this._stateChangeCb = stateChangeCb;
     this._subscriptionUpdate = subscriptionUpdate;
 
-    this._publicApplicationKey = publicAppKey;
+    this._publicApplicationKey = window.base64UrlToUint8Array(publicAppKey);
 
     this._state = {
       UNSUPPORTED: {
