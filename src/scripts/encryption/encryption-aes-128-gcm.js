@@ -162,7 +162,7 @@ class EncryptionHelperAES128GCM {
       const recordSizeUint8Array = new Uint8Array([0x00, 0x00, 0x10, 0x00]);
 
       const serverPublicKeyLengthBuffer = new Uint8Array(1);
-      serverPublicKeyLengthBuffer[1] = keys.publicKey.byteLength;
+      serverPublicKeyLengthBuffer[0] = keys.publicKey.byteLength;
 
       const uint8arrays = [
         salt,
@@ -174,6 +174,8 @@ class EncryptionHelperAES128GCM {
         keys.publicKey,
         new Uint8Array(encryptedPayloadArrayBuffer),
       ];
+
+      console.log(uint8arrays);
 
       const joinedUint8Array = window.joinUint8Arrays(uint8arrays);
       return joinedUint8Array.buffer;
