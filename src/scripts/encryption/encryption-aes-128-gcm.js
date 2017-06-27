@@ -106,14 +106,18 @@ class EncryptionHelperAES128GCM {
           });
         })
         .then((encryptionKeys) => {
-          const paddingBytes = 0;
-          const paddingUnit8Array = new Uint8Array(2 + paddingBytes);
           const utf8Encoder = new TextEncoder('utf-8');
           const payloadUint8Array = utf8Encoder.encode(payloadText);
-          const recordUint8Array = new Uint8Array(
-            paddingUnit8Array.byteLength + payloadUint8Array.byteLength);
-          recordUint8Array.set(paddingUnit8Array, 0);
-          recordUint8Array.set(payloadUint8Array, paddingUnit8Array.byteLength);
+
+          const paddingBytes = 0;
+          const paddingUnit8Array = new Uint8Array(1 + paddingBytes);
+          paddingUnit8Array.fill(0);
+          paddingUnit8Array[0] = 0x02;
+
+          const recordUint8Array = window.joinUint8Arrays([
+            payloadUint8Array,
+            paddingUnit8Array,
+          ]);
 
           const algorithm = {
             name: 'AES-GCM',
@@ -154,10 +158,6 @@ class EncryptionHelperAES128GCM {
     encryptedPayloadArrayBuffer, serverKeys, salt) {
     return window.cryptoKeysToUint8Array(serverKeys.publicKey)
     .then((keys) => {
-      /** const recordSizeBuffer = new ArrayBuffer(4);
-      const recordSizeView = new DataView(recordSizeBuffer);
-      recordSizeView.setUint32(0, encryptedPayloadArrayBuffer.byteLength);**/
-
       // Maximum record size.
       const recordSizeUint8Array = new Uint8Array([0x00, 0x00, 0x10, 0x00]);
 
@@ -173,6 +173,7 @@ class EncryptionHelperAES128GCM {
         // Server Public Key
         keys.publicKey,
         new Uint8Array(encryptedPayloadArrayBuffer),
+        new Uint8Array([0x02]),
       ];
 
       console.log(uint8arrays);
