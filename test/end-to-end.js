@@ -35,7 +35,9 @@ describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  this.retries(3);
+  if (process.env.TRAVIS) {
+    this.retries(3);
+  }
 
   let testServer;
   let testServerURL;
@@ -213,7 +215,7 @@ describe('Test simple-push-demo', function() {
         })
         .then((performanceEntries) => {
           const requiredFiles = [
-            '/scripts/main.js',
+            '/scripts/app-controller.js',
             '/styles/main.css',
           ];
           performanceEntries = JSON.parse(performanceEntries);

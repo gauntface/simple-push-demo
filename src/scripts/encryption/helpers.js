@@ -149,12 +149,18 @@ function cryptoKeysToUint8Array(publicKey, privateKey) {
     });
   }
 
+  function generateSalt() {
+    const SALT_BYTES = 16;
+    return crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+  }
+
 if (window) {
   window.uint8ArrayToBase64Url = uint8ArrayToBase64Url;
   window.base64UrlToUint8Array = base64UrlToUint8Array;
   window.joinUint8Arrays = joinUint8Arrays;
   window.arrayBuffersToCryptoKeys = arrayBuffersToCryptoKeys;
   window.cryptoKeysToUint8Array = cryptoKeysToUint8Array;
+  window.generateSalt = generateSalt;
 } else if (module && module.exports) {
   module.exports = {
     uint8ArrayToBase64Url,

@@ -7,9 +7,11 @@ describe('Test VAPID', function() {
     publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
     privateKey: 'Dt1CLgQlkiaA-tmCkATyKZeoF1-Gtw1-gdEP6pOCqj4',
   };
-
+  const VALID_AUDIENCE = 'https://fcm.googleapis.com';
+  const VALID_SUBJECT = 'mailto:simple-push-demo@gauntface.co.uk';
+  const VALID_EXPIRATION = 1464326106;
   const VALID_OUTPUT = {
-    expiration: 1464326106,
+    expiration: VALID_EXPIRATION,
     unsignedToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2ZjbS5nb29nbGVhcGlzLmNvbSIsImV4cCI6MTQ2NDMyNjEwNiwic3ViIjoibWFpbHRvOnNpbXBsZS1wdXNoLWRlbW9AZ2F1bnRmYWNlLmNvLnVrIn0',
     p256ecdsa: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
   };
@@ -32,58 +34,16 @@ describe('Test VAPID', function() {
     });
   });
 
-  it('should be able to create new Encryption Helper', function() {
-    const factory = window.gauntface.EncryptionHelperFactory;
-    return factory.generateHelper()
-    .then((testEncryption) => {
-      (typeof testEncryption).should.not.equal('undefined');
-    });
-  });
-
-  it('should NOT create new vapid certificates if nothing is passed in', function() {
-    const factory = window.gauntface.EncryptionHelperFactory;
-    return factory.generateHelper()
-    .then((testEncryption) => {
-      (testEncryption.vapidKeys === null).should.equal(true);
-    });
-  });
-
-  it('should accept valid input VAPID certificates', function() {
-    const factory = window.gauntface.EncryptionHelperFactory;
-    const EncryptionHelper = window.gauntface.EncryptionHelper;
-
-    return factory.importKeys(VALID_VAPID_KEYS)
-    .then((keys) => {
-      return factory.generateHelper({
-        vapidKeys: keys,
-      });
-    })
-    .then((testEncryption) => {
-      (testEncryption.vapidKeys.publicKey instanceof CryptoKey).should.equal(true);
-      (testEncryption.vapidKeys.privateKey instanceof CryptoKey).should.equal(true);
-      return window.cryptoKeysToUint8Array(
-        testEncryption.vapidKeys.publicKey,
-        testEncryption.vapidKeys.privateKey
-      );
-    })
-    .then((keys) => {
-      (keys.publicKey instanceof Uint8Array).should.equal(true);
-      (keys.privateKey instanceof Uint8Array).should.equal(true);
-
-      (keys.publicKey.length).should.equal(65);
-      (keys.privateKey.length).should.equal(32);
-
-      const publicKey = window.uint8ArrayToBase64Url(keys.publicKey);
-      const privateKey = window.uint8ArrayToBase64Url(keys.privateKey);
-      publicKey.should.equal(VALID_VAPID_KEYS.publicKey);
-      privateKey.should.equal(VALID_VAPID_KEYS.privateKey);
-    });
-  });
-
   it('should be able to generate VAPID authentication headers', () => {
     return generateVapidKeys()
     .then((keys) => {
-      return window.gauntface.VapidHelper.createVapidAuthHeader(keys, 'http://localhost', 'mailto:simple-push-demo@gauntface.co.uk');
+      return window.gauntface.VapidHelper.createVapidAuthHeader(
+        {
+          publicKey: window.uint8ArrayToBase64Url(keys.publicKey),
+          privateKey: window.uint8ArrayToBase64Url(keys.privateKey),
+        },
+        'http://localhost',
+        'mailto:simple-push-demo@gauntface.co.uk');
     })
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
@@ -96,10 +56,12 @@ describe('Test VAPID', function() {
   });
 
   it('should generate specific VAPID authentication headers', () => {
-    return window.gauntface.VapidHelper.createVapidAuthHeader({
-      publicKey: window.base64UrlToUint8Array(VALID_VAPID_KEYS.publicKey),
-      privateKey: window.base64UrlToUint8Array(VALID_VAPID_KEYS.privateKey),
-    }, 'https://fcm.googleapis.com', 'mailto:simple-push-demo@gauntface.co.uk', VALID_OUTPUT.expiration)
+    return window.gauntface.VapidHelper.createVapidAuthHeader(
+      VALID_VAPID_KEYS,
+      VALID_AUDIENCE,
+      VALID_SUBJECT,
+      VALID_EXPIRATION
+    )
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
       (typeof authHeaders.authorization === 'string').should.equal(true);

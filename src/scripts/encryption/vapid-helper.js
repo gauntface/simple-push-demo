@@ -25,6 +25,11 @@ class VapidHelper {
       exp = Math.floor((Date.now() / 1000) + 12 * 60 * 60);
     }
 
+    const publicApplicationServerKey = window.base64UrlToUint8Array(
+      vapidKeys.publicKey);
+    const privateApplicationServerKey = window.base64UrlToUint8Array(
+      vapidKeys.privateKey);
+
     // Ensure the audience is just the origin
     audience = new URL(audience).origin;
 
@@ -56,10 +61,10 @@ class VapidHelper {
       kty: 'EC',
       crv: 'P-256',
       x: window.uint8ArrayToBase64Url(
-        vapidKeys.publicKey.subarray(1, 33)),
+        publicApplicationServerKey.subarray(1, 33)),
       y: window.uint8ArrayToBase64Url(
-        vapidKeys.publicKey.subarray(33, 65)),
-      d: window.uint8ArrayToBase64Url(vapidKeys.privateKey),
+        publicApplicationServerKey.subarray(33, 65)),
+      d: window.uint8ArrayToBase64Url(privateApplicationServerKey),
     };
 
     // Sign the |unsignedToken| with the server's private key to generate
@@ -79,7 +84,7 @@ class VapidHelper {
       const jsonWebToken = unsignedToken + '.' +
         window.uint8ArrayToBase64Url(new Uint8Array(signature));
       const p256ecdsa = window.uint8ArrayToBase64Url(
-        vapidKeys.publicKey);
+        publicApplicationServerKey);
 
       return {
         authorization: jsonWebToken,
