@@ -37,6 +37,8 @@ describe('Test simple-push-demo', function() {
   // Add retries as end to end tests are error prone
   if (process.env.TRAVIS) {
     this.retries(3);
+  } else {
+    this.retries(1);
   }
 
   let testServer;
@@ -184,7 +186,13 @@ describe('Test simple-push-demo', function() {
         .then(() => {
           return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
           .catch((err) => {
-            console.warn('WARNING: setScriptTimeout threw an error: ', err);
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
           });
         })
         .then(() => {
@@ -315,7 +323,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
@@ -440,7 +457,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
@@ -545,7 +571,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
