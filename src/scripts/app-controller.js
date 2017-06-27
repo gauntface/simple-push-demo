@@ -1,26 +1,20 @@
-/* global PushClient, EncryptionHelperFactory, MaterialComponentsSnippets */
+/* global PushClient, MaterialComponentsSnippets */
 /* eslint-env browser */
+
+const BACKEND_ORIGIN = `https://simple-push-demo.appspot.com`;
+// const BACKEND_ORIGIN = `http://localhost:8080`;
 
 class AppController {
   constructor() {
-    // Define a different server URL here if desire.
-    this._PUSH_SERVER_URL = '';
-    this._API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
-
-    this._applicationKeys = {
-      publicKey: window.base64UrlToUint8Array(
-        'BDd3_hVL9fZi9Ybo2UUzA284WG5FZR30_95YeZJsiA' +
-        'pwXKpNcF1rRPF3foIiBHXRdJI2Qhumhf6_LFTeZaNndIo'),
-      privateKey: window.base64UrlToUint8Array(
-        'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI'),
-    };
+    this._encryptionHelper =
+      window.gauntface.EncryptionHelperFactory.generateHelper();
 
     const contentEncodingCode = document.querySelector(
       '.js-supported-content-encodings');
-    const supportedEncodings = PushManager.supportedContentEncodings ||
-      ['aesgcm'];
     contentEncodingCode.textContent =
-      JSON.stringify(supportedEncodings, null, 2);
+      JSON.stringify(
+        PushManager.supportedContentEncodings ||
+        ['aesgcm'], null, 2);
 
     // This div contains the UI for CURL commands to trigger a push
     this._sendPushOptions = document.querySelector('.js-send-push-options');
@@ -63,7 +57,7 @@ class AppController {
     this._pushClient = new PushClient(
       this._stateChangeListener,
       this._subscriptionUpdate,
-      this._applicationKeys.publicKey
+      window.gauntface.CONSTANTS.APPLICATION_KEYS.publicKey
     );
 
     document.querySelector('.js-push-toggle-switch > input')
@@ -147,7 +141,6 @@ class AppController {
 
   _subscriptionUpdate(subscription) {
     this._currentSubscription = subscription;
-    console.log(JSON.stringify(subscription));
     if (!subscription) {
       // Remove any subscription from your servers if you have
       // set it up.
@@ -182,17 +175,69 @@ class AppController {
   updatePushInfo() {
     // Let's look at payload
     const payloadText = this._payloadTextField.value;
-    let payloadPromise = Promise.resolve(null);
-    if (payloadText && payloadText.trim().length > 0) {
-      payloadPromise = EncryptionHelperFactory.generateHelper()
-      .then((encryptionHelper) => {
-        return encryptionHelper.encryptMessage(
-          JSON.parse(JSON.stringify(this._currentSubscription)), payloadText);
+    return this._encryptionHelper.getRequestDetails(
+      this._currentSubscription, payloadText)
+    .then((requestDetails) => {
+      let curlCommand = `curl "${requestDetails.endpoint}" --request POST`;
+      let curlError = null;
+
+      document.querySelector('.js-endpoint').textContent =
+        requestDetails.endpoint;
+      const headersList = document.querySelector('.js-headers-list');
+      while (headersList.hasChildNodes()) {
+        headersList.removeChild(headersList.firstChild);
+      }
+      Object.keys(requestDetails.headers).forEach((header) => {
+        const liElement = document.createElement('p');
+        liElement.innerHTML = `<span>${header}</span>: ` +
+          `${requestDetails.headers[header]}`;
+        headersList.appendChild(liElement);
+
+        curlCommand +=
+          ` --header "${header}: ${requestDetails.headers[header]}"`;
       });
-    }
+
+      const bodyFormat = document.querySelector('.js-body-format');
+      const bodyContent = document.querySelector('.js-body-content');
+      if (requestDetails.body && requestDetails.body instanceof ArrayBuffer) {
+        bodyFormat.textContent = 'Stream';
+        bodyContent.textContent = 'Unable to display';
+
+        curlCommand = null;
+        curlError = 'Sorry, but because the web push ' +
+          'protocol requires a stream as the body of the request, there is ' +
+          'no CURL command that will stream an encrypted payload.';
+      } else if (requestDetails.body) {
+        bodyFormat.textContent = 'String';
+        bodyContent.textContent = requestDetails.body;
+
+        curlCommand += ` -d ${JSON.stringify(requestDetails.body)}`;
+      } else {
+        bodyFormat.textContent = 'No Body';
+        bodyContent.textContent = 'N/A';
+      }
+
+      const curlCodeElement = document.querySelector('.js-curl-code');
+      const curlMsgElement = document.querySelector('.js-curl-copy-msg');
+      const curlErrorMsgElement = document.querySelector('.js-curl-error-msg');
+      if (curlCommand === null) {
+        curlCodeElement.style.display = 'none';
+        curlMsgElement.style.display = 'none';
+        curlErrorMsgElement.textContent = curlError;
+        curlErrorMsgElement.style.display = 'block';
+      } else {
+        curlCodeElement.textContent = curlCommand;
+        curlCodeElement.style.display = 'block';
+        curlMsgElement.style.display = 'block';
+        curlErrorMsgElement.style.display = 'none';
+      }
+    });
+
+
+    /**
 
     // Vapid support
-    const vapidPromise = EncryptionHelperFactory.createVapidAuthHeader(
+    const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
       this._applicationKeys,
       this._currentSubscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk');
@@ -214,66 +259,14 @@ class AppController {
         'https://android.googleapis.com/gcm/send') === 0) {
         infoFunction = () => {
           return this.getGCMInfo(this._currentSubscription, payload,
-            this._API_KEY);
+            window.gauntface.CONSTANTS.GCM_API_KEY);
         };
       }
 
       const requestInfo = infoFunction();
 
-      let curlCommand = `curl "${requestInfo.endpoint}" --request POST`;
-      let curlError = null;
-
-      document.querySelector('.js-endpoint').textContent = requestInfo.endpoint;
-      const headersList = document.querySelector('.js-headers-list');
-      while (headersList.hasChildNodes()) {
-        headersList.removeChild(headersList.firstChild);
-      }
-      Object.keys(requestInfo.headers).forEach((header) => {
-        const liElement = document.createElement('p');
-        liElement.innerHTML = `<span>${header}</span>: ` +
-          `${requestInfo.headers[header]}`;
-        headersList.appendChild(liElement);
-
-        curlCommand += ` --header "${header}: ${requestInfo.headers[header]}"`;
-      });
-
-      const bodyFormat = document.querySelector('.js-body-format');
-      const bodyContent = document.querySelector('.js-body-content');
-      if (requestInfo.body && requestInfo.body instanceof ArrayBuffer) {
-        bodyFormat.textContent = 'Stream';
-        bodyContent.textContent = 'Unable to display';
-
-        curlCommand = null;
-        curlError = 'Sorry, but because the web push ' +
-          'protocol requires a stream as the body of the request, there is ' +
-          'no CURL command that will stream an encrypted payload.';
-      } else if (requestInfo.body) {
-        bodyFormat.textContent = 'String';
-        bodyContent.textContent = requestInfo.body;
-
-        curlCommand += ` -d ${JSON.stringify(requestInfo.body)}`;
-      } else {
-        bodyFormat.textContent = 'No Body';
-        bodyContent.textContent = 'N/A';
-      }
-
       this._latestPushInfo = requestInfo;
-
-      const curlCodeElement = document.querySelector('.js-curl-code');
-      const curlMsgElement = document.querySelector('.js-curl-copy-msg');
-      const curlErrorMsgElement = document.querySelector('.js-curl-error-msg');
-      if (curlCommand === null) {
-        curlCodeElement.style.display = 'none';
-        curlMsgElement.style.display = 'none';
-        curlErrorMsgElement.textContent = curlError;
-        curlErrorMsgElement.style.display = 'block';
-      } else {
-        curlCodeElement.textContent = curlCommand;
-        curlCodeElement.style.display = 'block';
-        curlMsgElement.style.display = 'block';
-        curlErrorMsgElement.style.display = 'none';
-      }
-    });
+    });**/
   }
 
   getGCMInfo(subscription, payload, apiKey) {
@@ -292,7 +285,7 @@ class AppController {
       gcmAPIData['raw_data'] = this.toBase64(payload.cipherText); // eslint-disable-line
       headers.Encryption = `salt=${payload.salt}`;
       headers['Crypto-Key'] = `dh=${payload.publicServerKey}`;
-      headers['Content-Encoding'] = `aesgcm`;
+      headers['Content-Encoding'] = payload.contentEncoding;
     }
 
     return {
@@ -302,57 +295,29 @@ class AppController {
     };
   }
 
-  getWebPushInfo(subscription, payload, vapidHeaders) {
-    let body = null;
-    const headers = {};
-    headers.TTL = 60;
-
-    if (payload) {
-      body = payload.cipherText;
-
-      headers.Encryption = `salt=${payload.salt}`;
-      headers['Crypto-Key'] = `dh=${payload.publicServerKey}`;
-      headers['Content-Encoding'] = 'aesgcm';
-    } else {
-      headers['Content-Length'] = 0;
-    }
-
-    if (vapidHeaders) {
-      headers.Authorization = `WebPush ${vapidHeaders.authorization}`;
-
-      if (headers['Crypto-Key']) {
-        headers['Crypto-Key'] = `${headers['Crypto-Key']}; ` +
-          `p256ecdsa=${vapidHeaders.p256ecdsa}`;
-      } else {
-        headers['Crypto-Key'] = `p256ecdsa=${vapidHeaders.p256ecdsa}`;
-      }
-    }
-
-    const response = {
-      headers: headers,
-      endpoint: subscription.endpoint,
-    };
-
-    if (body) {
-      response.body = body;
-    }
-
-    return response;
-  }
-
   sendPushMessage(subscription, payloadText) {
+    return this._encryptionHelper.getRequestDetails(
+      this._currentSubscription, payloadText)
+    .then((requestDetails) => {
+      // Some push services don't allow CORS so have to forward
+      // it to a different server to make the request which does support
+      // CORs
+
+      return this.sendRequestToProxyServer(requestDetails);
+    });
+
     // Let's look at payload
-    let payloadPromise = Promise.resolve(null);
+    /** let payloadPromise = Promise.resolve(null);
     if (payloadText && payloadText.trim().length > 0) {
       payloadPromise = EncryptionHelperFactory.generateHelper()
       .then((encryptionHelper) => {
         return encryptionHelper.encryptMessage(
-          JSON.parse(JSON.stringify(this._currentSubscription)), payloadText);
+          this._currentSubscription, payloadText);
       });
     }
 
     // Vapid support
-    const vapidPromise = EncryptionHelperFactory.createVapidAuthHeader(
+    const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
       this._applicationKeys,
       subscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk');
@@ -374,18 +339,14 @@ class AppController {
         'https://android.googleapis.com/gcm/send') === 0) {
         infoFunction = () => {
           return this.getGCMInfo(subscription, payload,
-            this._API_KEY);
+            window.gauntface.CONSTANTS.GCM_API_KEY);
         };
       }
 
       const requestInfo = infoFunction();
 
-      // Some push services don't allow CORS so have to forward
-      // it to a different server to make the request which does support
-      // CORs
 
-      this.sendRequestToProxyServer(requestInfo);
-    });
+    });**/
   }
 
   sendRequestToProxyServer(requestInfo) {
@@ -405,11 +366,15 @@ class AppController {
 
     fetchOptions.body = JSON.stringify(requestInfo);
 
-    fetch('https://simple-push-demo.appspot.com/api/v2/sendpush', fetchOptions)
+    fetch(`${BACKEND_ORIGIN}/api/v2/sendpush`, fetchOptions)
     .then(function(response) {
       if (response.status >= 400 && response.status < 500) {
-        console.log('Failed web push response: ', response, response.status);
-        throw new Error('Failed to send push message via web push protocol');
+        return response.text()
+        .then((responseText) => {
+          console.log('Failed web push response: ', response, response.status);
+        throw new Error(`Failed to send push message via web push protocol: ` +
+          `<pre>${encodeURI(responseText)}</pre>`);
+        });
       }
     })
     .catch((err) => {
@@ -445,5 +410,21 @@ class AppController {
 }
 
 if (window) {
-  window.AppController = AppController;
+  window.onload = function() {
+    const appController = new AppController();
+    appController.ready
+    .then(() => {
+      document.body.dataset.simplePushDemoLoaded = true;
+
+      const host = 'gauntface.github.io';
+      if (
+        window.location.host === host &&
+        window.location.protocol !== 'https:') {
+        // Enforce HTTPS
+        window.location.protocol = 'https';
+      }
+
+      appController.registerServiceWorker();
+    });
+  };
 }

@@ -35,7 +35,11 @@ describe('Test simple-push-demo', function() {
   // Browser tests can be slow
   this.timeout(60000);
   // Add retries as end to end tests are error prone
-  this.retries(3);
+  if (process.env.TRAVIS) {
+    this.retries(3);
+  } else {
+    this.retries(1);
+  }
 
   let testServer;
   let testServerURL;
@@ -134,8 +138,6 @@ describe('Test simple-push-demo', function() {
               /* global Components, Services */
               Components.utils.import('resource://gre/modules/Services.jsm');
               const uri = Services.io.newURI(url, null, null);
-              // const principal = Services.scriptSecurityManager
-              //   .getNoAppCodebasePrincipal(uri);
               const principal = Services.scriptSecurityManager
                 .getCodebasePrincipal(uri);
               Services.perms.addFromPrincipal(
@@ -182,7 +184,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
@@ -215,7 +226,7 @@ describe('Test simple-push-demo', function() {
         })
         .then((performanceEntries) => {
           const requiredFiles = [
-            '/scripts/main.js',
+            '/scripts/app-controller.js',
             '/styles/main.css',
           ];
           performanceEntries = JSON.parse(performanceEntries);
@@ -312,7 +323,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
@@ -437,7 +457,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
@@ -542,7 +571,16 @@ describe('Test simple-push-demo', function() {
         // Load simple push demo page
         return initDriver()
         .then(() => {
-          return globalDriverReference.manage().timeouts().setScriptTimeout(2000);
+          return globalDriverReference.manage().timeouts().setScriptTimeout(2000)
+          .catch((err) => {
+            if (browserInfo.getId() === 'firefox' && browserInfo.getVersionNumber() === 56) {
+              // See: https://github.com/mozilla/geckodriver/issues/800
+              console.warn('Swallowing setScriptTimeoutError() <- Geckodriver issue.');
+              return;
+            }
+
+            throw err;
+          });
         })
         .then(() => {
           return globalDriverReference.get(`${testServerURL}/build/`);
