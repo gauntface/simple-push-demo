@@ -173,7 +173,6 @@ class EncryptionHelperAES128GCM {
         // Server Public Key
         keys.publicKey,
         new Uint8Array(encryptedPayloadArrayBuffer),
-        new Uint8Array([0x02]),
       ];
 
       console.log(uint8arrays);
