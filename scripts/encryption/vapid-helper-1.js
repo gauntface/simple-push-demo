@@ -13,12 +13,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /* eslint-env browser */
 
-var VapidHelper = function () {
-  function VapidHelper() {
-    _classCallCheck(this, VapidHelper);
+var VapidHelper1 = function () {
+  function VapidHelper1() {
+    _classCallCheck(this, VapidHelper1);
   }
 
-  _createClass(VapidHelper, null, [{
+  _createClass(VapidHelper1, null, [{
     key: 'createVapidAuthHeader',
     value: function createVapidAuthHeader(vapidKeys, audience, subject, exp) {
       if (!audience) {
@@ -91,10 +91,10 @@ var VapidHelper = function () {
     }
   }]);
 
-  return VapidHelper;
+  return VapidHelper1;
 }();
 
 if (typeof window !== 'undefined') {
   window.gauntface = window.gauntface || {};
-  window.gauntface.VapidHelper = VapidHelper;
+  window.gauntface.VapidHelper1 = VapidHelper1;
 }

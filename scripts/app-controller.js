@@ -212,35 +212,6 @@ var AppController = function () {
           curlErrorMsgElement.style.display = 'none';
         }
       });
-
-      /**
-       // Vapid support
-      const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
-        this._applicationKeys,
-        this._currentSubscription.endpoint,
-        'mailto:simple-push-demo@gauntface.co.uk');
-       return Promise.all([
-        payloadPromise,
-        vapidPromise,
-      ])
-      .then((results) => {
-        const payload = results[0];
-        const vapidHeaders = results[1];
-         let infoFunction = this.getWebPushInfo;
-        infoFunction = () => {
-          return this.getWebPushInfo(this._currentSubscription, payload,
-            vapidHeaders);
-        };
-        if (this._currentSubscription.endpoint.indexOf(
-          'https://android.googleapis.com/gcm/send') === 0) {
-          infoFunction = () => {
-            return this.getGCMInfo(this._currentSubscription, payload,
-              window.gauntface.CONSTANTS.GCM_API_KEY);
-          };
-        }
-         const requestInfo = infoFunction();
-         this._latestPushInfo = requestInfo;
-      });**/
     }
   }, {
     key: 'getGCMInfo',
@@ -281,42 +252,6 @@ var AppController = function () {
 
         return _this4.sendRequestToProxyServer(requestDetails);
       });
-
-      // Let's look at payload
-      /** let payloadPromise = Promise.resolve(null);
-      if (payloadText && payloadText.trim().length > 0) {
-        payloadPromise = EncryptionHelperFactory.generateHelper()
-        .then((encryptionHelper) => {
-          return encryptionHelper.encryptMessage(
-            this._currentSubscription, payloadText);
-        });
-      }
-       // Vapid support
-      const vapidPromise = window.gauntface.VapidHelper.createVapidAuthHeader(
-        this._applicationKeys,
-        subscription.endpoint,
-        'mailto:simple-push-demo@gauntface.co.uk');
-       return Promise.all([
-        payloadPromise,
-        vapidPromise,
-      ])
-      .then((results) => {
-        const payload = results[0];
-        const vapidHeaders = results[1];
-         let infoFunction = this.getWebPushInfo;
-        infoFunction = () => {
-          return this.getWebPushInfo(subscription, payload,
-            vapidHeaders);
-        };
-        if (subscription.endpoint.indexOf(
-          'https://android.googleapis.com/gcm/send') === 0) {
-          infoFunction = () => {
-            return this.getGCMInfo(subscription, payload,
-              window.gauntface.CONSTANTS.GCM_API_KEY);
-          };
-        }
-         const requestInfo = infoFunction();
-        });**/
     }
   }, {
     key: 'sendRequestToProxyServer',
@@ -347,6 +282,7 @@ var AppController = function () {
           });
         }
       }).catch(function (err) {
+        console.log(err);
         _this5.showErrorMessage('Ooops Unable to Send a Push', err);
       });
     }

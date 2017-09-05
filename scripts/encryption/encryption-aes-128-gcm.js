@@ -50,7 +50,7 @@ var EncryptionHelperAES128GCM = function () {
     value: function getRequestDetails(subscription, payloadText) {
       var _this = this;
 
-      return window.gauntface.VapidHelper.createVapidAuthHeader(this.getVapidKeys(), subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk').then(function (vapidHeaders) {
+      return window.gauntface.VapidHelper1.createVapidAuthHeader(this.getVapidKeys(), subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk').then(function (vapidHeaders) {
         return _this.encryptPayload(subscription, payloadText).then(function (encryptedPayloadDetails) {
           var body = null;
           var headers = {};
@@ -155,8 +155,6 @@ var EncryptionHelperAES128GCM = function () {
         serverPublicKeyLengthBuffer,
         // Server Public Key
         keys.publicKey, new Uint8Array(encryptedPayloadArrayBuffer)];
-
-        console.log(uint8arrays);
 
         var joinedUint8Array = window.joinUint8Arrays(uint8arrays);
         return joinedUint8Array.buffer;

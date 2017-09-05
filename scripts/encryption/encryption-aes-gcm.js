@@ -50,7 +50,7 @@ var EncryptionHelperAESGCM = function () {
     value: function getRequestDetails(subscription, payloadText) {
       var _this = this;
 
-      return window.gauntface.VapidHelper.createVapidAuthHeader(this.getVapidKeys(), subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk').then(function (vapidHeaders) {
+      return window.gauntface.VapidHelper1.createVapidAuthHeader(this.getVapidKeys(), subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk').then(function (vapidHeaders) {
         return _this.encryptPayload(subscription, payloadText).then(function (encryptedPayloadDetails) {
           var body = null;
           var headers = {};
