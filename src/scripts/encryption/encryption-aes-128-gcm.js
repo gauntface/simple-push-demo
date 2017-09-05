@@ -36,7 +36,7 @@ class EncryptionHelperAES128GCM {
   }
 
   getRequestDetails(subscription, payloadText) {
-    return window.gauntface.VapidHelper.createVapidAuthHeader(
+    return window.gauntface.VapidHelper1.createVapidAuthHeader(
       this.getVapidKeys(),
       subscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk')
@@ -174,8 +174,6 @@ class EncryptionHelperAES128GCM {
         keys.publicKey,
         new Uint8Array(encryptedPayloadArrayBuffer),
       ];
-
-      console.log(uint8arrays);
 
       const joinedUint8Array = window.joinUint8Arrays(uint8arrays);
       return joinedUint8Array.buffer;

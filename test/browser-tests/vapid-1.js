@@ -2,7 +2,7 @@
 
 'use strict';
 
-describe('Test VAPID', function() {
+describe('Test VAPID 1', function() {
   const VALID_VAPID_KEYS = {
     publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
     privateKey: 'Dt1CLgQlkiaA-tmCkATyKZeoF1-Gtw1-gdEP6pOCqj4',
@@ -37,7 +37,7 @@ describe('Test VAPID', function() {
   it('should be able to generate VAPID authentication headers', () => {
     return generateVapidKeys()
     .then((keys) => {
-      return window.gauntface.VapidHelper.createVapidAuthHeader(
+      return window.gauntface.VapidHelper1.createVapidAuthHeader(
         {
           publicKey: window.uint8ArrayToBase64Url(keys.publicKey),
           privateKey: window.uint8ArrayToBase64Url(keys.privateKey),
@@ -56,7 +56,7 @@ describe('Test VAPID', function() {
   });
 
   it('should generate specific VAPID authentication headers', () => {
-    return window.gauntface.VapidHelper.createVapidAuthHeader(
+    return window.gauntface.VapidHelper1.createVapidAuthHeader(
       VALID_VAPID_KEYS,
       VALID_AUDIENCE,
       VALID_SUBJECT,

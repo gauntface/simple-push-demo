@@ -36,7 +36,7 @@ class EncryptionHelperAESGCM {
   }
 
   getRequestDetails(subscription, payloadText) {
-    return window.gauntface.VapidHelper.createVapidAuthHeader(
+    return window.gauntface.VapidHelper1.createVapidAuthHeader(
       this.getVapidKeys(),
       subscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk')
