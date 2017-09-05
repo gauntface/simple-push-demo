@@ -36,7 +36,7 @@ class EncryptionHelperAES128GCM {
   }
 
   getRequestDetails(subscription, payloadText) {
-    return window.gauntface.VapidHelper2.createVapidAuthHeader(
+    return window.gauntface.VapidHelper1.createVapidAuthHeader(
       this.getVapidKeys(),
       subscription.endpoint,
       'mailto:simple-push-demo@gauntface.co.uk')
@@ -59,7 +59,14 @@ class EncryptionHelperAES128GCM {
         }
 
         if (vapidHeaders) {
-          headers.Authorization = `${vapidHeaders.authorization}`;
+          headers.Authorization = `WebPush ${vapidHeaders.authorization}`;
+
+          if (headers['Crypto-Key']) {
+            headers['Crypto-Key'] = `${headers['Crypto-Key']}; ` +
+              `p256ecdsa=${vapidHeaders.p256ecdsa}`;
+          } else {
+            headers['Crypto-Key'] = `p256ecdsa=${vapidHeaders.p256ecdsa}`;
+          }
         }
 
         const response = {
@@ -167,8 +174,6 @@ class EncryptionHelperAES128GCM {
         keys.publicKey,
         new Uint8Array(encryptedPayloadArrayBuffer),
       ];
-
-      console.log(uint8arrays);
 
       const joinedUint8Array = window.joinUint8Arrays(uint8arrays);
       return joinedUint8Array.buffer;

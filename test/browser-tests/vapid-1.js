@@ -2,7 +2,7 @@
 
 'use strict';
 
-describe('Test VAPID', function() {
+describe('Test VAPID 1', function() {
   const VALID_VAPID_KEYS = {
     publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
     privateKey: 'Dt1CLgQlkiaA-tmCkATyKZeoF1-Gtw1-gdEP6pOCqj4',

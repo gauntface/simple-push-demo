@@ -129,24 +129,6 @@ describe('Test simple-push-demo', function() {
         return browserInfo.getSeleniumDriver()
         .then((driver) => {
           globalDriverReference = driver;
-        })
-        .then(() => {
-          // This adds extra code to make notifications auto-grant perission
-          if (browserInfo.getId() === 'firefox') {
-            globalDriverReference.setContext(seleniumFirefox.Context.CHROME);
-            return globalDriverReference.executeScript((url) => {
-              /* global Components, Services */
-              Components.utils.import('resource://gre/modules/Services.jsm');
-              const uri = Services.io.newURI(url, null, null);
-              const principal = Services.scriptSecurityManager
-                .getCodebasePrincipal(uri);
-              Services.perms.addFromPrincipal(
-                principal, 'desktop-notification', Services.perms.ALLOW_ACTION);
-            }, testServerURL)
-            .then(() => {
-              globalDriverReference.setContext(seleniumFirefox.Context.CONTENT);
-            });
-          }
         });
       }
 
