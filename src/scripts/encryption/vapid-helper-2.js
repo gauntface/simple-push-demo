@@ -7,7 +7,7 @@
 
 /* eslint-env browser */
 
-class VapidHelper {
+class VapidHelper2 {
   static createVapidAuthHeader(vapidKeys, audience, subject, exp) {
     if (!audience) {
       return Promise.reject(new Error('Audience must be the origin of the ' +
@@ -87,8 +87,7 @@ class VapidHelper {
         publicApplicationServerKey);
 
       return {
-        authorization: jsonWebToken,
-        p256ecdsa: p256ecdsa,
+        authorization: `vapid t=${jsonWebToken}, k=${p256ecdsa}`,
       };
     });
   }
@@ -96,5 +95,5 @@ class VapidHelper {
 
 if (typeof window !== 'undefined') {
   window.gauntface = window.gauntface || {};
-  window.gauntface.VapidHelper = VapidHelper;
+  window.gauntface.VapidHelper2 = VapidHelper2;
 }

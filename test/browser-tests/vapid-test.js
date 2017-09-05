@@ -37,7 +37,7 @@ describe('Test VAPID', function() {
   it('should be able to generate VAPID authentication headers', () => {
     return generateVapidKeys()
     .then((keys) => {
-      return window.gauntface.VapidHelper.createVapidAuthHeader(
+      return window.gauntface.VapidHelper1.createVapidAuthHeader(
         {
           publicKey: window.uint8ArrayToBase64Url(keys.publicKey),
           privateKey: window.uint8ArrayToBase64Url(keys.privateKey),
@@ -56,7 +56,7 @@ describe('Test VAPID', function() {
   });
 
   it('should generate specific VAPID authentication headers', () => {
-    return window.gauntface.VapidHelper.createVapidAuthHeader(
+    return window.gauntface.VapidHelper1.createVapidAuthHeader(
       VALID_VAPID_KEYS,
       VALID_AUDIENCE,
       VALID_SUBJECT,
