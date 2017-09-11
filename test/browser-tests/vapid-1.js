@@ -47,11 +47,11 @@ describe('Test VAPID 1', function() {
     })
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders.authorization === 'string').should.equal(true);
-      (typeof authHeaders.p256ecdsa === 'string').should.equal(true);
+      (typeof authHeaders['Authorization'] === 'string').should.equal(true);
+      (typeof authHeaders['Crypto-Key'] === 'string').should.equal(true);
 
-      (authHeaders.authorization.length).should.equal(246);
-      (authHeaders.p256ecdsa.length).should.equal(87);
+      (authHeaders['Authorization'].length).should.equal(254);
+      (authHeaders['Crypto-Key'].length).should.equal(97);
     });
   });
 
@@ -64,11 +64,11 @@ describe('Test VAPID 1', function() {
     )
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders.authorization === 'string').should.equal(true);
-      (typeof authHeaders.p256ecdsa === 'string').should.equal(true);
+      (typeof authHeaders['Authorization'] === 'string').should.equal(true);
+      (typeof authHeaders['Crypto-Key'] === 'string').should.equal(true);
 
-      authHeaders.p256ecdsa.should.equal(VALID_OUTPUT.p256ecdsa);
-      authHeaders.authorization.indexOf(VALID_OUTPUT.unsignedToken).should.equal(0);
+      authHeaders['Authorization'].indexOf(`WebPush ${VALID_OUTPUT.unsignedToken}`).should.equal(0);
+      authHeaders['Crypto-Key'].should.equal(`p256ecdsa=${VALID_OUTPUT.p256ecdsa}`);
     });
   });
 });

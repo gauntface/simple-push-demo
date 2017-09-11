@@ -87,7 +87,7 @@ class VapidHelper2 {
         publicApplicationServerKey);
 
       return {
-        authorization: `vapid t=${jsonWebToken}, k=${p256ecdsa}`,
+        Authorization: `vapid t=${jsonWebToken}, k=${p256ecdsa}`,
       };
     });
   }
