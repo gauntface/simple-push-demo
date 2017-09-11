@@ -60,18 +60,17 @@ class EncryptionHelperAES128GCM {
 
         if (vapidHeaders) {
           headers.Authorization = `WebPush ${vapidHeaders.authorization}`;
+        }
 
-          if (headers['Crypto-Key']) {
-            headers['Crypto-Key'] = `${headers['Crypto-Key']}; ` +
-              `p256ecdsa=${vapidHeaders.p256ecdsa}`;
-          } else {
-            headers['Crypto-Key'] = `p256ecdsa=${vapidHeaders.p256ecdsa}`;
-          }
+        let endpoint = subscription.endpoint;
+        // This is a temporary test to use the latest vapid changes
+        if (endpoint.indexOf('https://fcm.googleapis.com') === 0) {
+          endpoint = endpoint.replace('fcm/send', 'wp');
         }
 
         const response = {
           headers: headers,
-          endpoint: subscription.endpoint,
+          endpoint,
         };
 
         if (body) {
