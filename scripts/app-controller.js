@@ -249,7 +249,6 @@ var AppController = function () {
         // Some push services don't allow CORS so have to forward
         // it to a different server to make the request which does support
         // CORs
-
         return _this4.sendRequestToProxyServer(requestDetails);
       });
     }

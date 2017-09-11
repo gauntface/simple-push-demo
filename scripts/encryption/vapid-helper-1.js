@@ -84,8 +84,8 @@ var VapidHelper1 = function () {
         var p256ecdsa = window.uint8ArrayToBase64Url(publicApplicationServerKey);
 
         return {
-          authorization: jsonWebToken,
-          p256ecdsa: p256ecdsa
+          'Authorization': 'WebPush ' + jsonWebToken,
+          'Crypto-Key': 'p256ecdsa=' + p256ecdsa
         };
       });
     }

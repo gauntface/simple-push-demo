@@ -50,7 +50,22 @@ var EncryptionHelperAES128GCM = function () {
     value: function getRequestDetails(subscription, payloadText) {
       var _this = this;
 
-      return window.gauntface.VapidHelper1.createVapidAuthHeader(this.getVapidKeys(), subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk').then(function (vapidHeaders) {
+      var vapidHelper = window.gauntface.VapidHelper1;
+
+      var endpoint = subscription.endpoint;
+
+      // Latest spec changes for VAPID is implemented on this custom FCM
+      // endpoint. This is experimental and SHOULD NOT BE USED IN PRODUCTION
+      // web apps.
+      //
+      // Need to get a proper feature detect in place for these vapid changes
+      // https://github.com/mozilla-services/autopush/issues/879
+      if (endpoint.indexOf('https://fcm.googleapis.com') === 0) {
+        endpoint = endpoint.replace('fcm/send', 'wp');
+        vapidHelper = window.gauntface.VapidHelper2;
+      }
+
+      return vapidHelper.createVapidAuthHeader(this.getVapidKeys(), subscription.endpoint, 'mailto:simple-push-demo@gauntface.co.uk').then(function (vapidHeaders) {
         return _this.encryptPayload(subscription, payloadText).then(function (encryptedPayloadDetails) {
           var body = null;
           var headers = {};
@@ -58,28 +73,20 @@ var EncryptionHelperAES128GCM = function () {
 
           if (encryptedPayloadDetails) {
             body = encryptedPayloadDetails.cipherText;
-
-            // headers.Encryption = `salt=${encryptedPayloadDetails.salt}`;
-            // headers['Crypto-Key'] =
-            //   `dh=${encryptedPayloadDetails.publicServerKey}`;
             headers['Content-Encoding'] = 'aes128gcm';
           } else {
             headers['Content-Length'] = 0;
           }
 
           if (vapidHeaders) {
-            headers.Authorization = 'WebPush ' + vapidHeaders.authorization;
-
-            if (headers['Crypto-Key']) {
-              headers['Crypto-Key'] = headers['Crypto-Key'] + '; ' + ('p256ecdsa=' + vapidHeaders.p256ecdsa);
-            } else {
-              headers['Crypto-Key'] = 'p256ecdsa=' + vapidHeaders.p256ecdsa;
-            }
+            Object.keys(vapidHeaders).forEach(function (headerName) {
+              headers[headerName] = vapidHeaders[headerName];
+            });
           }
 
           var response = {
             headers: headers,
-            endpoint: subscription.endpoint
+            endpoint: endpoint
           };
 
           if (body) {
