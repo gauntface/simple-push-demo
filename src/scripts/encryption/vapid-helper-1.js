@@ -87,8 +87,8 @@ class VapidHelper1 {
         publicApplicationServerKey);
 
       return {
-        authorization: jsonWebToken,
-        p256ecdsa: p256ecdsa,
+        'Authorization': `WebPush ${jsonWebToken}`,
+        'Crypto-Key': `p256ecdsa=${p256ecdsa}`,
       };
     });
   }

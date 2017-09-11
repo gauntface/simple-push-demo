@@ -59,14 +59,14 @@ class EncryptionHelperAESGCM {
         }
 
         if (vapidHeaders) {
-          headers.Authorization = `WebPush ${vapidHeaders.authorization}`;
-
-          if (headers['Crypto-Key']) {
-            headers['Crypto-Key'] = `${headers['Crypto-Key']}; ` +
-              `p256ecdsa=${vapidHeaders.p256ecdsa}`;
-          } else {
-            headers['Crypto-Key'] = `p256ecdsa=${vapidHeaders.p256ecdsa}`;
-          }
+          Object.keys(vapidHeaders).forEach((headerName) => {
+            if (headers[headerName]) {
+              headers[headerName] =
+                `${headers[headerName]}; ${vapidHeaders[headerName]}`;
+            } else {
+              headers[headerName] = vapidHeaders[headerName];
+            }
+          });
         }
 
         const response = {

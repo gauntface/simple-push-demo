@@ -47,11 +47,11 @@ describe('Test VAPID 2', function() {
     })
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders.authorization === 'string').should.equal(true);
-      (typeof authHeaders.p256ecdsa === 'undefined').should.equal(true);
+      (typeof authHeaders['Authorization'] === 'string').should.equal(true);
+      (typeof authHeaders['Crypto-Key'] === 'undefined').should.equal(true);
 
       const regex = /vapid t=(.*), k=(.*)/g;
-      const matches = regex.exec(authHeaders.authorization);
+      const matches = regex.exec(authHeaders['Authorization']);
       matches.length.should.equal(3);
 
       const jwt = matches[1];
@@ -71,11 +71,11 @@ describe('Test VAPID 2', function() {
     )
     .then((authHeaders) => {
       (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders.authorization === 'string').should.equal(true);
-      (typeof authHeaders.p256ecdsa === 'undefined').should.equal(true);
+      (typeof authHeaders['Authorization'] === 'string').should.equal(true);
+      (typeof authHeaders['Crypto-Key'] === 'undefined').should.equal(true);
 
       const regex = /vapid t=(.*), k=(.*)/g;
-      const matches = regex.exec(authHeaders.authorization);
+      const matches = regex.exec(authHeaders['Authorization']);
       matches.length.should.equal(3);
 
       const jwt = matches[1];
