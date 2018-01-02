@@ -334,6 +334,15 @@ class AppController {
 
 if (window) {
   window.onload = function() {
+    if (!navigator.serviceWorker) {
+      console.warn('Service worker not supported.');
+      return;
+    }
+    if (!('PushManager' in window)) {
+      console.warn('Push not supported.');
+      return;
+    }
+
     const appController = new AppController();
     appController.ready
     .then(() => {
