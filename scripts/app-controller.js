@@ -315,6 +315,15 @@ var AppController = function () {
 
 if (window) {
   window.onload = function () {
+    if (!navigator.serviceWorker) {
+      console.warn('Service worker not supported.');
+      return;
+    }
+    if (!('PushManager' in window)) {
+      console.warn('Push not supported.');
+      return;
+    }
+
     var appController = new AppController();
     appController.ready.then(function () {
       document.body.dataset.simplePushDemoLoaded = true;
