@@ -8,7 +8,7 @@ class MaterialComponentsSnippets {
 
   init() {
     for (let i = 0; i < this.snippets.length; i++) {
-      let snippet = this.snippets[i];
+      const snippet = this.snippets[i];
       snippet.addEventListener('click', this.onMouseClickHandler(snippet));
       snippet.addEventListener('mouseout', this.onMouseOutHandler(snippet));
     }

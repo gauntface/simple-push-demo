@@ -20,7 +20,6 @@
 
 const gulp = require('gulp');
 const del = require('del');
-const runSequence = require('run-sequence');
 const cleanCSS = require('gulp-clean-css');
 const autoprefixer = require('gulp-autoprefixer');
 const sourcemaps = require('gulp-sourcemaps');
@@ -38,20 +37,17 @@ const AUTOPREFIXER_BROWSERS = [
   'bb >= 10',
 ];
 
-gulp.task('styles:watch', function() {
+gulp.task('styles:watch', () => {
   gulp.watch(global.config.src + '/**/*.css',
-    ['styles', global.config.browserSyncReload]);
+      ['styles', global.config.browserSyncReload]);
 });
 
 // Delete any files currently in the scripts destination path
-gulp.task('styles:clean', function(cb) {
-  del([global.config.dest + '/**/*.css'], {dot: true})
-    .then(function() {
-      cb();
-    });
+gulp.task('styles:clean', () => {
+  return del([global.config.dest + '/**/*.css'], {dot: true});
 });
 
-gulp.task('styles:css', function() {
+gulp.task('styles:css', () => {
   let stream = gulp.src(global.config.src + '/**/*.css');
 
   if (global.config.env !== 'prod') {
@@ -64,17 +60,14 @@ gulp.task('styles:css', function() {
   if (global.config.env !== 'prod') {
     // Only create sourcemaps for dev
     stream = stream.pipe(cleanCSS())
-      .pipe(license(global.config.license, global.config.licenseOptions))
-      .pipe(sourcemaps.write());
+        .pipe(license(global.config.license, global.config.licenseOptions))
+        .pipe(sourcemaps.write());
   }
 
   return stream.pipe(gulp.dest(global.config.dest));
 });
 
-gulp.task('styles', function(cb) {
-  runSequence(
+gulp.task('styles', gulp.series(
     'styles:clean',
     'styles:css',
-    cb
-  );
-});
+));

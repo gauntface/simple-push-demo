@@ -3,7 +3,6 @@
 /* eslint-env browser */
 
 class PushClient {
-
   constructor(stateChangeCb, subscriptionUpdate, publicAppKey) {
     this._stateChangeCb = stateChangeCb;
     this._subscriptionUpdate = subscriptionUpdate;
@@ -81,10 +80,10 @@ class PushClient {
     }
 
     navigator.serviceWorker.ready
-      .then(() => {
-        this._stateChangeCb(this._state.INITIALISING);
-        this.setUpPushPermission();
-      });
+        .then(() => {
+          this._stateChangeCb(this._state.INITIALISING);
+          this.setUpPushPermission();
+        });
   }
 
   _permissionStateChange(permissionState) {
@@ -105,15 +104,14 @@ class PushClient {
     }
   }
 
-  setUpPushPermission() {
-    this._permissionStateChange(Notification.permission);
+  async setUpPushPermission() {
+    try {
+      this._permissionStateChange(Notification.permission);
 
-    return navigator.serviceWorker.ready
-    .then((serviceWorkerRegistration) => {
+      const reg = await navigator.serviceWorker.ready;
       // Let's see if we have a subscription already
-      return serviceWorkerRegistration.pushManager.getSubscription();
-    })
-    .then((subscription) => {
+      const subscription = await reg.pushManager.getSubscription();
+
       if (!subscription) {
         // NOOP since we have no subscription and the permission state
         // will inform whether to enable or disable the push UI
@@ -125,74 +123,67 @@ class PushClient {
       // Update the current state with the
       // subscriptionid and endpoint
       this._subscriptionUpdate(subscription);
-    })
-    .catch((err) => {
+    } catch (err) {
       console.log('setUpPushPermission() ', err);
       this._stateChangeCb(this._state.ERROR, err);
-    });
+    }
   }
 
-  subscribeDevice() {
+  async subscribeDevice() {
     this._stateChangeCb(this._state.STARTING_SUBSCRIBE);
 
-    return new Promise((resolve, reject) => {
-      if (Notification.permission === 'denied') {
-        return reject(new Error('Push messages are blocked.'));
+    try {
+      switch (Notification.permission) {
+        case 'denied':
+          throw new Error('Push messages are blocked.');
+        case 'granted':
+          break;
+        default:
+          await new Promise((resolve, reject) => {
+            Notification.requestPermission((result) => {
+              if (result !== 'granted') {
+                reject(new Error('Bad permission result'));
+              }
+
+              resolve();
+            });
+          });
       }
 
-      if (Notification.permission === 'granted') {
-        return resolve();
-      }
-
-      if (Notification.permission === 'default') {
-        Notification.requestPermission((result) => {
-          if (result !== 'granted') {
-            reject(new Error('Bad permission result'));
-          }
-
-          resolve();
-        });
-      }
-    })
-    .then(() => {
       // We need the service worker registration to access the push manager
-      return navigator.serviceWorker.ready
-      .then((serviceWorkerRegistration) => {
-        return serviceWorkerRegistration.pushManager.subscribe(
-          {
-            userVisibleOnly: true,
-            applicationServerKey: this._publicApplicationKey,
-          }
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const subscription = await reg.pushManager.subscribe(
+            {
+              userVisibleOnly: true,
+              applicationServerKey: this._publicApplicationKey,
+            },
         );
-      })
-      .then((subscription) => {
         this._stateChangeCb(this._state.SUBSCRIBED);
         this._subscriptionUpdate(subscription);
-      })
-      .catch((subscriptionErr) => {
-        this._stateChangeCb(this._state.ERROR, subscriptionErr);
-      });
-    })
-    .catch(() => {
+      } catch (err) {
+        this._stateChangeCb(this._state.ERROR, err);
+      }
+    } catch (err) {
+      console.log('subscribeDevice() ', err);
       // Check for a permission prompt issue
       this._permissionStateChange(Notification.permission);
-    });
+    }
   }
 
-  unsubscribeDevice() {
+  async unsubscribeDevice() {
     // Disable the switch so it can't be changed while
     // we process permissions
     // window.PushDemo.ui.setPushSwitchDisabled(true);
 
     this._stateChangeCb(this._state.STARTING_UNSUBSCRIBE);
 
-    navigator.serviceWorker.ready
-    .then((serviceWorkerRegistration) => {
-      return serviceWorkerRegistration.pushManager.getSubscription();
-    })
-    .then((pushSubscription) => {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const subscription = await reg.pushManager.getSubscription();
+
       // Check we have everything we need to unsubscribe
-      if (!pushSubscription) {
+      if (!subscription) {
         this._stateChangeCb(this._state.UNSUBSCRIBED);
         this._subscriptionUpdate(null);
         return;
@@ -200,25 +191,21 @@ class PushClient {
 
       // You should remove the device details from the server
       // i.e. the  pushSubscription.endpoint
-      return pushSubscription.unsubscribe()
-      .then(function(successful) {
-        if (!successful) {
-          // The unsubscribe was unsuccessful, but we can
-          // remove the subscriptionId from our server
-          // and notifications will stop
-          // This just may be in a bad state when the user returns
-          console.error('We were unable to unregister from push');
-        }
-      });
-    })
-    .then(() => {
+      const successful = await subscription.unsubscribe();
+      if (!successful) {
+        // The unsubscribe was unsuccessful, but we can
+        // remove the subscriptionId from our server
+        // and notifications will stop
+        // This just may be in a bad state when the user returns
+        console.error('We were unable to unregister from push');
+      }
+
       this._stateChangeCb(this._state.UNSUBSCRIBED);
       this._subscriptionUpdate(null);
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error('Error thrown while revoking push notifications. ' +
         'Most likely because push was never registered', err);
-    });
+    }
   }
 }
 

@@ -18,30 +18,24 @@
 'use strict';
 
 const gulp = require('gulp');
-const runSequence = require('run-sequence');
 const del = require('del');
 
 gulp.task('copy:watch', () => {
   gulp.watch(global.config.src + '/*.*',
-    ['copy:root', global.config.browserSyncReload]);
+      ['copy:root', global.config.browserSyncReload]);
 });
 
-gulp.task('copy:cleanRoot', (cb) => {
-  del([global.config.dest + '/*.{json,txt,ico}'], {dot: true})
-    .then(function() {
-      cb();
-    });
+gulp.task('copy:cleanRoot', () => {
+  return del([global.config.dest + '/*.{json,txt,ico}'], {dot: true});
 });
 
-gulp.task('copy:root', ['copy:cleanRoot'], () => {
-  return gulp.src([
-    global.config.src + '/*.{json,txt,ico}',
-  ])
-  .pipe(gulp.dest(global.config.dest));
-});
+gulp.task('copy:root', gulp.series(
+    'copy:cleanRoot',
+    () => {
+      return gulp.src([
+        global.config.src + '/*.{json,txt,ico}',
+      ]).pipe(gulp.dest(global.config.dest));
+    },
+));
 
-gulp.task('copy', (cb) => {
-  runSequence(
-    'copy:root',
-  cb);
-});
+gulp.task('copy', gulp.series('copy:root'));
