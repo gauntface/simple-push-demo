@@ -7,7 +7,7 @@ async function run() {
     seleniumAssistant.downloadLocalBrowser('firefox', 'unstable'),
     seleniumAssistant.downloadLocalBrowser('chrome', 'stable'),
     seleniumAssistant.downloadLocalBrowser('chrome', 'beta'),
-    seleniumAssistant.downloadLocalBrowser('chrome', 'unstable'),
+    // seleniumAssistant.downloadLocalBrowser('chrome', 'unstable'),
   ];
 
   console.log('Starting to download browsers.');

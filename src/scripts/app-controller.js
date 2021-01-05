@@ -10,16 +10,16 @@ class AppController {
       window.gauntface.EncryptionHelperFactory.generateHelper();
 
     const contentEncodingCode = document.querySelector(
-      '.js-supported-content-encodings');
+        '.js-supported-content-encodings');
     contentEncodingCode.textContent =
       JSON.stringify(
-        PushManager.supportedContentEncodings ||
+          PushManager.supportedContentEncodings ||
         ['aesgcm'], null, 2);
 
     // This div contains the UI for CURL commands to trigger a push
     this._sendPushOptions = document.querySelector('.js-send-push-options');
     this._subscriptionJSONCode = document.querySelector(
-      '.js-subscription-json');
+        '.js-subscription-json');
     this._payloadTextField = document.querySelector('.js-payload-textfield');
     this._payloadTextField.oninput = () => {
       this.updatePushInfo();
@@ -55,27 +55,27 @@ class AppController {
 
     this._toggleSwitch = toggleSwitch;
     this._pushClient = new PushClient(
-      this._stateChangeListener,
-      this._subscriptionUpdate,
-      window.gauntface.CONSTANTS.APPLICATION_KEYS.publicKey
+        this._stateChangeListener,
+        this._subscriptionUpdate,
+        window.gauntface.CONSTANTS.APPLICATION_KEYS.publicKey,
     );
 
     document.querySelector('.js-push-toggle-switch > input')
-    .addEventListener('click', (event) => {
-      // Inverted because clicking will change the checked state by
-      // the time we get here
-      if (event.target.checked) {
-        this._pushClient.subscribeDevice();
-      } else {
-        this._pushClient.unsubscribeDevice();
-      }
-    });
+        .addEventListener('click', (event) => {
+          // Inverted because clicking will change the checked state by
+          // the time we get here
+          if (event.target.checked) {
+            this._pushClient.subscribeDevice();
+          } else {
+            this._pushClient.unsubscribeDevice();
+          }
+        });
 
     const sendPushViaXHRButton = document.querySelector('.js-send-push-button');
     sendPushViaXHRButton.addEventListener('click', () => {
       if (this._currentSubscription) {
         this.sendPushMessage(this._currentSubscription,
-          this._payloadTextField.value);
+            this._payloadTextField.value);
       }
     });
 
@@ -87,19 +87,19 @@ class AppController {
     // Check that service workers are supported
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js')
-      .catch((err) => {
-        this.showErrorMessage(
-          'Unable to Register SW',
-          'Sorry this demo requires a service worker to work and it ' +
-          'failed to install - sorry :('
-        );
-        console.error(err);
-      });
+          .catch((err) => {
+            this.showErrorMessage(
+                'Unable to Register SW',
+                'Sorry this demo requires a service worker to work and it ' +
+                'failed to install - sorry :(',
+            );
+            console.error(err);
+          });
     } else {
       this.showErrorMessage(
-        'Service Worker Not Supported',
-        'Sorry this demo requires service worker support in your browser. ' +
-        'Please try this demo in Chrome or Firefox Nightly.'
+          'Service Worker Not Supported',
+          'Sorry this demo requires service worker support in your browser. ' +
+          'Please try this demo in Chrome or Firefox Nightly.',
       );
     }
   }
@@ -124,14 +124,14 @@ class AppController {
     switch (state.id) {
       case 'UNSUPPORTED':
         this.showErrorMessage(
-          'Push Not Supported',
-          data
+            'Push Not Supported',
+            data,
         );
         break;
       case 'ERROR':
         this.showErrorMessage(
-          'Ooops a Problem Occurred',
-          data
+            'Ooops a Problem Occurred',
+            data,
         );
         break;
       default:
@@ -154,7 +154,7 @@ class AppController {
     // This is too handle old versions of Firefox where keys would exist
     // but auth wouldn't
     const payloadTextfieldContainer = document.querySelector(
-      '.js-payload-textfield-container');
+        '.js-payload-textfield-container');
     const subscriptionObject = JSON.parse(JSON.stringify(subscription));
     if (
       subscriptionObject &&
@@ -176,62 +176,64 @@ class AppController {
     // Let's look at payload
     const payloadText = this._payloadTextField.value;
     return this._encryptionHelper.getRequestDetails(
-      this._currentSubscription, payloadText)
-    .then((requestDetails) => {
-      let curlCommand = `curl "${requestDetails.endpoint}" --request POST`;
-      let curlError = null;
+        this._currentSubscription, payloadText)
+        .then((requestDetails) => {
+          let curlCommand = `curl "${requestDetails.endpoint}" --request POST`;
+          let curlError = null;
 
-      document.querySelector('.js-endpoint').textContent =
-        requestDetails.endpoint;
-      const headersList = document.querySelector('.js-headers-list');
-      while (headersList.hasChildNodes()) {
-        headersList.removeChild(headersList.firstChild);
-      }
-      Object.keys(requestDetails.headers).forEach((header) => {
-        const liElement = document.createElement('p');
-        liElement.innerHTML = `<span>${header}</span>: ` +
-          `${requestDetails.headers[header]}`;
-        headersList.appendChild(liElement);
+          document.querySelector('.js-endpoint').textContent =
+            requestDetails.endpoint;
+          const headersList = document.querySelector('.js-headers-list');
+          while (headersList.hasChildNodes()) {
+            headersList.removeChild(headersList.firstChild);
+          }
+          Object.keys(requestDetails.headers).forEach((header) => {
+            const liElement = document.createElement('p');
+            liElement.innerHTML = `<span>${header}</span>: ` +
+              `${requestDetails.headers[header]}`;
+            headersList.appendChild(liElement);
 
-        curlCommand +=
-          ` --header "${header}: ${requestDetails.headers[header]}"`;
-      });
+            curlCommand +=
+              ` --header "${header}: ${requestDetails.headers[header]}"`;
+          });
 
-      const bodyFormat = document.querySelector('.js-body-format');
-      const bodyContent = document.querySelector('.js-body-content');
-      if (requestDetails.body && requestDetails.body instanceof ArrayBuffer) {
-        bodyFormat.textContent = 'Stream';
-        bodyContent.textContent = 'Unable to display';
+          const bodyFormat = document.querySelector('.js-body-format');
+          const bodyContent = document.querySelector('.js-body-content');
+          if (requestDetails.body &&
+            requestDetails.body instanceof ArrayBuffer) {
+            bodyFormat.textContent = 'Stream';
+            bodyContent.textContent = 'Unable to display';
 
-        curlCommand = null;
-        curlError = 'Sorry, but because the web push ' +
-          'protocol requires a stream as the body of the request, there is ' +
-          'no CURL command that will stream an encrypted payload.';
-      } else if (requestDetails.body) {
-        bodyFormat.textContent = 'String';
-        bodyContent.textContent = requestDetails.body;
+            curlCommand = null;
+            curlError = 'Sorry, but because the web push ' +
+              'protocol requires a stream as the body of the request, ' +
+              'there is no CURL command that will stream an encrypted payload.';
+          } else if (requestDetails.body) {
+            bodyFormat.textContent = 'String';
+            bodyContent.textContent = requestDetails.body;
 
-        curlCommand += ` -d ${JSON.stringify(requestDetails.body)}`;
-      } else {
-        bodyFormat.textContent = 'No Body';
-        bodyContent.textContent = 'N/A';
-      }
+            curlCommand += ` -d ${JSON.stringify(requestDetails.body)}`;
+          } else {
+            bodyFormat.textContent = 'No Body';
+            bodyContent.textContent = 'N/A';
+          }
 
-      const curlCodeElement = document.querySelector('.js-curl-code');
-      const curlMsgElement = document.querySelector('.js-curl-copy-msg');
-      const curlErrorMsgElement = document.querySelector('.js-curl-error-msg');
-      if (curlCommand === null) {
-        curlCodeElement.style.display = 'none';
-        curlMsgElement.style.display = 'none';
-        curlErrorMsgElement.textContent = curlError;
-        curlErrorMsgElement.style.display = 'block';
-      } else {
-        curlCodeElement.textContent = curlCommand;
-        curlCodeElement.style.display = 'block';
-        curlMsgElement.style.display = 'block';
-        curlErrorMsgElement.style.display = 'none';
-      }
-    });
+          const curlCodeElement = document.querySelector('.js-curl-code');
+          const curlMsgElement = document.querySelector('.js-curl-copy-msg');
+          const curlErrorMsgElement = document.querySelector(
+              '.js-curl-error-msg');
+          if (curlCommand === null) {
+            curlCodeElement.style.display = 'none';
+            curlMsgElement.style.display = 'none';
+            curlErrorMsgElement.textContent = curlError;
+            curlErrorMsgElement.style.display = 'block';
+          } else {
+            curlCodeElement.textContent = curlCommand;
+            curlCodeElement.style.display = 'block';
+            curlMsgElement.style.display = 'block';
+            curlErrorMsgElement.style.display = 'none';
+          }
+        });
   }
 
   getGCMInfo(subscription, payload, apiKey) {
@@ -262,13 +264,13 @@ class AppController {
 
   sendPushMessage(subscription, payloadText) {
     return this._encryptionHelper.getRequestDetails(
-      this._currentSubscription, payloadText)
-    .then((requestDetails) => {
-      // Some push services don't allow CORS so have to forward
-      // it to a different server to make the request which does support
-      // CORs
-      return this.sendRequestToProxyServer(requestDetails);
-    });
+        this._currentSubscription, payloadText)
+        .then((requestDetails) => {
+          // Some push services don't allow CORS so have to forward
+          // it to a different server to make the request which does support
+          // CORs
+          return this.sendRequestToProxyServer(requestDetails);
+        });
   }
 
   sendRequestToProxyServer(requestInfo) {
@@ -289,23 +291,25 @@ class AppController {
     fetchOptions.body = JSON.stringify(requestInfo);
 
     fetch(`${BACKEND_ORIGIN}/api/v2/sendpush`, fetchOptions)
-    .then(function(response) {
-      if (response.status >= 400 && response.status < 500) {
-        return response.text()
-        .then((responseText) => {
-          console.log('Failed web push response: ', response, response.status);
-        throw new Error(`Failed to send push message via web push protocol: ` +
-          `<pre>${encodeURI(responseText)}</pre>`);
+        .then(function(response) {
+          if (response.status >= 400 && response.status < 500) {
+            return response.text()
+                .then((responseText) => {
+                  console.log('Failed web push response: ',
+                      response, response.status);
+                  throw new Error(
+                      `Failed to send push message via web push protocol: ` +
+                      `<pre>${encodeURI(responseText)}</pre>`);
+                });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.showErrorMessage(
+              'Ooops Unable to Send a Push',
+              err,
+          );
         });
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      this.showErrorMessage(
-        'Ooops Unable to Send a Push',
-        err
-      );
-    });
   }
 
   toBase64(arrayBuffer, start, end) {
@@ -318,7 +322,7 @@ class AppController {
 
   showErrorMessage(title, message) {
     const errorContainer = document
-      .querySelector('.js-error-message-container');
+        .querySelector('.js-error-message-container');
 
     const titleElement = errorContainer.querySelector('.js-error-title');
     const messageElement = errorContainer.querySelector('.js-error-message');
@@ -327,7 +331,7 @@ class AppController {
     errorContainer.style.opacity = 1;
 
     const pushOptionsContainer = document
-      .querySelector('.js-send-push-options');
+        .querySelector('.js-send-push-options');
     pushOptionsContainer.style.display = 'none';
   }
 }
@@ -345,18 +349,18 @@ if (window) {
 
     const appController = new AppController();
     appController.ready
-    .then(() => {
-      document.body.dataset.simplePushDemoLoaded = true;
+        .then(() => {
+          document.body.dataset.simplePushDemoLoaded = true;
 
-      const host = 'gauntface.github.io';
-      if (
-        window.location.host === host &&
-        window.location.protocol !== 'https:') {
-        // Enforce HTTPS
-        window.location.protocol = 'https';
-      }
+          const host = 'gauntface.github.io';
+          if (
+            window.location.host === host &&
+            window.location.protocol !== 'https:') {
+            // Enforce HTTPS
+            window.location.protocol = 'https';
+          }
 
-      appController.registerServiceWorker();
-    });
+          appController.registerServiceWorker();
+        });
   };
 }
