@@ -101,7 +101,7 @@ describe('Test simple-push-demo', function() {
             const ffOpts = new seleniumFirefox.Options();
             ffOpts.setPreference('security.turn_off_all_security_so_that_' +
               'viruses_can_take_over_this_computer', true);
-              ffOpts.setPreference('dom.push.testing.ignorePermission', true);
+            ffOpts.setPreference('dom.push.testing.ignorePermission', true);
             ffOpts.setPreference('notification.prompt.testing', true);
             ffOpts.setPreference('notification.prompt.testing.allow', true);
             const builder = await browserInfo.getSeleniumDriverBuilder();
@@ -180,7 +180,7 @@ describe('Test simple-push-demo', function() {
         await del('./test/output/');
       });
 
-      /*it(`should pass all browser tests`, async () => {
+      it(`should pass all browser tests`, async () => {
         await initDriver();
 
         const testResults = await mochaUtils.startWebDriverMochaTests(
@@ -197,7 +197,7 @@ describe('Test simple-push-demo', function() {
 
           throw new Error(errorMessage);
         }
-      });*/
+      });
 
       it(`should pass sanity checks and be able to trigger and receive a tickle`, async () => {
         // Load simple push demo page

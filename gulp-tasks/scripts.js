@@ -47,7 +47,7 @@ gulp.task('scripts:copy', gulp.series(
                     esmodules: true,
                   },
                 },
-              ]
+              ],
             ],
           }))
           .pipe(gulp.dest(global.config.dest));
