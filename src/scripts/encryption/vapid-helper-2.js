@@ -8,7 +8,7 @@
 /* eslint-env browser */
 
 class VapidHelper2 {
-  static createVapidAuthHeader(vapidKeys, audience, subject, exp) {
+  static async createVapidAuthHeader(vapidKeys, audience, subject, exp) {
     if (!audience) {
       return Promise.reject(new Error('Audience must be the origin of the ' +
         'server'));
@@ -26,9 +26,9 @@ class VapidHelper2 {
     }
 
     const publicApplicationServerKey = window.base64UrlToUint8Array(
-      vapidKeys.publicKey);
+        vapidKeys.publicKey);
     const privateApplicationServerKey = window.base64UrlToUint8Array(
-      vapidKeys.privateKey);
+        vapidKeys.privateKey);
 
     // Ensure the audience is just the origin
     audience = new URL(audience).origin;
@@ -51,45 +51,42 @@ class VapidHelper2 {
     // header and body.
     const unsignedToken =
       window.uint8ArrayToBase64Url(
-        utf8Encoder.encode(JSON.stringify(tokenHeader))
+          utf8Encoder.encode(JSON.stringify(tokenHeader)),
       ) + '.' + window.uint8ArrayToBase64Url(
-        utf8Encoder.encode(JSON.stringify(tokenBody))
+          utf8Encoder.encode(JSON.stringify(tokenBody)),
       );
 
     // Sign the |unsignedToken| using ES256 (SHA-256 over ECDSA).
-    const key = {
+    const keyData = {
       kty: 'EC',
       crv: 'P-256',
       x: window.uint8ArrayToBase64Url(
-        publicApplicationServerKey.subarray(1, 33)),
+          publicApplicationServerKey.subarray(1, 33)),
       y: window.uint8ArrayToBase64Url(
-        publicApplicationServerKey.subarray(33, 65)),
+          publicApplicationServerKey.subarray(33, 65)),
       d: window.uint8ArrayToBase64Url(privateApplicationServerKey),
     };
 
     // Sign the |unsignedToken| with the server's private key to generate
     // the signature.
-    return crypto.subtle.importKey('jwk', key, {
+    const key = await crypto.subtle.importKey('jwk', keyData, {
       name: 'ECDSA', namedCurve: 'P-256',
-    }, true, ['sign'])
-    .then((key) => {
-      return crypto.subtle.sign({
-        name: 'ECDSA',
-        hash: {
-          name: 'SHA-256',
-        },
-      }, key, utf8Encoder.encode(unsignedToken));
-    })
-    .then((signature) => {
-      const jsonWebToken = unsignedToken + '.' +
-        window.uint8ArrayToBase64Url(new Uint8Array(signature));
-      const p256ecdsa = window.uint8ArrayToBase64Url(
-        publicApplicationServerKey);
+    }, true, ['sign']);
 
-      return {
-        Authorization: `vapid t=${jsonWebToken}, k=${p256ecdsa}`,
-      };
-    });
+    const signature = await crypto.subtle.sign({
+      name: 'ECDSA',
+      hash: {
+        name: 'SHA-256',
+      },
+    }, key, utf8Encoder.encode(unsignedToken));
+
+    const jsonWebToken = unsignedToken + '.' +
+      window.uint8ArrayToBase64Url(new Uint8Array(signature));
+    const p256ecdsa = window.uint8ArrayToBase64Url(publicApplicationServerKey);
+
+    return {
+      Authorization: `vapid t=${jsonWebToken}, k=${p256ecdsa}`,
+    };
   }
 }
 

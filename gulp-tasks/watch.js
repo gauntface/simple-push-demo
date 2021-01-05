@@ -18,7 +18,6 @@
 'use strict';
 
 const gulp = require('gulp');
-const runSequence = require('run-sequence');
 
 /**
  *
@@ -27,29 +26,32 @@ const runSequence = require('run-sequence');
  * will automatically pick it up and run it.
  *
  */
-gulp.task('watch', ['default'], function() {
-  // Get all of the gulp task names
-  const taskNames = Object.keys(gulp.tasks);
+gulp.task('watch', gulp.series(
+    'default',
+    async () => {
+      // Get all of the gulp task names
+      const taskNames = Object.keys(gulp.registry().tasks());
 
-  // Store ':watch' tasks in this array
-  const gulpWatchTasks = [];
+      // Store ':watch' tasks in this array
+      const gulpWatchTasks = [];
 
-  // Loop over all tasknames
-  for (let i = 0; i < taskNames.length; i++) {
-    const taskName = taskNames[i];
+      // Loop over all tasknames
+      for (let i = 0; i < taskNames.length; i++) {
+        const taskName = taskNames[i];
 
-    // Split tasks on the ':' character
-    const taskParts = taskName.split(':');
+        // Split tasks on the ':' character
+        const taskParts = taskName.split(':');
 
-    // Check length is greater one to avoid selecting this task &
-    // check if the last part is 'watch'
-    if (taskParts.length > 1 &&
-      taskParts[taskParts.length - 1].toLowerCase() === 'watch') {
-      // Add task to the watch tasks list
-      gulpWatchTasks.push(taskName);
-    }
-  }
+        // Check length is greater one to avoid selecting this task &
+        // check if the last part is 'watch'
+        if (taskParts.length > 1 &&
+          taskParts[taskParts.length - 1].toLowerCase() === 'watch') {
+          // Add task to the watch tasks list
+          gulpWatchTasks.push(taskName);
+        }
+      }
 
-  // Run the gulp watch tasks
-  runSequence(gulpWatchTasks);
-});
+      // Run the gulp watch tasks
+      return gulp.parallel(...gulpWatchTasks);
+    },
+));

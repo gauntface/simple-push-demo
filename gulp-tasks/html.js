@@ -20,12 +20,12 @@
 const gulp = require('gulp');
 const minifyHtml = require('gulp-minify-html');
 
-gulp.task('html:watch', function() {
+gulp.task('html:watch', () => {
   gulp.watch(global.config.src + '/**/*.html',
-    ['html', global.config.browserSyncReload]);
+      ['html', global.config.browserSyncReload]);
 });
 
-gulp.task('html', function() {
+gulp.task('html', () => {
   let stream = gulp.src([
     global.config.src + '/**/*.html',
   ]);

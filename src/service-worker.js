@@ -27,11 +27,13 @@ self.addEventListener('push', function(event) {
   }
 
   event.waitUntil(
-    Promise.all([
-      self.registration.showNotification(
-        notificationTitle, notificationOptions),
-      self.analytics.trackEvent('push-received'),
-    ])
+      Promise.all([
+        self.registration.showNotification(
+            notificationTitle,
+            notificationOptions,
+        ),
+        self.analytics.trackEvent('push-received'),
+      ]),
   );
 });
 
@@ -44,17 +46,17 @@ self.addEventListener('notificationclick', function(event) {
   }
 
   event.waitUntil(
-    Promise.all([
-      clickResponsePromise,
-      self.analytics.trackEvent('notification-click'),
-    ])
+      Promise.all([
+        clickResponsePromise,
+        self.analytics.trackEvent('notification-click'),
+      ]),
   );
 });
 
 self.addEventListener('notificationclose', function(event) {
   event.waitUntil(
-    Promise.all([
-      self.analytics.trackEvent('notification-close'),
-    ])
+      Promise.all([
+        self.analytics.trackEvent('notification-close'),
+      ]),
   );
 });

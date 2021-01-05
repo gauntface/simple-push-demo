@@ -7,12 +7,10 @@ class HMAC {
     this._ikm = ikm;
   }
 
-  sign(input) {
-    return crypto.subtle.importKey('raw', this._ikm,
-      {name: 'HMAC', hash: 'SHA-256'}, false, ['sign'])
-    .then((key) => {
-      return crypto.subtle.sign('HMAC', key, input);
-    });
+  async sign(input) {
+    const key = await crypto.subtle.importKey('raw', this._ikm,
+        {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']);
+    return crypto.subtle.sign('HMAC', key, input);
   }
 }
 

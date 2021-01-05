@@ -2,14 +2,11 @@
   "extends": ["eslint:recommended", "google"],
   "env": {
     "node": true,
-    "es6": true
+    "es2021": true
   },
   "rules": {
     "no-var": 2,
     "require-jsdoc": 0,
     "no-console": 0,
-  },
-  "parserOptions": {
-    "ecmaVersion": 6
   }
 }

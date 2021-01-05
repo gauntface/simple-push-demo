@@ -14,7 +14,7 @@ class EncryptionHelperFactory {
       supportedContentEncodings = PushManager.supportedContentEncodings;
     }
 
-    switch(supportedContentEncodings[0]) {
+    switch (supportedContentEncodings[0]) {
       case 'aesgcm':
         return new window.gauntface.EncryptionHelperAESGCM();
       case 'aes128gcm':

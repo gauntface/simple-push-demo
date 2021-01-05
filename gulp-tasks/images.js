@@ -21,28 +21,28 @@ const gulp = require('gulp');
 const del = require('del');
 const imagemin = require('gulp-imagemin');
 
-gulp.task('images:watch', function() {
+gulp.task('images:watch', () => {
   gulp.watch(global.config.src + '/images/**/*.*',
-    ['images', global.config.browserSyncReload]);
+      ['images', global.config.browserSyncReload]);
 });
 
-gulp.task('images:clean', function(cb) {
-  del([global.config.dest + '/*.{png,jpg,jpeg,gif,svg}'], {dot: true})
-    .then(function() {
-      cb();
-    });
+gulp.task('images:clean', () => {
+  return del([global.config.dest + '/*.{png,jpg,jpeg,gif,svg}'], {dot: true});
 });
 
-gulp.task('images', ['images:clean'], function() {
-  let stream = gulp.src(global.config.src + '/**/*.{png,jpg,jpeg,gif,svg}');
+gulp.task('images', gulp.series(
+    'images:clean',
+    () => {
+      let stream = gulp.src(global.config.src + '/**/*.{png,jpg,jpeg,gif,svg}');
 
-  if (global.config.env === 'prod') {
-    stream = stream.pipe(imagemin({
-      progressive: true,
-      interlaced: true,
-      svgoPlugins: [{removeViewBox: false}],
-    }));
-  }
+      if (global.config.env === 'prod') {
+        stream = stream.pipe(imagemin({
+          progressive: true,
+          interlaced: true,
+          svgoPlugins: [{removeViewBox: false}],
+        }));
+      }
 
-  return stream.pipe(gulp.dest(global.config.dest));
-});
+      return stream.pipe(gulp.dest(global.config.dest));
+    },
+));

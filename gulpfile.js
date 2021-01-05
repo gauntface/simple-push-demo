@@ -19,9 +19,6 @@
 
 'use strict';
 
-const gulp = require('gulp');
-const runSequence = require('run-sequence');
-
 global.config = {
   env: 'prod',
   src: 'src',
@@ -32,19 +29,30 @@ global.config = {
   },
 };
 
-// Get tasks from gulp-tasks directory
-require('require-dir')('gulp-tasks');
+const gulp = require('gulp');
+require('./gulp-tasks/clean');
+require('./gulp-tasks/copy');
+require('./gulp-tasks/html');
+require('./gulp-tasks/images');
+require('./gulp-tasks/scripts');
+require('./gulp-tasks/styles');
 
-const allTasks = ['styles', 'scripts', 'copy', 'html', 'images'];
-
-gulp.task('default', function(cb) {
-  runSequence(
+gulp.task('default', gulp.series(
     'clean',
-    allTasks,
-    cb);
-});
+    'styles',
+    'scripts',
+    'copy',
+    'html',
+    'images',
+));
 
-gulp.task('dev', function() {
-  global.config.env = 'dev';
-  return runSequence('clean', allTasks, 'watch', 'browsersync');
-});
+require('./gulp-tasks/browsersync');
+require('./gulp-tasks/watch');
+require('./gulp-tasks/test');
+
+gulp.task('dev', gulp.series(
+    async () => global.config.env = 'dev',
+    'default',
+    'watch',
+    'browsersync',
+));
