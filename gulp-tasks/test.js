@@ -20,14 +20,13 @@
 const gulp = require('gulp');
 const path = require('path');
 const TestServer = require('sw-testing-helpers').TestServer;
-const runSequence = require('run-sequence');
 
-gulp.task('test:manual', function() {
-  const testServer = new TestServer();
-  testServer.startServer(path.join(__dirname, '..'), 8888)
-  .then((portNumber) => {
-    console.log('http://localhost:' + portNumber);
-  });
-
-  runSequence(['watch']);
-});
+gulp.task('test:manual', gulp.parallel(
+    async () => {
+      const testServer = new TestServer();
+      const portNumber = await testServer.startServer(
+          path.join(__dirname, '..'), 8888);
+      console.log('http://localhost:' + portNumber);
+    },
+    'watch',
+));

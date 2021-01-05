@@ -20,35 +20,31 @@
 
 const gulp = require('gulp');
 const del = require('del');
-const runSequence = require('run-sequence');
 const babel = require('gulp-babel');
 
-gulp.task('scripts:watch', function() {
+gulp.task('scripts:watch', () => {
   gulp.watch(global.config.src + '/**/*.js',
-    ['scripts', global.config.browserSyncReload]);
-});
-
-gulp.task('scripts:copy', ['scripts:clean'], () => {
-  return gulp.src([
-    global.config.src + '/**/*.js',
-  ])
-  .pipe(babel({
-    presets: ['es2015'],
-  }))
-  .pipe(gulp.dest(global.config.dest));
+      ['scripts', global.config.browserSyncReload]);
 });
 
 // Delete any files currently in the scripts destination path
-gulp.task('scripts:clean', function(cb) {
-  del([global.config.dest + '/**/*.js'], {dot: true})
-    .then(function() {
-      cb();
-    });
+gulp.task('scripts:clean', () => {
+  return del([global.config.dest + '/**/*.js'], {dot: true});
 });
 
-gulp.task('scripts', function(cb) {
-  runSequence(
+gulp.task('scripts:copy', gulp.series(
+    'scripts:clean',
+    () => {
+      return gulp.src([
+        global.config.src + '/**/*.js',
+      ])
+          .pipe(babel({
+            presets: ['@babel/preset-env'],
+          }))
+          .pipe(gulp.dest(global.config.dest));
+    },
+));
+
+gulp.task('scripts', gulp.series(
     'scripts:copy',
-    cb
-  );
-});
+));

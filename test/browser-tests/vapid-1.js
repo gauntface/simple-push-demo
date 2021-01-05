@@ -16,59 +16,53 @@ describe('Test VAPID 1', function() {
     p256ecdsa: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
   };
 
-  const generateVapidKeys = () => {
-    return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
-      true, ['deriveBits'])
-      .then((keys) => {
-        return window.cryptoKeysToUint8Array(
-          keys.publicKey, keys.privateKey);
-      });
+  const generateVapidKeys = async () => {
+    const keys = await crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
+        true, ['deriveBits']);
+
+    return window.cryptoKeysToUint8Array(keys.publicKey, keys.privateKey);
   };
 
-  it('should be able to generate vapid keys', function() {
-    return generateVapidKeys()
-    .then((keys) => {
-      keys.should.not.equal('undefined');
-      keys.should.have.property('publicKey');
-      keys.should.have.property('privateKey');
-    });
+  it('should be able to generate vapid keys', async () => {
+    const keys = await generateVapidKeys();
+
+    keys.should.not.equal('undefined');
+    keys.should.have.property('publicKey');
+    keys.should.have.property('privateKey');
   });
 
-  it('should be able to generate VAPID authentication headers', () => {
-    return generateVapidKeys()
-    .then((keys) => {
-      return window.gauntface.VapidHelper1.createVapidAuthHeader(
+  it('should be able to generate VAPID authentication headers', async () => {
+    const keys = await generateVapidKeys();
+
+    const authHeaders = await window.gauntface.VapidHelper1.createVapidAuthHeader(
         {
           publicKey: window.uint8ArrayToBase64Url(keys.publicKey),
           privateKey: window.uint8ArrayToBase64Url(keys.privateKey),
         },
         'http://localhost',
         'mailto:simple-push-demo@gauntface.co.uk');
-    })
-    .then((authHeaders) => {
-      (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders['Authorization'] === 'string').should.equal(true);
-      (typeof authHeaders['Crypto-Key'] === 'string').should.equal(true);
 
-      (authHeaders['Authorization'].length).should.equal(254);
-      (authHeaders['Crypto-Key'].length).should.equal(97);
-    });
+    (authHeaders instanceof Object).should.equal(true);
+    (typeof authHeaders['Authorization'] === 'string').should.equal(true);
+    (typeof authHeaders['Crypto-Key'] === 'string').should.equal(true);
+
+    (authHeaders['Authorization'].length).should.equal(254);
+    (authHeaders['Crypto-Key'].length).should.equal(97);
   });
 
-  it('should generate specific VAPID authentication headers', () => {
-    return window.gauntface.VapidHelper1.createVapidAuthHeader(
-      VALID_VAPID_KEYS,
-      VALID_AUDIENCE,
-      VALID_SUBJECT,
-      VALID_EXPIRATION
-    )
-    .then((authHeaders) => {
-      (authHeaders instanceof Object).should.equal(true);
-      (typeof authHeaders['Authorization'] === 'string').should.equal(true);
-      (typeof authHeaders['Crypto-Key'] === 'string').should.equal(true);
+  it('should generate specific VAPID authentication headers', async () => {
+    const authHeaders = await window.gauntface.VapidHelper1.createVapidAuthHeader(
+        VALID_VAPID_KEYS,
+        VALID_AUDIENCE,
+        VALID_SUBJECT,
+        VALID_EXPIRATION,
+    );
 
-      authHeaders['Authorization'].indexOf(`WebPush ${VALID_OUTPUT.unsignedToken}`).should.equal(0);
-      authHeaders['Crypto-Key'].should.equal(`p256ecdsa=${VALID_OUTPUT.p256ecdsa}`);
-    });
+    (authHeaders instanceof Object).should.equal(true);
+    (typeof authHeaders['Authorization'] === 'string').should.equal(true);
+    (typeof authHeaders['Crypto-Key'] === 'string').should.equal(true);
+
+    authHeaders['Authorization'].indexOf(`WebPush ${VALID_OUTPUT.unsignedToken}`).should.equal(0);
+    authHeaders['Crypto-Key'].should.equal(`p256ecdsa=${VALID_OUTPUT.p256ecdsa}`);
   });
 });

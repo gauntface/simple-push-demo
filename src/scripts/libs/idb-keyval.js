@@ -6,7 +6,7 @@
   function getDB() {
     if (!db) {
       db = new Promise(function(resolve, reject) {
-        let openreq = indexedDB.open('keyval-store', 1);
+        const openreq = indexedDB.open('keyval-store', 1);
 
         openreq.onerror = function() {
           reject(openreq.error);
@@ -28,7 +28,7 @@
   function withStore(type, callback) {
     return getDB().then(function(db) {
       return new Promise(function(resolve, reject) {
-        let transaction = db.transaction('keyval', type);
+        const transaction = db.transaction('keyval', type);
         transaction.oncomplete = function() {
           resolve();
         };
@@ -40,7 +40,7 @@
     });
   }
 
-  let idbKeyval = {
+  const idbKeyval = {
     get: function(key) {
       let req;
       return withStore('readonly', function(store) {
@@ -65,7 +65,7 @@
       });
     },
     keys: function() {
-      let keys = [];
+      const keys = [];
       return withStore('readonly', function(store) {
         // This would be store.getAllKeys(), but it isn't supported by
         // Edge or Safari.

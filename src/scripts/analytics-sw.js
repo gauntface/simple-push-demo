@@ -7,43 +7,36 @@
 // Make use of Google Analytics Measurement Protocol.
 // https://developers.google.com/analytics/devguides/collection/protocol/v1/reference
 class Analytics {
-  trackEvent(eventAction, eventValue, optionalParams) {
+  async trackEvent(eventAction, eventValue, optionalParams) {
     if (!this.trackingId) {
       console.error('You need to set a trackingId, for example:');
       console.error('self.analytics.trackingId = \'UA-XXXXXXXX-X\';');
 
       // We want this to be a safe method, so avoid throwing Unless
       // It's absolutely necessary.
-      return Promise.resolve();
+      return;
     }
 
     if (typeof eventAction === 'undefined' &&
       typeof eventValue === 'undefined') {
       console.warn('sendAnalyticsEvent() called with no eventAction or ' +
       'eventValue.');
-      return Promise.resolve();
+      return;
     }
 
-    return idbKeyval.get('google-analytics-client-id')
-    .catch(() => {
-      return null;
-    })
-    .then((clientId) => {
+    try {
+      let clientId = await this.getClientID();
       if (!clientId) {
-        return self.registration.getSubscription()
-        .then((subscription) => {
-          if (!subscription) {
-            throw new Error('No Google Analytics Client ID and No ' +
-              'Push subscription.');
-          }
+        const subscription = await self.registration.getSubscription();
+        if (!subscription) {
+          throw new Error('No Google Analytics Client ID and No ' +
+            'Push subscription.');
+        }
 
-          return subscription.endpoint;
-        });
+        clientId = subscription.endpoint;
       }
 
-      return clientId;
-    })
-    .then((clientId) => {
+
       const payloadData = {
         // Version Number
         v: 1,
@@ -70,33 +63,36 @@ class Analytics {
       }
 
       const payloadString = Object.keys(payloadData)
-      .filter((analyticsKey) => {
-        return payloadData[analyticsKey];
-      })
-      .map((analyticsKey) => {
-        return `${analyticsKey}=` +
-          encodeURIComponent(payloadData[analyticsKey]);
-      })
-      .join('&');
+          .filter((analyticsKey) => {
+            return payloadData[analyticsKey];
+          })
+          .map((analyticsKey) => {
+            return `${analyticsKey}=` +
+              encodeURIComponent(payloadData[analyticsKey]);
+          })
+          .join('&');
 
-      return fetch('https://www.google-analytics.com/collect', {
+      const response = await fetch('https://www.google-analytics.com/collect', {
         method: 'post',
         body: payloadString,
       });
-    })
-    .then((response) => {
+
       if (!response.ok) {
-        return response.text()
-        .then((responseText) => {
-          throw new Error(
+        const responseText = await response.text();
+        throw new Error(
             `Bad response from Google Analytics ` +
             `[${response.status}] ${responseText}`);
-        });
       }
-    })
-    .catch((err) => {
+    } catch (err) {
       console.warn('Unable to send the analytics event', err);
-    });
+    }
+  }
+
+  getClientID() {
+    return idbKeyval.get('google-analytics-client-id')
+        .catch(() => {
+          return null;
+        });
   }
 }
 

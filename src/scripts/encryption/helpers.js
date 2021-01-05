@@ -5,19 +5,19 @@ function uint8ArrayToBase64Url(uint8Array, start, end) {
   end = end || uint8Array.byteLength;
 
   const base64 = window.btoa(
-    String.fromCharCode.apply(null, uint8Array.subarray(start, end)));
+      String.fromCharCode.apply(null, uint8Array.subarray(start, end)));
   return base64
-    .replace(/\=/g, '') // eslint-disable-line no-useless-escape
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+      .replace(/\=/g, '') // eslint-disable-line no-useless-escape
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
 }
 
 // Converts the URL-safe base64 encoded |base64UrlData| to an Uint8Array buffer.
 function base64UrlToUint8Array(base64UrlData) {
   const padding = '='.repeat((4 - base64UrlData.length % 4) % 4);
   const base64 = (base64UrlData + padding)
-    .replace(/\-/g, '+')
-    .replace(/_/g, '/');
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const buffer = new Uint8Array(rawData.length);
@@ -39,7 +39,7 @@ function joinUint8Arrays(allUint8Arrays) {
     }
 
     const joinedArray = new Uint8Array(
-      cumulativeValue.byteLength + nextValue.byteLength
+        cumulativeValue.byteLength + nextValue.byteLength,
     );
     joinedArray.set(cumulativeValue, 0);
     joinedArray.set(nextValue, cumulativeValue.byteLength);
@@ -47,7 +47,7 @@ function joinUint8Arrays(allUint8Arrays) {
   }, new Uint8Array());
 }
 
-function arrayBuffersToCryptoKeys(publicKey, privateKey) {
+async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
   // Length, in bytes, of a P-256 field element. Expected format of the private
   // key.
   const PRIVATE_KEY_BYTES = 32;
@@ -79,7 +79,7 @@ function arrayBuffersToCryptoKeys(publicKey, privateKey) {
 
   const keyPromises = [];
   keyPromises.push(crypto.subtle.importKey('jwk', jwk,
-    {name: 'ECDH', namedCurve: 'P-256'}, true, []));
+      {name: 'ECDH', namedCurve: 'P-256'}, true, []));
 
   if (privateKey) {
     if (privateKey.byteLength !== PRIVATE_KEY_BYTES) {
@@ -90,69 +90,57 @@ function arrayBuffersToCryptoKeys(publicKey, privateKey) {
     // d must be defined after the importKey call for public
     jwk.d = window.uint8ArrayToBase64Url(privateKey);
     keyPromises.push(crypto.subtle.importKey('jwk', jwk,
-      {name: 'ECDH', namedCurve: 'P-256'}, true, ['deriveBits']));
+        {name: 'ECDH', namedCurve: 'P-256'}, true, ['deriveBits']));
   }
 
-  return Promise.all(keyPromises)
-  .then((keys) => {
-    const keyPair = {
-      publicKey: keys[0],
-    };
-    if (keys.length > 1) {
-      keyPair.privateKey = keys[1];
-    }
-    return keyPair;
-  });
+  const keys = await Promise.all(keyPromises);
+
+  const keyPair = {
+    publicKey: keys[0],
+  };
+  if (keys.length > 1) {
+    keyPair.privateKey = keys[1];
+  }
+  return keyPair;
 }
 
-function cryptoKeysToUint8Array(publicKey, privateKey) {
-    return Promise.resolve()
-    .then(() => {
-      const promises = [];
-      promises.push(
-        crypto.subtle.exportKey('jwk', publicKey)
-        .then((jwk) => {
-          const x = window.base64UrlToUint8Array(jwk.x);
-          const y = window.base64UrlToUint8Array(jwk.y);
+async function cryptoKeysToUint8Array(publicKey, privateKey) {
+  const promises = [];
+  const jwk = await crypto.subtle.exportKey('jwk', publicKey);
+  const x = window.base64UrlToUint8Array(jwk.x);
+  const y = window.base64UrlToUint8Array(jwk.y);
 
-          const publicKey = new Uint8Array(65);
-          publicKey.set([0x04], 0);
-          publicKey.set(x, 1);
-          publicKey.set(y, 33);
+  const pubJwk = new Uint8Array(65);
+  pubJwk.set([0x04], 0);
+  pubJwk.set(x, 1);
+  pubJwk.set(y, 33);
 
-          return publicKey;
-        })
-      );
+  promises.push(pubJwk);
 
-      if (privateKey) {
-        promises.push(
-          crypto.subtle
-            .exportKey('jwk', privateKey)
-          .then((jwk) => {
-            return window.base64UrlToUint8Array(jwk.d);
-          })
-        );
-      }
-
-      return Promise.all(promises);
-    })
-    .then((exportedKeys) => {
-      const result = {
-        publicKey: exportedKeys[0],
-      };
-
-      if (exportedKeys.length > 1) {
-        result.privateKey = exportedKeys[1];
-      }
-
-      return result;
-    });
+  if (privateKey) {
+    const jwk = await crypto.subtle.exportKey('jwk', privateKey);
+    promises.push(
+        window.base64UrlToUint8Array(jwk.d),
+    );
   }
 
-  function generateSalt() {
-    const SALT_BYTES = 16;
-    return crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+  const exportedKeys = await Promise.all(promises);
+
+  const result = {
+    publicKey: exportedKeys[0],
+  };
+
+  if (exportedKeys.length > 1) {
+    result.privateKey = exportedKeys[1];
   }
+
+  return result;
+}
+
+function generateSalt() {
+  const SALT_BYTES = 16;
+  return crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+}
 
 if (window) {
   window.uint8ArrayToBase64Url = uint8ArrayToBase64Url;
