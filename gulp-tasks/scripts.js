@@ -39,7 +39,16 @@ gulp.task('scripts:copy', gulp.series(
         global.config.src + '/**/*.js',
       ])
           .pipe(babel({
-            presets: ['@babel/preset-env'],
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  targets: {
+                    esmodules: true,
+                  },
+                },
+              ]
+            ],
           }))
           .pipe(gulp.dest(global.config.dest));
     },

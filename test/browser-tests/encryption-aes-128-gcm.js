@@ -211,7 +211,7 @@ describe('Test EncryptionHelperAES128GCM', () => {
     const encryptionHelper = new window.gauntface.EncryptionHelperAES128GCM();
 
     const serverKeys = await encryptionHelper.getServerKeys();
-    const keyInfo = encryptionHelper._getKeyInfo(VALID_SUBSCRIPTION, serverKeys);
+    const keyInfo = await encryptionHelper._getKeyInfo(VALID_SUBSCRIPTION, serverKeys);
     (keyInfo instanceof Uint8Array).should.equal(true);
     keyInfo.byteLength.should.equal(144);
   });

@@ -78,7 +78,7 @@ describe('Test EncryptionHelperAESGCM', function() {
     (serverKeys.publicKey instanceof CryptoKey).should.equal(true);
     (serverKeys.privateKey instanceof CryptoKey).should.equal(true);
 
-    const keys = window.cryptoKeysToUint8Array(
+    const keys = await window.cryptoKeysToUint8Array(
         serverKeys.publicKey,
         serverKeys.privateKey,
     );
@@ -101,7 +101,7 @@ describe('Test EncryptionHelperAESGCM', function() {
     const encryptionHelper = new window.gauntface.EncryptionHelperAESGCM({
       serverKeys: VALID_SERVER_KEYS,
     });
-    const serverKeys = encryptionHelper.getServerKeys();
+    const serverKeys = await encryptionHelper.getServerKeys();
     const sharedSecret = await encryptionHelper._getSharedSecret(VALID_SUBSCRIPTION, serverKeys);
     (sharedSecret instanceof ArrayBuffer).should.equal(true);
     const base64Secret = window.uint8ArrayToBase64Url(new Uint8Array(sharedSecret));
