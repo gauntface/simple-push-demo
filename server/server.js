@@ -1,5 +1,7 @@
 import fetch from 'node-fetch';
 import Fastify from "fastify";
+import https from "https";
+import { response } from 'express';
 
 const fastify = Fastify({
   // Set this to true for detailed logging:
@@ -9,13 +11,52 @@ const fastify = Fastify({
 fastify.post("/api/v3/sendpush", async function(request, reply) {
   const body = JSON.parse(request.body);
 
-  await fetch(body.endpoint, {
-      headers: body.headers,
-  });
+    console.log(body);
 
   reply.header('Access-Control-Allow-Origin', process.env['ACCESS_CONTROL']);
-  reply.code(200);
-  reply.send("ok");
+
+  const httpsOptions = {
+    headers: body.headers,
+    method: 'POST',
+  };
+  const urlParts = new URL(body.endpoint);
+  httpsOptions.hostname = urlParts.hostname;
+  httpsOptions.port = urlParts.port;
+  httpsOptions.path = urlParts.pathname;
+
+  const pushRequest = https.request(httpsOptions, function(pushResponse) {
+    let responseText = '';
+
+    pushResponse.on('data', function(chunk) {
+      responseText += chunk;
+    });
+
+    pushResponse.on('end', function() {
+      reply.code(pushResponse.statusCode);
+      reply.send(responseText);
+      if (pushResponse.statusCode < 200 || pushResponse.statusCode > 299) {
+        console.log(`Error: ${responseText}`);
+      }
+    });
+  });
+
+  pushRequest.on('error', function(e) {
+    console.log(`Error: ${responseText}`);
+    reply.code(500);
+    reply.send(e);
+  });
+
+  if (body.body) {
+    pushRequest.write(body.body);
+  }
+
+  pushRequest.end();
+  /** await fetch(body.endpoint, {
+      headers: body.headers,
+  });**/
+
+
+
 });
 
 // Run the server and report out to the logs
