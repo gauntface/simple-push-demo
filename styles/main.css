@@ -70,9 +70,7 @@ pre {
 }
 
 .content-overlap-wrapper {
-  -webkit-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  flex: 1;
 }
 
 .send-push-options {

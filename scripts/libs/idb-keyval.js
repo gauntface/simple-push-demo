@@ -1,26 +1,23 @@
-'use strict';
-
 /* eslint-env browser, serviceworker */
-(function () {
+(function() {
   'use strict';
-
-  var db = void 0;
+  let db;
 
   function getDB() {
     if (!db) {
-      db = new Promise(function (resolve, reject) {
-        var openreq = indexedDB.open('keyval-store', 1);
+      db = new Promise(function(resolve, reject) {
+        const openreq = indexedDB.open('keyval-store', 1);
 
-        openreq.onerror = function () {
+        openreq.onerror = function() {
           reject(openreq.error);
         };
 
-        openreq.onupgradeneeded = function () {
+        openreq.onupgradeneeded = function() {
           // First time setup: create an empty object store
           openreq.result.createObjectStore('keyval');
         };
 
-        openreq.onsuccess = function () {
+        openreq.onsuccess = function() {
           resolve(openreq.result);
         };
       });
@@ -29,13 +26,13 @@
   }
 
   function withStore(type, callback) {
-    return getDB().then(function (db) {
-      return new Promise(function (resolve, reject) {
-        var transaction = db.transaction('keyval', type);
-        transaction.oncomplete = function () {
+    return getDB().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        const transaction = db.transaction('keyval', type);
+        transaction.oncomplete = function() {
           resolve();
         };
-        transaction.onerror = function () {
+        transaction.onerror = function() {
           reject(transaction.error);
         };
         callback(transaction.objectStore('keyval'));
@@ -43,45 +40,46 @@
     });
   }
 
-  var idbKeyval = {
-    get: function get(key) {
-      var req = void 0;
-      return withStore('readonly', function (store) {
+  const idbKeyval = {
+    get: function(key) {
+      let req;
+      return withStore('readonly', function(store) {
         req = store.get(key);
-      }).then(function () {
+      }).then(function() {
         return req.result;
       });
     },
-    set: function set(key, value) {
-      return withStore('readwrite', function (store) {
+    set: function(key, value) {
+      return withStore('readwrite', function(store) {
         store.put(value, key);
       });
     },
-    delete: function _delete(key) {
-      return withStore('readwrite', function (store) {
+    delete: function(key) {
+      return withStore('readwrite', function(store) {
         store.delete(key);
       });
     },
-    clear: function clear() {
-      return withStore('readwrite', function (store) {
+    clear: function() {
+      return withStore('readwrite', function(store) {
         store.clear();
       });
     },
-    keys: function keys() {
-      var keys = [];
-      return withStore('readonly', function (store) {
+    keys: function() {
+      const keys = [];
+      return withStore('readonly', function(store) {
         // This would be store.getAllKeys(), but it isn't supported by
         // Edge or Safari.
         // And openKeyCursor isn't supported by Safari.
-        (store.openKeyCursor || store.openCursor).call(store).onsuccess = function () {
+        (store.openKeyCursor || store.openCursor).call(store).onsuccess =
+        function() {
           if (!this.result) return;
           keys.push(this.result.key);
           this.result.continue();
         };
-      }).then(function () {
+      }).then(function() {
         return keys;
       });
-    }
+    },
   };
 
   if (typeof module != 'undefined' && module.exports) {
@@ -89,4 +87,4 @@
   } else {
     self.idbKeyval = idbKeyval;
   }
-})();
+}());
