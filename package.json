@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
@@ -6,17 +7,17 @@
     "babelify": "^10.0.0",
     "browser-sync": "^2.17.3",
     "chai": "^4.0.0",
-    "chromedriver": "^87.0.5",
+    "chromedriver": "^94.0.0",
     "del": "^6.0.0",
-    "eslint": "^7.17.0",
+    "eslint": "^8.0.0",
     "eslint-config-google": "^0.14.0",
     "express": "^4.13.3",
-    "geckodriver": "^1.21.1",
+    "geckodriver": "^2.0.4",
     "gulp": "4.0.2",
-    "gulp-autoprefixer": "^7.0.1",
+    "gulp-autoprefixer": "^8.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-clean-css": "^4.3.0",
-    "gulp-imagemin": "^7.1.0",
+    "gulp-imagemin": "^8.0.0",
     "gulp-license": "^1.0.0",
     "gulp-minify-html": "^1.0.4",
     "gulp-rename": "^2.0.0",
@@ -24,14 +25,11 @@
     "gulp-streamify": "^1.0.2",
     "gulp-util": "^3.0.6",
     "mkdirp": "^1.0.4",
-    "mocha": "^8.2.1",
+    "mocha": "^9.1.2",
     "operadriver": "^1.0.0",
     "rollupify": "^0.5.1",
     "selenium-assistant": "^6.1.0",
     "sw-testing-helpers": "1.0.2"
-  },
-  "engines": {
-    "node": ">= 4"
   },
   "private": true,
   "scripts": {

@@ -1,7 +1,7 @@
 /* global PushClient, MaterialComponentsSnippets */
 /* eslint-env browser */
 
-const BACKEND_ORIGIN = `https://simple-push-demo.appspot.com`;
+const BACKEND_ORIGIN = `https://simple-push-demo-api.glitch.me`;
 // const BACKEND_ORIGIN = `http://localhost:8080`;
 
 class AppController {
@@ -290,7 +290,7 @@ class AppController {
 
     fetchOptions.body = JSON.stringify(requestInfo);
 
-    fetch(`${BACKEND_ORIGIN}/api/v2/sendpush`, fetchOptions)
+    fetch(`${BACKEND_ORIGIN}/api/v3/sendpush`, fetchOptions)
         .then(function(response) {
           if (response.status >= 400 && response.status < 500) {
             return response.text()

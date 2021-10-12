@@ -4,6 +4,7 @@
     "node": true,
     "es2021": true
   },
+  "type": "module",
   "rules": {
     "no-var": 2,
     "require-jsdoc": 0,
