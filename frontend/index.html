@@ -50,9 +50,9 @@
             <label class="mdl-textfield__label" for="payload-textfield">Add Payload Text</label>
           </div>
 
-          <p class="center js-xhr-button-container">
-            <button class="xhr-button js-send-push-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
-              Send a Push via XHR
+          <p class="center js-fetch-button-container">
+            <button class="fetch-button js-send-push-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+              Send a Push by Fetch (via CORS Proxy)
             </button>
           </p>
 
@@ -65,9 +65,9 @@
           <hr />
 
           <h4>Supported Content Encodings </h4>
-          <p>A change to the web push spec moves browsers from "aesgcm" to
-            "aes128gcm" content encoding.</p>
-          <p>To determine which is supported the current browser you can view
+          <p>A change to the web push spec moves browsers from <code>aesgcm</code>
+            to <code>aes128gcm</code> content encoding.</p>
+          <p>To determine which is supported in the current browser you can view
             <code>PushManager.supportedContentEncodings</code>.</p>
 
           <p>Below is the list of supported encodings.</p>
@@ -77,10 +77,10 @@
           <div class="js-curl-container">
             <hr />
             <h4>CURL Command</h4>
-            <p class="js-curl-copy-msg">Copy and paste the following CURL
-            command into your terminal to send a push message to your
-            browser.</p>
-            <p class="js-curl-error-msg"></p>
+
+            <p class="js-curl-copy-msg"><span class="js-payload-download"><a class="js-payload-link">Download</a> the binary payload file.</span>
+            Copy and paste the following CURL command into your terminal to send
+            a push message to this browser.</p>
 
             <pre class="snippet-code"><code class="code-example js-curl-code language-markup"></code></pre>
           </div>
@@ -89,7 +89,10 @@
             <hr />
             <h4>Push from a Server</h4>
 
-            <p>To send a push message to this page, you need to make a network
+            <p>Some push services don't allow CORS. So you can't make a network
+            request directly from the browser. That's why this demo uses a CORS
+            proxy server under the hood to forward push message to push endpoint.
+            To send a push message to this page, you need to make a network
             request from your server with the following pieces of info (this
             is essentially a breakdown of the CURL command above):</p>
 
@@ -113,9 +116,10 @@
           <p><strong>Notes:</strong></p>
 
           <ul>
-            <li>For more info on the encryption of payloads: <a href="https://developers.google.com/web/updates/2016/03/web-push-encryption?hl=en">Check out this link for info</a>.</li>
-            <li>Not seeing a notification in Firefox? <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1233086">This bug may be the culprit.</a> Check the logs for a note when the push is received though.</li>
-            <li>Opera supports push on Android, but not on desktop and there is no feature detect for this :(. Bug has been filed on their private issue tracker.</li>
+            <li>For more info on the payload encryption check out <a href="https://developer.chrome.com/blog/web-push-encryption/" target="_blank">this blog post</a> and <a href="https://docs.google.com/document/d/1_kWRLJHRYN0KH73WipFyfIXI1UzZ5IyOYSs-y_mLxEE" target="_blank">this document</a>.</li>
+            <li>The <a href="./service-worker.js" target="_blank">service worker</a> in this demo uses Google Analytics to track <code>push</code>, <code>notificationclick</code> and <code>notificationclose</code> events. So ad blockers may prevent the service worker to be installed.</li>
+            <li>Not seeing a notification in Firefox? <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1233086" target="_blank">This bug may be the culprit.</a> Check the logs for a note when the push is received though.</li>
+            <li>Opera supports push on Android, but not on desktop and there is no feature detect for this. :( Bug has been filed on their private issue tracker.</li>
           </ul>
         </div>
         <div class="error-message-container js-error-message-container">
