@@ -1,0 +1,4 @@
+[submodule "frontend/themes/base-theme"]
+	path = frontend/themes/base-theme
+	url = https://github.com/gauntface/hugo-base-theme.git
+	branch = release

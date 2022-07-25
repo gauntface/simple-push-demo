@@ -1,0 +1,49 @@
+---
+title: "Simple Push Demo"
+---
+
+<div class="l-enable">
+  <div class="c-toggle">
+    <input class="c-toggle--checkbox js-enable-checkbox" type="checkbox" id="enable-push-switch" disabled />
+    <label class="c-toggle--label" for="enable-push-switch">Enable push toggle</label>
+  </div>
+  <span>Enable push notifications</span>
+</div>
+
+<section class="l-push-payload">
+  <label class="c-text-input" for="push-payload">
+    <input type="text" id="push-payload" placeholder="&nbsp;">
+    <span class="c-text-input--label">Add payload text</span>
+    <span class="c-text-input--bg"></span>
+  </label>
+
+  <button class="c-button">Send a push message</button>
+</section>
+
+<section class="l-push-info">
+  <h2>This browsers subscription</h2>
+
+  <p>Below is the current subscription for this browser</p>
+
+  <pre><code class="js-current-subscription language-json"></code></pre>
+</section>
+
+<section class="l-push-info">
+  <h2>Supported content encodings</h2>
+
+  <p>A change to the web push spec moves browsers from "aesgcm" to "aes128gcm" content encoding.</p>
+
+  <p>To determine which is supported the current browser you can view PushManager.supportedContentEncodings.</p>
+
+  <p>Below is the list of supported encodings.</p>
+
+  <pre><code class="js-supported-encodings language-json"></code></pre>
+</section>
+
+<section class="l-push-info">
+  <h2>cURL Command</h2>
+
+  <p>Copy and paste the following cURL command into your terminal to send a push message to your browser.</p>
+
+  <pre><code class="js-curl-command language-bash"></code></pre>
+</section>

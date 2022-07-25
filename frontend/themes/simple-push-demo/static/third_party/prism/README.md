@@ -1,0 +1,1 @@
+This file can be updated via the download from [this page](https://prismjs.com/download.html#themes=prism-okaidia&languages=json)

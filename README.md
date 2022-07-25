@@ -1,4 +1,6 @@
-# Simple Service Worker Push Demo
+![Image of a paper plane flying](default-social.png)
+
+# Simple Push Demo
 
 The goal of this repo is to demonstrate how to implement push
 notifications into your web app.
@@ -10,10 +12,6 @@ notifications into your web app.
 - [Blog Post on VAPID](https://developers.google.com/web/updates/2016/07/web-push-interop-wins)
 - [Web Push Book](https://web-push-book.gauntface.com)
 
-## Github Pages Demo
-
-Just visit [Github Pages Demo](https://gauntface.github.io/simple-push-demo/).
-
 ## Using the Demo Locally
 
 To try out the demo locally, clone the repo and run the following:
@@ -22,12 +20,10 @@ To try out the demo locally, clone the repo and run the following:
 
         npm install
 
-1. Install gulp globally
+1. Run dev server
 
-        npm install gulp -g
+        make dev
 
-1. Run the gulp server
+## Building the Demo
 
-        gulp dev
-
-<img src="http://i.imgur.com/Y2yafBv.png" width="304px" height="366xpx" />
+To build the site in preparation for deployment run `make build`.

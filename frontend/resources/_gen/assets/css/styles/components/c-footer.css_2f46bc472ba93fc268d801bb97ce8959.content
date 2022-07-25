@@ -1,0 +1,29 @@
+.c-footer {
+  background: var(--green);
+  padding: var(--l-padding);
+  color: var(--white);
+  text-align: center;
+}
+
+.c-footer--made-by {
+  font-weight: bold;
+}
+
+.c-footer--made-by a {
+  color: white;
+  text-decoration: none;
+}
+
+.c-footer--links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-top: var(--xl-padding);
+}
+
+.c-footer--links a {
+  display: inline-block;
+  padding: var(--s-padding);
+  color: var(--white);
+  text-decoration: none;
+}

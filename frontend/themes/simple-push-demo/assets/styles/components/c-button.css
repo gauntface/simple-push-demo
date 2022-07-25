@@ -1,0 +1,16 @@
+.c-button {
+  background: var(--green);
+  border: none;
+  padding: var(--s-padding);
+  border-radius: 3px;
+  color: var(--white);
+  cursor: pointer;
+}
+
+.c-button:disabled {
+  background: var(--grey);
+}
+
+.c-button:active {
+  background: var(--mute);
+}

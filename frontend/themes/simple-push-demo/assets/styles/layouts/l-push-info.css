@@ -1,0 +1,7 @@
+.l-push-info {
+  max-width: 600px;
+  margin: 0 auto;
+  border-bottom-style: solid;
+  border-bottom-color: var(--grey);
+  border-bottom-width: 1px;
+}

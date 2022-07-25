@@ -1,0 +1,8 @@
+.l-enable {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: var(--l-padding);
+  gap: var(--s-padding);
+}

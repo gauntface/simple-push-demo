@@ -1,0 +1,26 @@
+{
+  "disableHugoGeneratorInject": true,
+  "markup": {
+      "goldmark": {
+        "renderer": {
+            "unsafe": true
+        }
+      },
+      "highlight": {
+        "codeFences": false
+      }
+  },
+
+  "baseURL": "https://simple-push-demo.gaunt.dev/",
+  "languageCode": "en-us",
+  "title": "Simple Push Demo",
+  "theme": ["simple-push-demo", "base-theme"],
+  "summaryLength": 45,
+
+  "params": {
+      "description": "A site that demonstrates web push including examples of the encryption.",
+      "themecolor": "#000000",
+      "socialimage": "/images/default-social.png",
+      "twittercreator": "@gauntface"
+  }
+}

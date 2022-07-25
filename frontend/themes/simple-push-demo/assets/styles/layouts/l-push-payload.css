@@ -1,0 +1,8 @@
+.l-push-payload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--m-padding);
+  max-width: 320px;
+  margin: 0 auto;
+  text-align: center;
+}
