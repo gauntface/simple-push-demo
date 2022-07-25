@@ -78,9 +78,11 @@
             <hr />
             <h4>CURL Command</h4>
 
-            <p class="js-curl-copy-msg"><span class="js-payload-download"><a class="js-payload-link">Download</a> the binary payload file.</span>
-            Copy and paste the following CURL command into your terminal to send
-            a push message to this browser.</p>
+            <p class="js-curl-copy-msg"><span class="js-payload-download">
+            <a class="js-payload-link">Download</a> the binary payload file.
+            Run the terminal from the folder where the <code>payload.bin</code>
+            file has been downloaded.</span> Copy and paste the following CURL
+            command into your terminal to send a push message to this browser.</p>
 
             <pre class="snippet-code"><code class="code-example js-curl-code language-markup"></code></pre>
           </div>
@@ -92,7 +94,7 @@
             <p>Some push services don't allow CORS. So you can't make a network
             request directly from the browser. That's why this demo uses a CORS
             proxy server under the hood to forward push message to push endpoint.
-            To send a push message to this page, you need to make a network
+            To send a push message to this browser, you need to make a network
             request from your server with the following pieces of info (this
             is essentially a breakdown of the CURL command above):</p>
 
