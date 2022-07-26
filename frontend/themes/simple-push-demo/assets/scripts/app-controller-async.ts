@@ -1,13 +1,18 @@
 import {logger} from '@gauntface/logger';
 import {PUBLIC_KEY} from './_vapid-keys';
 import {EncryptionAES128GCM} from './_encryption-aes128gcm';
+import {Environment} from '@params';
 
 logger.setPrefix('simple-push-demo');
+
+const BACKEND_ORIGIN = Environment == 'production' ? 'https://simple-push-demo-api.glitch.me' : 'http://localhost:1314';
 
 class AppController {
   private enableCheckbox: HTMLInputElement;
   private subscriptionElement: HTMLPreElement;
   private curlElement: HTMLPreElement;
+  private sendPushButton: HTMLButtonElement;
+
   private subscription: PushSubscription | null;
   private encryptionHelper: EncryptionAES128GCM;
 
@@ -33,6 +38,14 @@ class AppController {
       return;
     }
     this.curlElement = curlElement as HTMLPreElement;
+
+    const sendPushBtn = document.querySelector('.js-send-push-btn');
+    if (!sendPushBtn) {
+      logger.error('Failed to find send push button.');
+      return;
+    }
+    this.sendPushButton = sendPushBtn as HTMLButtonElement;
+    this.sendPushButton.addEventListener('click', () => this.sendPushMsg());
 
     // TODO: Handle older encryption methods?
     this.encryptionHelper = new EncryptionAES128GCM();
@@ -107,6 +120,39 @@ class AppController {
       logger.error('Failed to unsubscribe the browser from push notifications: ', err);
     } finally {
       this.subscription = null;
+    }
+  }
+
+  async sendPushMsg() {
+    if (!this.subscription) {
+      logger.error('Unable to send push because there is no subscription.');
+      return;
+    }
+
+    const request = await this.encryptionHelper.getRequestDetails(this.subscription, '');
+
+    const fetchOptions = {
+      method: 'post',
+    };
+
+    // Can't send a stream like is needed for web push protocol,
+    // so needs to convert it to base 64 here and the server will
+    // convert back and pass as a stream
+    if (request.body && request.body instanceof ArrayBuffer) {
+      request.body = this.toBase64(request.body);
+      fetchOptions['body'] = request;
+    } else {
+      fetchOptions['body'] = JSON.stringify(request);
+    }
+
+    try {
+      const response = await  fetch(`${BACKEND_ORIGIN}/api/v3/sendpush`, fetchOptions);
+      if (response.status >= 400 && response.status < 500) {
+        const text = await response.text();
+        logger.warn(`Failed to send push message. Code: ${response.status} - ${response.statusText}. Body: ${text}`);
+        }
+    } catch(err) {
+      logger.error('Failed to send push via proxy server: ', err);
     }
   }
 

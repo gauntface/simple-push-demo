@@ -1,7 +1,9 @@
 {
   "type": "module",
   "devDependencies": {
-    "@gauntface/logger": "^3.0.11"
+    "@gauntface/logger": "^3.0.11",
+    "fastify": "^4.3.0",
+    "node-fetch": "^3.2.9"
   },
   "private": true,
   "scripts": {}
