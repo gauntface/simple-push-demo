@@ -1,0 +1,52 @@
+---
+title: "Simple Push Demo"
+---
+<div class="l-enable js-debug-controller">
+  <div class="c-toggle">
+    <input class="c-toggle--checkbox js-enable-checkbox" type="checkbox" id="enable-push-switch" disabled />
+    <label class="c-toggle--label" for="enable-push-switch">Enable push toggle</label>
+  </div>
+  <span>Enable push notifications</span>
+</div>
+
+<section class="l-push-payload">
+  <label class="c-text-input" for="push-payload">
+    <input type="text" id="push-payload" class="js-push-payload-input" placeholder="&nbsp;">
+    <span class="c-text-input--label">Add payload text</span>
+    <span class="c-text-input--bg"></span>
+  </label>
+
+  <button class="c-button js-compare-results-btn">Compare demo and web-push values</button>
+</section>
+
+<section class="l-push-info">
+  <h2>Local vs web-push</h2>
+
+  <p>Below is a comparison of this demos output with the web-push npm library.</p>
+
+  <h3>Headers</h3>
+  <table class="c-header-table js-header-comparison">
+    <thead>
+      <th>Header Name</th>
+      <th>Web-Push Value</th>
+      <th>Demo Value</th>
+      <th>Match</th>
+    </thead>
+    <tbody>
+
+    </tbody>
+  </table>
+
+  <h3>Body</h3>
+  <table class="c-body-table js-body-comparison">
+    <thead>
+      <th>Byte</th>
+      <th>Web-Push Value</th>
+      <th>Demo Value</th>
+      <th>Match</th>
+    </thead>
+    <tbody>
+
+    </tbody>
+  </table>
+</section>

@@ -1,7 +1,7 @@
 import {uint8ArrayToBase64Url, base64UrlToUint8Array} from "./_encryption_utils";
 import { PUBLIC_KEY, PRIVATE_KEY } from './_vapid-keys';
 
-export async function getVapidHeaders(audience, subject, exp) {
+export async function getVapidHeaders(audience, subject, exp?) {
   if (!audience) {
     throw new Error('Audience must be the origin of the server');
   }

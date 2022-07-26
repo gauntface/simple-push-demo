@@ -5,7 +5,6 @@ logger.setPrefix('simple-push-demo');
 
 const encodingElement = document.querySelector('.js-supported-encodings');
 if (!encodingElement) {
-  logger.error('Failed to find the supported encodings element.');
   return;
 }
 

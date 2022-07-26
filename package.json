@@ -3,7 +3,8 @@
   "devDependencies": {
     "@gauntface/logger": "^3.0.11",
     "fastify": "^4.3.0",
-    "node-fetch": "^3.2.9"
+    "node-fetch": "^3.2.9",
+    "web-push": "^3.5.0"
   },
   "private": true,
   "scripts": {}

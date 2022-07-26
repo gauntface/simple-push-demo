@@ -1,17 +1,16 @@
 import {logger} from '@gauntface/logger';
 import {PUBLIC_KEY} from './_vapid-keys';
 import {EncryptionAES128GCM} from './_encryption-aes128gcm';
-import {Environment} from '@params';
+import {BACKEND_PROXY_ORIGIN} from './_api';
 
 logger.setPrefix('simple-push-demo');
-
-const BACKEND_ORIGIN = Environment == 'production' ? 'https://simple-push-demo-api.glitch.me' : 'http://localhost:1314';
 
 class AppController {
   private enableCheckbox: HTMLInputElement;
   private subscriptionElement: HTMLPreElement;
   private curlElement: HTMLPreElement;
   private sendPushButton: HTMLButtonElement;
+  private pushPayloadInput: HTMLInputElement;
 
   private subscription: PushSubscription | null;
   private encryptionHelper: EncryptionAES128GCM;
@@ -46,6 +45,13 @@ class AppController {
     }
     this.sendPushButton = sendPushBtn as HTMLButtonElement;
     this.sendPushButton.addEventListener('click', () => this.sendPushMsg());
+
+    const pushPayloadInput = document.querySelector('.js-push-payload-input');
+    if (!pushPayloadInput) {
+      logger.error('Failed to find push payload input.');
+      return;
+    }
+    this.pushPayloadInput = pushPayloadInput as HTMLInputElement;
 
     // TODO: Handle older encryption methods?
     this.encryptionHelper = new EncryptionAES128GCM();
@@ -129,7 +135,7 @@ class AppController {
       return;
     }
 
-    const request = await this.encryptionHelper.getRequestDetails(this.subscription, '');
+    const request = await this.encryptionHelper.getRequestDetails(this.subscription, this.pushPayloadInput.value);
 
     const fetchOptions = {
       method: 'post',
@@ -140,13 +146,11 @@ class AppController {
     // convert back and pass as a stream
     if (request.body && request.body instanceof ArrayBuffer) {
       request.body = this.toBase64(request.body);
-      fetchOptions['body'] = request;
-    } else {
-      fetchOptions['body'] = JSON.stringify(request);
     }
+    fetchOptions['body'] = JSON.stringify(request);
 
     try {
-      const response = await  fetch(`${BACKEND_ORIGIN}/api/v3/sendpush`, fetchOptions);
+      const response = await  fetch(`${BACKEND_PROXY_ORIGIN}/api/v3/sendpush`, fetchOptions);
       if (response.status >= 400 && response.status < 500) {
         const text = await response.text();
         logger.warn(`Failed to send push message. Code: ${response.status} - ${response.statusText}. Body: ${text}`);
@@ -198,6 +202,17 @@ class AppController {
     this.enableCheckbox.disabled = Notification.permission === 'denied';
     this.enableCheckbox.checked = Notification.permission === 'granted' && !!this.subscription;
   }
+
+  toBase64(arrayBuffer, start, end) {
+    start = start || 0;
+    end = end || arrayBuffer.byteLength;
+
+    const partialBuffer = new Uint8Array(arrayBuffer.slice(start, end));
+    return btoa(String.fromCharCode.apply(null, partialBuffer));
+  }
 }
 
-new AppController();
+const appController = document.querySelector('.js-app-controller');
+if (appController) {
+  new AppController();
+}

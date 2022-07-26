@@ -3,11 +3,17 @@ export function generateSalt() {
   return crypto.getRandomValues(new Uint8Array(SALT_BYTES));
 }
 
+export function generateServerKeys() {
+  // 'true' is to make the keys extractable
+  return crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
+  true, ['deriveBits']);
+}
+
 export function uint8ArrayToBase64Url(uint8Array: Uint8Array, start?: number, end?: number) {
   start = start || 0;
   end = end || uint8Array.byteLength;
 
-  const base64 = window.btoa(
+  const base64 = btoa(
       String.fromCharCode.apply(null, uint8Array.subarray(start, end)));
   return base64
       .replace(/\=/g, '') // eslint-disable-line no-useless-escape
@@ -22,7 +28,7 @@ export function base64UrlToUint8Array(base64UrlData) {
       .replace(/-/g, '+')
       .replace(/_/g, '/');
 
-  const rawData = window.atob(base64);
+  const rawData = atob(base64);
   const buffer = new Uint8Array(rawData.length);
 
   for (let i = 0; i < rawData.length; ++i) {
@@ -53,8 +59,8 @@ export function joinUint8Arrays(allUint8Arrays) {
 export async function cryptoKeysToUint8Array(publicKey, privateKey) {
   const promises = [];
   const jwk = await crypto.subtle.exportKey('jwk', publicKey);
-  const x = window.base64UrlToUint8Array(jwk.x);
-  const y = window.base64UrlToUint8Array(jwk.y);
+  const x = base64UrlToUint8Array(jwk.x);
+  const y = base64UrlToUint8Array(jwk.y);
 
   const pubJwk = new Uint8Array(65);
   pubJwk.set([0x04], 0);
@@ -66,7 +72,7 @@ export async function cryptoKeysToUint8Array(publicKey, privateKey) {
   if (privateKey) {
     const jwk = await crypto.subtle.exportKey('jwk', privateKey);
     promises.push(
-        window.base64UrlToUint8Array(jwk.d),
+        base64UrlToUint8Array(jwk.d),
     );
   }
 
@@ -81,4 +87,61 @@ export async function cryptoKeysToUint8Array(publicKey, privateKey) {
   }
 
   return result;
+}
+
+export async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
+  // Length, in bytes, of a P-256 field element. Expected format of the private
+  // key.
+  const PRIVATE_KEY_BYTES = 32;
+
+  // Length, in bytes, of a P-256 public key in uncompressed EC form per SEC
+  // 2.3.3. This sequence must start with 0x04. Expected format of the
+  // public key.
+  const PUBLIC_KEY_BYTES = 65;
+
+  if (publicKey.byteLength !== PUBLIC_KEY_BYTES) {
+    throw new Error('The publicKey is expected to be ' +
+      PUBLIC_KEY_BYTES + ' bytes.');
+  }
+
+  // Cast ArrayBuffer to Uint8Array
+  const publicBuffer = new Uint8Array(publicKey);
+  if (publicBuffer[0] !== 0x04) {
+    throw new Error('The publicKey is expected to start with an ' +
+      '0x04 byte.');
+  }
+
+  const jwk = {
+    kty: 'EC',
+    crv: 'P-256',
+    x: uint8ArrayToBase64Url(publicBuffer, 1, 33),
+    y: uint8ArrayToBase64Url(publicBuffer, 33, 65),
+    ext: true,
+  };
+
+  const keyPromises = [];
+  keyPromises.push(crypto.subtle.importKey('jwk', jwk,
+      {name: 'ECDH', namedCurve: 'P-256'}, true, []));
+
+  if (privateKey) {
+    if (privateKey.byteLength !== PRIVATE_KEY_BYTES) {
+      throw new Error('The privateKey is expected to be ' +
+        PRIVATE_KEY_BYTES + ' bytes.');
+    }
+
+    // d must be defined after the importKey call for public
+    jwk.d = uint8ArrayToBase64Url(privateKey);
+    keyPromises.push(crypto.subtle.importKey('jwk', jwk,
+        {name: 'ECDH', namedCurve: 'P-256'}, true, ['deriveBits']));
+  }
+
+  const keys = await Promise.all(keyPromises);
+
+  const keyPair = {
+    publicKey: keys[0],
+  };
+  if (keys.length > 1) {
+    keyPair.privateKey = keys[1];
+  }
+  return keyPair;
 }

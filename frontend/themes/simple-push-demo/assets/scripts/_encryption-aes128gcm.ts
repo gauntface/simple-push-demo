@@ -1,11 +1,21 @@
-import { generateSalt, joinUint8Arrays, cryptoKeysToUint8Array } from "./_encryption_utils";
+import { generateSalt, generateServerKeys, joinUint8Arrays, uint8ArrayToBase64Url, cryptoKeysToUint8Array, arrayBuffersToCryptoKeys } from "./_encryption_utils";
 import { getVapidHeaders } from "./_vapid_utils";
+import {HKDF} from "./_hkdf";
 
 export class EncryptionAES128GCM {
   private salt: Uint8Array;
+  private serverKeys: CryptoKeyPair;
 
   constructor() {
     this.salt = generateSalt();
+  }
+
+  async getServerKeys() {
+    if (this.serverKeys) {
+      return this.serverKeys;
+    }
+    this.serverKeys = await generateServerKeys();
+    return this.serverKeys;
   }
 
   async getRequestDetails(subscription, payloadText) {
@@ -52,10 +62,9 @@ export class EncryptionAES128GCM {
       return null;
     }
 
-    /* const serverKeys = await this.getServerKeys();
-    const exportedServerKeys = await cryptoKeysToUint8Array(
-        serverKeys.publicKey);
-    const encryptionKeys = await this._generateEncryptionKeys(
+    const serverKeys = await this.getServerKeys();
+    const exportedServerKeys = await cryptoKeysToUint8Array(serverKeys.publicKey);
+    const encryptionKeys = await this.generateEncryptionKeys(
         subscription, this.salt, serverKeys);
 
     const contentEncryptionCryptoKey = await crypto.subtle.importKey('raw',
@@ -86,22 +95,21 @@ export class EncryptionAES128GCM {
         algorithm, encryptionKeys.contentEncryptionCryptoKey,
         recordUint8Array,
     );
-    const payloadWithHeaders = await this._addEncryptionContentCodingHeader(
+    const payloadWithHeaders = await this.addEncryptionContentCodingHeader(
         encryptedPayloadArrayBuffer,
         serverKeys,
-        salt);
+        this.salt);
     return {
       cipherText: payloadWithHeaders,
-      salt: window.uint8ArrayToBase64Url(salt),
-      publicServerKey: window.uint8ArrayToBase64Url(
+      salt: uint8ArrayToBase64Url(this.salt),
+      publicServerKey: uint8ArrayToBase64Url(
           exportedServerKeys.publicKey),
-    };*/
-    return null;
+    };
   }
 
-  /* async _addEncryptionContentCodingHeader(
+  private async addEncryptionContentCodingHeader(
       encryptedPayloadArrayBuffer, serverKeys, salt) {
-    const keys = await window.cryptoKeysToUint8Array(serverKeys.publicKey);
+    const keys = await cryptoKeysToUint8Array(serverKeys.publicKey);
     // Maximum record size.
     const recordSizeUint8Array = new Uint8Array([0x00, 0x00, 0x10, 0x00]);
 
@@ -119,15 +127,15 @@ export class EncryptionAES128GCM {
       new Uint8Array(encryptedPayloadArrayBuffer),
     ];
 
-    const joinedUint8Array = window.joinUint8Arrays(uint8arrays);
+    const joinedUint8Array = joinUint8Arrays(uint8arrays);
     return joinedUint8Array.buffer;
-  }*/
+  }
 
-  /* async _generateEncryptionKeys(subscription, salt, serverKeys) {
+  private async generateEncryptionKeys(subscription, salt, serverKeys) {
     const infoResults = await Promise.all([
-      this._generatePRK(subscription, serverKeys),
-      this._generateCEKInfo(subscription, serverKeys),
-      this._generateNonceInfo(subscription, serverKeys),
+      this.generatePRK(subscription, serverKeys),
+      this.generateCEKInfo(subscription, serverKeys),
+      this.generateNonceInfo(subscription, serverKeys),
     ]);
 
     const prk = infoResults[0];
@@ -144,9 +152,9 @@ export class EncryptionAES128GCM {
       contentEncryptionKey: keyResults[0],
       nonce: keyResults[1],
     };
-  }*/
+  }
 
-  /* _generateCEKInfo(subscription, serverKeys) {
+  private generateCEKInfo(subscription, serverKeys) {
     const utf8Encoder = new TextEncoder('utf-8');
     const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: aes128gcm');
@@ -155,9 +163,9 @@ export class EncryptionAES128GCM {
       contentEncoding8Array,
       paddingUnit8Array,
     ]);
-  }*/
+  }
 
-  /* _generateNonceInfo(subscription, serverKeys) {
+  private generateNonceInfo(subscription, serverKeys) {
     const utf8Encoder = new TextEncoder('utf-8');
     const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: nonce');
@@ -168,10 +176,10 @@ export class EncryptionAES128GCM {
     ]);
   }
 
-  async _generatePRK(subscription, serverKeys) {
-    const sharedSecret = await this._getSharedSecret(subscription, serverKeys);
+  private async generatePRK(subscription, serverKeys) {
+    const sharedSecret = await this.getSharedSecret(subscription, serverKeys);
 
-    const keyInfoUint8Array = await this._getKeyInfo(subscription, serverKeys);
+    const keyInfoUint8Array = await this.getKeyInfo(subscription, serverKeys);
     const hkdf = new HKDF(
         sharedSecret,
         subscription.getKey('auth'),
@@ -179,8 +187,8 @@ export class EncryptionAES128GCM {
     return hkdf.generate(keyInfoUint8Array, 32);
   }
 
-  async _getSharedSecret(subscription, serverKeys) {
-    const keys = await window.arrayBuffersToCryptoKeys(
+  private async getSharedSecret(subscription, serverKeys) {
+    const keys = await arrayBuffersToCryptoKeys(
         subscription.getKey('p256dh'));
     if (!(keys.publicKey instanceof CryptoKey)) {
       throw new Error('The publicKey must be a CryptoKey.');
@@ -196,7 +204,7 @@ export class EncryptionAES128GCM {
         algorithm, serverKeys.privateKey, 256);
   }
 
-  async _getKeyInfo(subscription, serverKeys) {
+  private async getKeyInfo(subscription, serverKeys) {
     const utf8Encoder = new TextEncoder('utf-8');
 
     const keyInfo = await cryptoKeysToUint8Array(serverKeys.publicKey);
@@ -206,5 +214,5 @@ export class EncryptionAES128GCM {
       new Uint8Array(subscription.getKey('p256dh')),
       keyInfo.publicKey,
     ]);
-  }*/
+  }
 }
