@@ -1,0 +1,5 @@
+{
+  "extends": [
+    "local>gauntface/.github:renovate-config"
+  ]
+}
