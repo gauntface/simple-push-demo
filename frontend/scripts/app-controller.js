@@ -71,8 +71,9 @@ class AppController {
           }
         });
 
-    const sendPushViaXHRButton = document.querySelector('.js-send-push-button');
-    sendPushViaXHRButton.addEventListener('click', () => {
+    const sendPushViaFetchButton =
+      document.querySelector('.js-send-push-button');
+    sendPushViaFetchButton.addEventListener('click', () => {
       if (this._currentSubscription) {
         this.sendPushMessage(this._currentSubscription,
             this._payloadTextField.value);
@@ -179,7 +180,6 @@ class AppController {
         this._currentSubscription, payloadText)
         .then((requestDetails) => {
           let curlCommand = `curl "${requestDetails.endpoint}" --request POST`;
-          let curlError = null;
 
           document.querySelector('.js-endpoint').textContent =
             requestDetails.endpoint;
@@ -199,40 +199,38 @@ class AppController {
 
           const bodyFormat = document.querySelector('.js-body-format');
           const bodyContent = document.querySelector('.js-body-content');
+          const payloadDownloadElement =
+            document.querySelector('.js-payload-download');
           if (requestDetails.body &&
             requestDetails.body instanceof ArrayBuffer) {
-            bodyFormat.textContent = 'Stream';
-            bodyContent.textContent = 'Unable to display';
+            bodyFormat.textContent =
+              'Encrypted binary (see hexadecimal representation below)';
+            bodyContent.textContent = this.toHex(requestDetails.body);
 
-            curlCommand = null;
-            curlError = 'Sorry, but because the web push ' +
-              'protocol requires a stream as the body of the request, ' +
-              'there is no CURL command that will stream an encrypted payload.';
+            curlCommand += ' --data-binary @payload.bin';
+
+            payloadDownloadElement.style.display = 'inline';
+
+            const payloadLink = document.querySelector('.js-payload-link');
+            const blob = new Blob([requestDetails.body]);
+            payloadLink.href = URL.createObjectURL(blob);
+            payloadLink.download = 'payload.bin';
           } else if (requestDetails.body) {
             bodyFormat.textContent = 'String';
             bodyContent.textContent = requestDetails.body;
 
             curlCommand += ` -d ${JSON.stringify(requestDetails.body)}`;
+
+            payloadDownloadElement.style.display = 'none';
           } else {
             bodyFormat.textContent = 'No Body';
             bodyContent.textContent = 'N/A';
+
+            payloadDownloadElement.style.display = 'none';
           }
 
           const curlCodeElement = document.querySelector('.js-curl-code');
-          const curlMsgElement = document.querySelector('.js-curl-copy-msg');
-          const curlErrorMsgElement = document.querySelector(
-              '.js-curl-error-msg');
-          if (curlCommand === null) {
-            curlCodeElement.style.display = 'none';
-            curlMsgElement.style.display = 'none';
-            curlErrorMsgElement.textContent = curlError;
-            curlErrorMsgElement.style.display = 'block';
-          } else {
-            curlCodeElement.textContent = curlCommand;
-            curlCodeElement.style.display = 'block';
-            curlMsgElement.style.display = 'block';
-            curlErrorMsgElement.style.display = 'none';
-          }
+          curlCodeElement.textContent = curlCommand;
         });
   }
 
@@ -274,7 +272,7 @@ class AppController {
   }
 
   sendRequestToProxyServer(requestInfo) {
-    console.log('Sending XHR Proxy Server', requestInfo);
+    console.log('Sending network request to CORS proxy server', requestInfo);
 
     const fetchOptions = {
       method: 'post',
@@ -318,6 +316,12 @@ class AppController {
 
     const partialBuffer = new Uint8Array(arrayBuffer.slice(start, end));
     return btoa(String.fromCharCode.apply(null, partialBuffer));
+  }
+
+  toHex(arrayBuffer) {
+    return [...new Uint8Array(arrayBuffer)]
+        .map(x => x.toString(16).padStart(2, '0'))
+        .join(' ');
   }
 
   showErrorMessage(title, message) {
