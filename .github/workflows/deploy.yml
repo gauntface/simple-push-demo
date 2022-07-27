@@ -12,9 +12,17 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v2
-      - name: Deploy
+      - name: Deploy Frontend
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./frontend
+      - name: Deploy Backend
+        uses: wei/git-sync@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          source_repo: "https://github.com/gauntface/simple-push-demo.git"
+          source_branch: "main"
+          destination_repo: ${{ secrets.GLITCH_REPO_URL }}
+          destination_branch: "main"
