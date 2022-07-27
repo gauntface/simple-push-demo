@@ -2,8 +2,17 @@
 
 /* eslint-env browser, serviceworker */
 
+/* global logger */
+importScripts('https://unpkg.com/@gauntface/logger@3.0.13/build/browser-globals.js');
+
+logger.setPrefix('simple-push-demo/service worker');
+
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
 self.addEventListener('push', function(event) {
-  console.log('Received push');
+  logger.log('Push message received.');
   let notificationTitle = 'Hello';
   const notificationOptions = {
     body: 'Thanks for sending this push msg.',
@@ -11,7 +20,7 @@ self.addEventListener('push', function(event) {
     badge: './images/badge-72x72.png',
     tag: 'simple-push-demo-notification',
     data: {
-      url: 'https://developers.google.com/web/fundamentals/getting-started/push-notifications/',
+      url: 'https://web.dev/push-notifications-overview/',
     },
   };
 
@@ -30,6 +39,7 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
+  logger.log('Notification clicked.');
   event.notification.close();
 
   let clickResponsePromise = Promise.resolve();

@@ -34,7 +34,6 @@ export function base64UrlToUint8Array(base64UrlData) {
 export function joinUint8Arrays(allUint8Arrays) {
   return allUint8Arrays.reduce(function(cumulativeValue, nextValue) {
     if (!(nextValue instanceof Uint8Array)) {
-      console.error('Received an non-Uint8Array value:', nextValue);
       throw new Error('Received an non-Uint8Array value.');
     }
 
