@@ -1,0 +1,29 @@
+.c-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: var(--green);
+  gap: var(--s-padding);
+  color: var(--white);
+}
+
+.c-header--title {
+  display: inline-block;
+  font-size: 1rem;
+  flex: 1;
+  padding: var(--s-padding);
+  font-weight: normal;
+}
+
+.c-header--links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.c-header--links a {
+  display: inline-block;
+  padding: var(--s-padding);
+  text-decoration: none;
+  color: var(--white);
+}
