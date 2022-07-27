@@ -3,6 +3,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
+    "ava": "^4.3.1",
     "babel-preset-es2015": "^6.14.0",
     "babelify": "^10.0.0",
     "browser-sync": "^2.17.3",
@@ -14,15 +15,18 @@
     "express": "^4.13.3",
     "geckodriver": "^2.0.4",
     "mkdirp": "^1.0.4",
-    "mocha": "^9.1.2",
+    "mocha": "10.0.0",
+    "puppeteer": "^15.5.0",
     "rollupify": "^0.5.1",
     "selenium-assistant": "^6.1.0",
+    "static-server": "^2.2.1",
     "sw-testing-helpers": "1.0.2"
   },
   "private": true,
   "scripts": {
+    "ava": "npx ava ./test/*.js",
     "lint": "eslint '.'",
-    "test": "npm run lint && node ./test/helpers/download-browsers.js && mocha"
+    "test": "npm run lint && npm run ava"
   },
   "dependencies": {
     "atob": "^2.0.0",

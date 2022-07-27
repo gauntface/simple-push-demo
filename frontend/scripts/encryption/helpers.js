@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-function uint8ArrayToBase64Url(uint8Array, start, end) {
+export function uint8ArrayToBase64Url(uint8Array, start, end) {
   start = start || 0;
   end = end || uint8Array.byteLength;
 
@@ -13,7 +13,7 @@ function uint8ArrayToBase64Url(uint8Array, start, end) {
 }
 
 // Converts the URL-safe base64 encoded |base64UrlData| to an Uint8Array buffer.
-function base64UrlToUint8Array(base64UrlData) {
+export function base64UrlToUint8Array(base64UrlData) {
   const padding = '='.repeat((4 - base64UrlData.length % 4) % 4);
   const base64 = (base64UrlData + padding)
       .replace(/-/g, '+')
@@ -31,7 +31,7 @@ function base64UrlToUint8Array(base64UrlData) {
 // Super inefficient. But easier to follow than allocating the
 // array with the correct size and position values in that array
 // as required.
-function joinUint8Arrays(allUint8Arrays) {
+export function joinUint8Arrays(allUint8Arrays) {
   return allUint8Arrays.reduce(function(cumulativeValue, nextValue) {
     if (!(nextValue instanceof Uint8Array)) {
       console.error('Received an non-Uint8Array value:', nextValue);
@@ -47,7 +47,7 @@ function joinUint8Arrays(allUint8Arrays) {
   }, new Uint8Array());
 }
 
-async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
+export async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
   // Length, in bytes, of a P-256 field element. Expected format of the private
   // key.
   const PRIVATE_KEY_BYTES = 32;
@@ -72,8 +72,8 @@ async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
   const jwk = {
     kty: 'EC',
     crv: 'P-256',
-    x: window.uint8ArrayToBase64Url(publicBuffer, 1, 33),
-    y: window.uint8ArrayToBase64Url(publicBuffer, 33, 65),
+    x: uint8ArrayToBase64Url(publicBuffer, 1, 33),
+    y: uint8ArrayToBase64Url(publicBuffer, 33, 65),
     ext: true,
   };
 
@@ -88,7 +88,7 @@ async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
     }
 
     // d must be defined after the importKey call for public
-    jwk.d = window.uint8ArrayToBase64Url(privateKey);
+    jwk.d = uint8ArrayToBase64Url(privateKey);
     keyPromises.push(crypto.subtle.importKey('jwk', jwk,
         {name: 'ECDH', namedCurve: 'P-256'}, true, ['deriveBits']));
   }
@@ -104,11 +104,11 @@ async function arrayBuffersToCryptoKeys(publicKey, privateKey) {
   return keyPair;
 }
 
-async function cryptoKeysToUint8Array(publicKey, privateKey) {
+export async function cryptoKeysToUint8Array(publicKey, privateKey) {
   const promises = [];
   const jwk = await crypto.subtle.exportKey('jwk', publicKey);
-  const x = window.base64UrlToUint8Array(jwk.x);
-  const y = window.base64UrlToUint8Array(jwk.y);
+  const x = base64UrlToUint8Array(jwk.x);
+  const y = base64UrlToUint8Array(jwk.y);
 
   const pubJwk = new Uint8Array(65);
   pubJwk.set([0x04], 0);
@@ -120,7 +120,7 @@ async function cryptoKeysToUint8Array(publicKey, privateKey) {
   if (privateKey) {
     const jwk = await crypto.subtle.exportKey('jwk', privateKey);
     promises.push(
-        window.base64UrlToUint8Array(jwk.d),
+        base64UrlToUint8Array(jwk.d),
     );
   }
 
@@ -137,24 +137,8 @@ async function cryptoKeysToUint8Array(publicKey, privateKey) {
   return result;
 }
 
-function generateSalt() {
+export function generateSalt() {
   const SALT_BYTES = 16;
   return crypto.getRandomValues(new Uint8Array(SALT_BYTES));
 }
 
-if (window) {
-  window.uint8ArrayToBase64Url = uint8ArrayToBase64Url;
-  window.base64UrlToUint8Array = base64UrlToUint8Array;
-  window.joinUint8Arrays = joinUint8Arrays;
-  window.arrayBuffersToCryptoKeys = arrayBuffersToCryptoKeys;
-  window.cryptoKeysToUint8Array = cryptoKeysToUint8Array;
-  window.generateSalt = generateSalt;
-} else if (module && module.exports) {
-  module.exports = {
-    uint8ArrayToBase64Url,
-    base64UrlToUint8Array,
-    joinUint8Arrays,
-    arrayBuffersToCryptoKeys,
-    cryptoKeysToUint8Array,
-  };
-}

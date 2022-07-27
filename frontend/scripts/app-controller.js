@@ -1,13 +1,15 @@
-/* global PushClient */
 /* eslint-env browser */
+
+import {EncryptionFactory} from '/scripts/encryption/encryption-factory.js';
+import {APPLICATION_KEYS} from '/scripts/constants.js';
+import {PushClient} from '/scripts/push-client.js';
 
 const BACKEND_ORIGIN = `https://simple-push-demo-api.glitch.me`;
 // const BACKEND_ORIGIN = `http://localhost:8080`;
 
 class AppController {
   constructor() {
-    this._encryptionHelper =
-      window.gauntface.EncryptionHelperFactory.generateHelper();
+    this._encryptionHelper = EncryptionFactory.generateHelper();
 
     const contentEncodingCode = document.querySelector(
         '.js-supported-content-encodings');
@@ -37,7 +39,7 @@ class AppController {
     this._pushClient = new PushClient(
         this._stateChangeListener,
         this._subscriptionUpdate,
-        window.gauntface.CONSTANTS.APPLICATION_KEYS.publicKey,
+        APPLICATION_KEYS.publicKey,
     );
 
     this._toggleSwitch
