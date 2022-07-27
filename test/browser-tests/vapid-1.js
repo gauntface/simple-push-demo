@@ -1,6 +1,7 @@
 /* eslint-env browser,mocha */
 
 'use strict';
+import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';
 
 describe('Test VAPID 1', function() {
   const VALID_VAPID_KEYS = {
@@ -20,7 +21,7 @@ describe('Test VAPID 1', function() {
     const keys = await crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-256'},
         true, ['deriveBits']);
 
-    return window.cryptoKeysToUint8Array(keys.publicKey, keys.privateKey);
+    return cryptoKeysToUint8Array(keys.publicKey, keys.privateKey);
   };
 
   it('should be able to generate vapid keys', async () => {
@@ -34,10 +35,10 @@ describe('Test VAPID 1', function() {
   it('should be able to generate VAPID authentication headers', async () => {
     const keys = await generateVapidKeys();
 
-    const authHeaders = await window.gauntface.VapidHelper1.createVapidAuthHeader(
+    const authHeaders = await VapidHelper1.createVapidAuthHeader(
         {
-          publicKey: window.uint8ArrayToBase64Url(keys.publicKey),
-          privateKey: window.uint8ArrayToBase64Url(keys.privateKey),
+          publicKey: uint8ArrayToBase64Url(keys.publicKey),
+          privateKey: uint8ArrayToBase64Url(keys.privateKey),
         },
         'http://localhost',
         'mailto:simple-push-demo@gauntface.co.uk');
@@ -51,7 +52,7 @@ describe('Test VAPID 1', function() {
   });
 
   it('should generate specific VAPID authentication headers', async () => {
-    const authHeaders = await window.gauntface.VapidHelper1.createVapidAuthHeader(
+    const authHeaders = await VapidHelper1.createVapidAuthHeader(
         VALID_VAPID_KEYS,
         VALID_AUDIENCE,
         VALID_SUBJECT,

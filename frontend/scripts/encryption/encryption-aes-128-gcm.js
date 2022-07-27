@@ -1,7 +1,13 @@
 /* eslint-env browser */
 /* global HKDF */
 
-class EncryptionHelperAES128GCM {
+import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+import {HKDF} from '/scripts/encryption/hkdf.js';
+import {APPLICATION_KEYS} from '/scripts/constants.js';
+import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';
+import {VapidHelper2} from '/scripts/encryption/vapid-helper-2.js';
+
+export class EncryptionAES128GCM {
   constructor(options = {}) {
     this._b64ServerKeys = options.serverKeys;
     this._b64Salt = options.salt;
@@ -10,21 +16,21 @@ class EncryptionHelperAES128GCM {
 
   getServerKeys() {
     if (this._b64ServerKeys) {
-      return window.arrayBuffersToCryptoKeys(
-          window.base64UrlToUint8Array(this._b64ServerKeys.publicKey),
-          window.base64UrlToUint8Array(this._b64ServerKeys.privateKey),
+      return arrayBuffersToCryptoKeys(
+          base64UrlToUint8Array(this._b64ServerKeys.publicKey),
+          base64UrlToUint8Array(this._b64ServerKeys.privateKey),
       );
     }
 
-    return EncryptionHelperAES128GCM.generateServerKeys();
+    return EncryptionAES128GCM.generateServerKeys();
   }
 
   getSalt() {
     if (this._b64Salt) {
-      return window.base64UrlToUint8Array(this._b64Salt);
+      return base64UrlToUint8Array(this._b64Salt);
     }
 
-    return window.generateSalt();
+    return generateSalt();
   }
 
   getVapidKeys() {
@@ -32,11 +38,11 @@ class EncryptionHelperAES128GCM {
       return this._b4VapidKeys;
     }
 
-    return window.gauntface.CONSTANTS.APPLICATION_KEYS;
+    return APPLICATION_KEYS;
   }
 
   getRequestDetails(subscription, payloadText) {
-    let vapidHelper = window.gauntface.VapidHelper1;
+    let vapidHelper = VapidHelper1;
 
     let endpoint = subscription.endpoint;
 
@@ -48,7 +54,7 @@ class EncryptionHelperAES128GCM {
     // https://github.com/mozilla-services/autopush/issues/879
     if (endpoint.indexOf('https://fcm.googleapis.com') === 0) {
       endpoint = endpoint.replace('fcm/send', 'wp');
-      vapidHelper = window.gauntface.VapidHelper2;
+      vapidHelper = VapidHelper2;
     }
 
     return vapidHelper.createVapidAuthHeader(
@@ -97,7 +103,7 @@ class EncryptionHelperAES128GCM {
     const salt = this.getSalt();
 
     const serverKeys = await this.getServerKeys();
-    const exportedServerKeys = await window.cryptoKeysToUint8Array(
+    const exportedServerKeys = await cryptoKeysToUint8Array(
         serverKeys.publicKey);
     const encryptionKeys = await this._generateEncryptionKeys(
         subscription, salt, serverKeys);
@@ -115,7 +121,7 @@ class EncryptionHelperAES128GCM {
     paddingUnit8Array.fill(0);
     paddingUnit8Array[0] = 0x02;
 
-    const recordUint8Array = window.joinUint8Arrays([
+    const recordUint8Array = joinUint8Arrays([
       payloadUint8Array,
       paddingUnit8Array,
     ]);
@@ -136,8 +142,8 @@ class EncryptionHelperAES128GCM {
         salt);
     return {
       cipherText: payloadWithHeaders,
-      salt: window.uint8ArrayToBase64Url(salt),
-      publicServerKey: window.uint8ArrayToBase64Url(
+      salt: uint8ArrayToBase64Url(salt),
+      publicServerKey: uint8ArrayToBase64Url(
           exportedServerKeys.publicKey),
     };
   }
@@ -150,7 +156,7 @@ class EncryptionHelperAES128GCM {
 
   async _addEncryptionContentCodingHeader(
       encryptedPayloadArrayBuffer, serverKeys, salt) {
-    const keys = await window.cryptoKeysToUint8Array(serverKeys.publicKey);
+    const keys = await cryptoKeysToUint8Array(serverKeys.publicKey);
     // Maximum record size.
     const recordSizeUint8Array = new Uint8Array([0x00, 0x00, 0x10, 0x00]);
 
@@ -168,7 +174,7 @@ class EncryptionHelperAES128GCM {
       new Uint8Array(encryptedPayloadArrayBuffer),
     ];
 
-    const joinedUint8Array = window.joinUint8Arrays(uint8arrays);
+    const joinedUint8Array = joinUint8Arrays(uint8arrays);
     return joinedUint8Array.buffer;
   }
 
@@ -200,7 +206,7 @@ class EncryptionHelperAES128GCM {
     const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: aes128gcm');
     const paddingUnit8Array = new Uint8Array(1).fill(0);
-    return window.joinUint8Arrays([
+    return joinUint8Arrays([
       contentEncoding8Array,
       paddingUnit8Array,
     ]);
@@ -211,7 +217,7 @@ class EncryptionHelperAES128GCM {
     const contentEncoding8Array = utf8Encoder
         .encode('Content-Encoding: nonce');
     const paddingUnit8Array = new Uint8Array(1).fill(0);
-    return window.joinUint8Arrays([
+    return joinUint8Arrays([
       contentEncoding8Array,
       paddingUnit8Array,
     ]);
@@ -229,7 +235,7 @@ class EncryptionHelperAES128GCM {
   }
 
   async _getSharedSecret(subscription, serverKeys) {
-    const keys = await window.arrayBuffersToCryptoKeys(
+    const keys = await arrayBuffersToCryptoKeys(
         subscription.getKey('p256dh'));
     if (!(keys.publicKey instanceof CryptoKey)) {
       throw new Error('The publicKey must be a CryptoKey.');
@@ -248,17 +254,12 @@ class EncryptionHelperAES128GCM {
   async _getKeyInfo(subscription, serverKeys) {
     const utf8Encoder = new TextEncoder('utf-8');
 
-    const keyInfo = await window.cryptoKeysToUint8Array(serverKeys.publicKey);
-    return window.joinUint8Arrays([
+    const keyInfo = await cryptoKeysToUint8Array(serverKeys.publicKey);
+    return joinUint8Arrays([
       utf8Encoder.encode('WebPush: info'),
       new Uint8Array(1).fill(0),
       new Uint8Array(subscription.getKey('p256dh')),
       keyInfo.publicKey,
     ]);
   }
-}
-
-if (typeof window !== 'undefined') {
-  window.gauntface = window.gauntface || {};
-  window.gauntface.EncryptionHelperAES128GCM = EncryptionHelperAES128GCM;
 }

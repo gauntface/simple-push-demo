@@ -2,12 +2,14 @@
 
 /* eslint-env browser */
 
-class PushClient {
+import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+
+export class PushClient {
   constructor(stateChangeCb, subscriptionUpdate, publicAppKey) {
     this._stateChangeCb = stateChangeCb;
     this._subscriptionUpdate = subscriptionUpdate;
 
-    this._publicApplicationKey = window.base64UrlToUint8Array(publicAppKey);
+    this._publicApplicationKey = base64UrlToUint8Array(publicAppKey);
 
     this._state = {
       UNSUPPORTED: {
@@ -205,8 +207,4 @@ class PushClient {
         'Most likely because push was never registered', err);
     }
   }
-}
-
-if (window) {
-  window.PushClient = PushClient;
 }

@@ -7,7 +7,9 @@
 
 /* eslint-env browser */
 
-class VapidHelper2 {
+import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+
+export class VapidHelper2 {
   static async createVapidAuthHeader(vapidKeys, audience, subject, exp) {
     if (!audience) {
       return Promise.reject(new Error('Audience must be the origin of the ' +
@@ -25,9 +27,9 @@ class VapidHelper2 {
       exp = Math.floor((Date.now() / 1000) + 12 * 60 * 60);
     }
 
-    const publicApplicationServerKey = window.base64UrlToUint8Array(
+    const publicApplicationServerKey = base64UrlToUint8Array(
         vapidKeys.publicKey);
-    const privateApplicationServerKey = window.base64UrlToUint8Array(
+    const privateApplicationServerKey = base64UrlToUint8Array(
         vapidKeys.privateKey);
 
     // Ensure the audience is just the origin
@@ -50,9 +52,9 @@ class VapidHelper2 {
     // The unsigned token is the concatenation of the URL-safe base64 encoded
     // header and body.
     const unsignedToken =
-      window.uint8ArrayToBase64Url(
+      uint8ArrayToBase64Url(
           utf8Encoder.encode(JSON.stringify(tokenHeader)),
-      ) + '.' + window.uint8ArrayToBase64Url(
+      ) + '.' + uint8ArrayToBase64Url(
           utf8Encoder.encode(JSON.stringify(tokenBody)),
       );
 
@@ -60,11 +62,11 @@ class VapidHelper2 {
     const keyData = {
       kty: 'EC',
       crv: 'P-256',
-      x: window.uint8ArrayToBase64Url(
+      x: uint8ArrayToBase64Url(
           publicApplicationServerKey.subarray(1, 33)),
-      y: window.uint8ArrayToBase64Url(
+      y: uint8ArrayToBase64Url(
           publicApplicationServerKey.subarray(33, 65)),
-      d: window.uint8ArrayToBase64Url(privateApplicationServerKey),
+      d: uint8ArrayToBase64Url(privateApplicationServerKey),
     };
 
     // Sign the |unsignedToken| with the server's private key to generate
@@ -81,16 +83,11 @@ class VapidHelper2 {
     }, key, utf8Encoder.encode(unsignedToken));
 
     const jsonWebToken = unsignedToken + '.' +
-      window.uint8ArrayToBase64Url(new Uint8Array(signature));
-    const p256ecdsa = window.uint8ArrayToBase64Url(publicApplicationServerKey);
+      uint8ArrayToBase64Url(new Uint8Array(signature));
+    const p256ecdsa = uint8ArrayToBase64Url(publicApplicationServerKey);
 
     return {
       Authorization: `vapid t=${jsonWebToken}, k=${p256ecdsa}`,
     };
   }
-}
-
-if (typeof window !== 'undefined') {
-  window.gauntface = window.gauntface || {};
-  window.gauntface.VapidHelper2 = VapidHelper2;
 }

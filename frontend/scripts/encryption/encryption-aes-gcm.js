@@ -1,7 +1,11 @@
 /* eslint-env browser */
 /* global HKDF */
 
-class EncryptionHelperAESGCM {
+import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+import {APPLICATION_KEYS} from '/scripts/constants.js';
+import { VapidHelper1 } from '/scripts/encryption/vapid-helper-1.js';
+
+export class EncryptionAESGCM {
   constructor(options = {}) {
     this._b64ServerKeys = options.serverKeys;
     this._b64Salt = options.salt;
@@ -10,21 +14,21 @@ class EncryptionHelperAESGCM {
 
   getServerKeys() {
     if (this._b64ServerKeys) {
-      return window.arrayBuffersToCryptoKeys(
-          window.base64UrlToUint8Array(this._b64ServerKeys.publicKey),
-          window.base64UrlToUint8Array(this._b64ServerKeys.privateKey),
+      return arrayBuffersToCryptoKeys(
+          base64UrlToUint8Array(this._b64ServerKeys.publicKey),
+          base64UrlToUint8Array(this._b64ServerKeys.privateKey),
       );
     }
 
-    return EncryptionHelperAESGCM.generateServerKeys();
+    return EncryptionAESGCM.generateServerKeys();
   }
 
   getSalt() {
     if (this._b64Salt) {
-      return window.base64UrlToUint8Array(this._b64Salt);
+      return base64UrlToUint8Array(this._b64Salt);
     }
 
-    return window.generateSalt();
+    return generateSalt();
   }
 
   getVapidKeys() {
@@ -32,11 +36,11 @@ class EncryptionHelperAESGCM {
       return this._b4VapidKeys;
     }
 
-    return window.gauntface.CONSTANTS.APPLICATION_KEYS;
+    return APPLICATION_KEYS;
   }
 
   async getRequestDetails(subscription, payloadText) {
-    const vapidHeaders = await window.gauntface.VapidHelper1
+    const vapidHeaders = await VapidHelper1
         .createVapidAuthHeader(
             this.getVapidKeys(),
             subscription.endpoint,
@@ -91,7 +95,7 @@ class EncryptionHelperAESGCM {
 
     const serverKeys = await this.getServerKeys();
 
-    const exportedServerKeys = await window.cryptoKeysToUint8Array(
+    const exportedServerKeys = await cryptoKeysToUint8Array(
         serverKeys.publicKey);
     const encryptionKeys = await this._generateEncryptionKeys(
         subscription, salt, serverKeys);
@@ -122,8 +126,8 @@ class EncryptionHelperAESGCM {
 
     return {
       cipherText: encryptedPayloadArrayBuffer,
-      salt: window.uint8ArrayToBase64Url(salt),
-      publicServerKey: window.uint8ArrayToBase64Url(
+      salt: uint8ArrayToBase64Url(salt),
+      publicServerKey: uint8ArrayToBase64Url(
           exportedServerKeys.publicKey),
     };
   }
@@ -160,15 +164,15 @@ class EncryptionHelperAESGCM {
   }
 
   async _generateContext(subscription, serverKeys) {
-    const cryptoKeys = await window.arrayBuffersToCryptoKeys(
+    const cryptoKeys = await arrayBuffersToCryptoKeys(
         subscription.getKey('p256dh'));
     const keysAsCryptoKeys = {
       clientPublicKey: cryptoKeys.publicKey,
       serverPublicKey: serverKeys.publicKey,
     };
     const keysAsUint8 = await Promise.all([
-      window.cryptoKeysToUint8Array(keysAsCryptoKeys.clientPublicKey),
-      window.cryptoKeysToUint8Array(keysAsCryptoKeys.serverPublicKey),
+      cryptoKeysToUint8Array(keysAsCryptoKeys.clientPublicKey),
+      cryptoKeysToUint8Array(keysAsCryptoKeys.serverPublicKey),
     ]);
     const keys = {
       clientPublicKey: keysAsUint8[0].publicKey,
@@ -187,7 +191,7 @@ class EncryptionHelperAESGCM {
     serverPublicKeyLengthBuffer[0] = 0x00;
     serverPublicKeyLengthBuffer[1] = keys.serverPublicKey.byteLength;
 
-    return window.joinUint8Arrays([
+    return joinUint8Arrays([
       labelUnit8Array,
       paddingUnit8Array,
       clientPublicKeyLengthUnit8Array,
@@ -203,7 +207,7 @@ class EncryptionHelperAESGCM {
         .encode('Content-Encoding: aesgcm');
     const paddingUnit8Array = new Uint8Array(1).fill(0);
     const contextBuffer = await this._generateContext(subscription, serverKeys);
-    return window.joinUint8Arrays([
+    return joinUint8Arrays([
       contentEncoding8Array,
       paddingUnit8Array,
       contextBuffer,
@@ -216,7 +220,7 @@ class EncryptionHelperAESGCM {
         .encode('Content-Encoding: nonce');
     const paddingUnit8Array = new Uint8Array(1).fill(0);
     const contextBuffer = await this._generateContext(subscription, serverKeys);
-    return window.joinUint8Arrays([
+    return joinUint8Arrays([
       contentEncoding8Array,
       paddingUnit8Array,
       contextBuffer,
@@ -236,7 +240,7 @@ class EncryptionHelperAESGCM {
   }
 
   async _getSharedSecret(subscription, serverKeys) {
-    const keys = await window.arrayBuffersToCryptoKeys(
+    const keys = await arrayBuffersToCryptoKeys(
         subscription.getKey('p256dh'));
     if (!(keys.publicKey instanceof CryptoKey)) {
       throw new Error('The publicKey must be a CryptoKey.');
@@ -251,9 +255,4 @@ class EncryptionHelperAESGCM {
     return crypto.subtle.deriveBits(
         algorithm, serverKeys.privateKey, 256);
   }
-}
-
-if (typeof window !== 'undefined') {
-  window.gauntface = window.gauntface || {};
-  window.gauntface.EncryptionHelperAESGCM = EncryptionHelperAESGCM;
 }

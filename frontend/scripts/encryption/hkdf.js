@@ -3,7 +3,9 @@
 
 'use strict';
 
-class HKDF {
+import {HMAC} from '/scripts/encryption/hmac.js';
+
+export class HKDF {
   constructor(ikm, salt) {
     this._ikm = ikm;
     this._salt = salt;
@@ -21,11 +23,4 @@ class HKDF {
     const nextPrk = await nextHmac.sign(fullInfoBuffer);
     return nextPrk.slice(0, byteLength);
   }
-}
-
-if (typeof window !== 'undefined') {
-  window.gauntface = window.gauntface || {};
-  window.gauntface.HKDF = HKDF;
-} else if (module && module.exports) {
-  module.exports = HKDF;
 }
