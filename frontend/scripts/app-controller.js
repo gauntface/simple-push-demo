@@ -155,7 +155,7 @@ class AppController {
     const s = this._currentSubscription;
     const reqDetails = await this._encryptionHelper.getRequestDetails(s, pt);
 
-    let curlCommandParts = [
+    const curlCommandParts = [
       'curl',
       `"${reqDetails.endpoint}"`,
       '--request POST',
