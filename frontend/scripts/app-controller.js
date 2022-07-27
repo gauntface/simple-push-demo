@@ -149,58 +149,61 @@ class AppController {
     this._sendPushOptions.style.opacity = 1;
   }
 
-  updatePushInfo() {
+  async updatePushInfo() {
     // Let's look at payload
-    const payloadText = this._payloadTextField.value;
-    return this._encryptionHelper.getRequestDetails(
-        this._currentSubscription, payloadText)
-        .then((requestDetails) => {
-          let curlCommand = `curl "${requestDetails.endpoint}" --request POST`;
+    const pt = this._payloadTextField.value;
+    const s = this._currentSubscription;
+    const reqDetails = await this._encryptionHelper.getRequestDetails(s, pt);
 
-          this._infoPayload.textContent = requestDetails.endpoint;
+    const curlCommandParts = [
+      'curl',
+      `"${reqDetails.endpoint}"`,
+      '--request POST',
+    ];
 
-          while (this._infoHeader.hasChildNodes()) {
-            this._infoHeader.removeChild(this._infoHeader.firstChild);
-          }
-          Object.keys(requestDetails.headers).forEach((header) => {
-            const value = requestDetails.headers[header];
-            const ele = document.createElement('p');
-            ele.innerHTML = `<span>${header}</span>: ${value}`;
-            this._infoHeader.appendChild(ele);
+    this._infoPayload.textContent = reqDetails.endpoint;
 
-            curlCommand += ` --header "${header}: ${value}"`;
-          });
+    while (this._infoHeader.hasChildNodes()) {
+      this._infoHeader.removeChild(this._infoHeader.firstChild);
+    }
+
+    Object.keys(reqDetails.headers).forEach((header) => {
+      const value = reqDetails.headers[header];
+      const ele = document.createElement('p');
+      ele.innerHTML = `<span>${header}</span>: ${value}`;
+      this._infoHeader.appendChild(ele);
+
+      curlCommandParts.push(`--header "${header}: ${value}"`);
+    });
 
 
-          if (requestDetails.body &&
-            requestDetails.body instanceof ArrayBuffer) {
-            this._bodyFormat.textContent =
-              'Encrypted binary (see hexadecimal representation below)';
-            this._bodyContent.textContent = this.toHex(requestDetails.body);
+    if (reqDetails.body && reqDetails.body instanceof ArrayBuffer) {
+      this._bodyFormat.textContent =
+        'Encrypted binary (see hexadecimal representation below)';
+      this._bodyContent.textContent = this.toHex(reqDetails.body);
 
-            curlCommand += ' --data-binary @payload.bin';
+      curlCommandParts.push('--data-binary @payload.bin');
 
-            this._payloadDownload.style.display = 'inline';
+      this._payloadDownload.style.display = 'inline';
 
-            const blob = new Blob([requestDetails.body]);
-            this._payloadLink.href = URL.createObjectURL(blob);
-            this._payloadLink.download = 'payload.bin';
-          } else if (requestDetails.body) {
-            this._bodyFormat.textContent = 'String';
-            this._bodyContent.textContent = requestDetails.body;
+      const blob = new Blob([reqDetails.body]);
+      this._payloadLink.href = URL.createObjectURL(blob);
+      this._payloadLink.download = 'payload.bin';
+    } else if (reqDetails.body) {
+      this._bodyFormat.textContent = 'String';
+      this._bodyContent.textContent = reqDetails.body;
 
-            curlCommand += ` -d ${JSON.stringify(requestDetails.body)}`;
+      curlCommandParts.push(`-d ${JSON.stringify(reqDetails.body)}`);
 
-            this._payloadDownload.style.display = 'none';
-          } else {
-            this._bodyFormat.textContent = 'No Body';
-            this._bodyContent.textContent = 'N/A';
+      this._payloadDownload.style.display = 'none';
+    } else {
+      this._bodyFormat.textContent = 'No Body';
+      this._bodyContent.textContent = 'N/A';
 
-            this._payloadDownload.style.display = 'none';
-          }
+      this._payloadDownload.style.display = 'none';
+    }
 
-          this._curlElement.textContent = curlCommand;
-        });
+    this._curlElement.textContent = curlCommandParts.join(' \\' + '\n  ');
   }
 
   getGCMInfo(subscription, payload, apiKey) {
@@ -229,29 +232,27 @@ class AppController {
     };
   }
 
-  sendPushMessage() {
+  async sendPushMessage() {
     if (!this._currentSubscription) {
       logger.error('Cannot send push because there is no subscription.');
       return;
     }
 
-    const payloadText = this._payloadTextField.value;
-    return this._encryptionHelper.getRequestDetails(
-        this._currentSubscription, payloadText)
-        .then((requestDetails) => {
-          // Some push services don't allow CORS so have to forward
-          // it to a different server to make the request which does support
-          // CORs
-          return this.sendRequestToProxyServer(requestDetails);
-        });
+    const pt = this._payloadTextField.value;
+    const s = this._currentSubscription;
+    const reqDetails = await this._encryptionHelper.getRequestDetails(s, pt);
+    // Some push services don't allow CORS so have to forward
+    // it to a different server to make the request which does support
+    // CORs
+    return this.sendRequestToProxyServer(reqDetails);
   }
 
-  sendRequestToProxyServer(requestInfo) {
+  async sendRequestToProxyServer(requestInfo) {
     logger.groupCollapsed('Sending push message via proxy server');
     console.log(requestInfo);
     logger.groupEnd();
 
-    const fetchOptions = {
+    const fopts = {
       method: 'post',
     };
 
@@ -260,31 +261,28 @@ class AppController {
     // convert back and pass as a stream
     if (requestInfo.body && requestInfo.body instanceof ArrayBuffer) {
       requestInfo.body = this.toBase64(requestInfo.body);
-      fetchOptions.body = requestInfo;
+      fopts.body = requestInfo;
     }
 
-    fetchOptions.body = JSON.stringify(requestInfo);
+    fopts.body = JSON.stringify(requestInfo);
 
-    fetch(`${BACKEND_ORIGIN}/api/v3/sendpush`, fetchOptions)
-        .then(function(response) {
-          if (response.status >= 400 && response.status < 500) {
-            return response.text()
-                .then((responseText) => {
-                  logger.error('Failed web push response: ',
-                      response, response.status);
-                  throw new Error(
-                      `Failed to send push message via web push protocol: ` +
-                      `<pre>${encodeURI(responseText)}</pre>`);
-                });
-          }
-        })
-        .catch((err) => {
-          logger.error(err);
-          this.showErrorMessage(
-              'Ooops Unable to Send a Push',
-              err,
-          );
-        });
+    try {
+      const response = await fetch(`${BACKEND_ORIGIN}/api/v3/sendpush`, fopts);
+      if (response.status >= 400 && response.status < 500) {
+        const text = await response.text();
+        logger.error('Failed web push response: ',
+            response.status, response.statusText, text);
+        throw new Error(
+            `Failed to send push message via web push protocol: ` +
+            `<pre>${encodeURI(text)}</pre>`);
+      }
+    } catch (err) {
+      logger.error(err);
+      this.showErrorMessage(
+          'Ooops Unable to Send a Push',
+          err,
+      );
+    }
   }
 
   toBase64(arrayBuffer, start, end) {
