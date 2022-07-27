@@ -6,11 +6,11 @@ import {
   joinUint8Arrays,
   arrayBuffersToCryptoKeys,
   cryptoKeysToUint8Array,
-  generateSalt} from '/scripts/encryption/helpers.js';
-import {HKDF} from '/scripts/encryption/hkdf.js';
-import {APPLICATION_KEYS} from '/scripts/constants.js';
-import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';
-import {VapidHelper2} from '/scripts/encryption/vapid-helper-2.js';
+  generateSalt} from './helpers.js';
+import {HKDF} from './hkdf.js';
+import {APPLICATION_KEYS} from '../constants.js';
+import {VapidHelper1} from './vapid-helper-1.js';
+import {VapidHelper2} from './vapid-helper-2.js';
 
 export class EncryptionAES128GCM {
   constructor(options = {}) {

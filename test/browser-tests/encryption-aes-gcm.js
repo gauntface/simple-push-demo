@@ -2,11 +2,11 @@
 
 'use strict';
 
-import {uint8ArrayToBase64Url, base64UrlToUint8Array, cryptoKeysToUint8Array} from '/scripts/encryption/helpers.js';
-import {EncryptionAESGCM} from '/scripts/encryption/encryption-aes-gcm.js';
-import {APPLICATION_KEYS} from '/scripts/constants.js';
+import {uint8ArrayToBase64Url, base64UrlToUint8Array, cryptoKeysToUint8Array} from '/frontend/scripts/encryption/helpers.js';
+import {EncryptionAESGCM} from '/frontend/scripts/encryption/encryption-aes-gcm.js';
+import {APPLICATION_KEYS} from '/frontend/scripts/constants.js';
 
-describe('Test EncryptionAESGCM', function() {
+describe('EncryptionAESGCM', function() {
   const PAYLOAD = 'Hello, world!';
   const VALID_SERVER_KEYS = {
     publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',

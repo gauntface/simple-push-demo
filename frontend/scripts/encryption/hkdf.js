@@ -2,7 +2,7 @@
 
 'use strict';
 
-import {HMAC} from '/scripts/encryption/hmac.js';
+import {HMAC} from './hmac.js';
 
 export class HKDF {
   constructor(ikm, salt) {

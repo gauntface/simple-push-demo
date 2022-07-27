@@ -1,10 +1,10 @@
 /* eslint-env browser */
 
-import {EncryptionFactory} from '/scripts/encryption/encryption-factory.js';
-import {EncryptionAESGCM} from '/scripts/encryption/encryption-aes-gcm.js';
-import {EncryptionAES128GCM} from '/scripts/encryption/encryption-aes-128-gcm.js';
+import {EncryptionFactory} from '/frontend/scripts/encryption/encryption-factory.js';
+import {EncryptionAESGCM} from '/frontend/scripts/encryption/encryption-aes-gcm.js';
+import {EncryptionAES128GCM} from '/frontend/scripts/encryption/encryption-aes-128-gcm.js';
 
-describe('EncryptionFactory Tests', function() {
+describe('EncryptionFactory', function() {
   let initialContentEncoding;
 
   before(function() {

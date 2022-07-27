@@ -1,9 +1,9 @@
 /* eslint-env browser */
 
-import {uint8ArrayToBase64Url, base64UrlToUint8Array} from '/scripts/encryption/helpers.js';
-import {HMAC} from '/scripts/encryption/hmac.js';
+import {uint8ArrayToBase64Url, base64UrlToUint8Array} from '/frontend/scripts/encryption/helpers.js';
+import {HMAC} from '/frontend/scripts/encryption/hmac.js';
 
-describe('HMAC', async () => {
+describe('HMAC', () => {
   it('should have a working HMAC implementation', async () => {
     const hmac = new HMAC(base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'));
     const prk = await hmac.sign(base64UrlToUint8Array('AAAAAAAAAAAAAAAAAAAAAA'));

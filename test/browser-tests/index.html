@@ -33,46 +33,71 @@
   <script src="/node_modules/chai/chai.js"></script>
   <script src="/node_modules/mocha/mocha.js"></script>
 
-  <!-- SW Helper -->
-  <script src="/node_modules/sw-testing-helpers/build/browser/mocha-utils.js"></script>
-
-  <script>mocha.setup({
-    ui: 'bdd'
-  })</script>
+  <script type="module">
+    mocha.setup({ui: 'bdd'});
+    mocha.checkLeaks();
+  </script>
 
   <!-- Project Files -->
-  <script src="/build/scripts/constants.js"></script>
-  <script src="/build/scripts/encryption/helpers.js"></script>
-  <script src="/build/scripts/encryption/hmac.js"></script>
-  <script src="/build/scripts/encryption/hkdf.js"></script>
-  <script src="/build/scripts/encryption/vapid-helper-1.js"></script>
-  <script src="/build/scripts/encryption/vapid-helper-2.js"></script>
-  <script src="/build/scripts/encryption/helpers.js"></script>
-  <script src="/build/scripts/encryption/encryption-aes-gcm.js"></script>
-  <script src="/build/scripts/encryption/encryption-aes-128-gcm.js"></script>
-  <script src="/build/scripts/encryption/encryption-factory.js"></script>
+  <!-- <script src="/frontend/scripts/constants.js"></script>
+  <script src="/frontend/scripts/encryption/helpers.js"></script>
+  <script src="/frontend/scripts/encryption/hmac.js"></script>
+  <script src="/frontend/scripts/encryption/hkdf.js"></script>
+  <script src="/frontend/scripts/encryption/vapid-helper-1.js"></script>
+  <script src="/frontend/scripts/encryption/vapid-helper-2.js"></script>
+  <script src="/frontend/scripts/encryption/helpers.js"></script>
+  <script src="/frontend/scripts/encryption/encryption-aes-gcm.js"></script>
+  <script src="/frontend/scripts/encryption/encryption-aes-128-gcm.js"></script>
+  <script src="/frontend/scripts/encryption/encryption-factory.js"></script> -->
 
   <!-- Add test scripts here -->
-  <script src="./permissions.js"></script>
-  <script src="./hmac.js"></script>
-  <script src="./hkdf.js"></script>
-  <script src="./encryption-factory.js"></script>
-  <script src="./encryption-aes-gcm.js"></script>
-  <script src="./encryption-aes-128-gcm.js"></script>
-  <script src="./vapid-1.js"></script>
-  <script src="./vapid-2.js"></script>
+  <script type="module" src="./permissions.js"></script>
+  <script type="module" src="./hmac.js"></script>
+  <script type="module" src="./hkdf.js"></script>
+  <script type="module" src="./vapid-1.js"></script>
+  <script type="module" src="./vapid-2.js"></script>
+  <script type="module" src="./encryption-aes-gcm.js"></script>
+  <script type="module" src="./encryption-aes-128-gcm.js"></script>
+  <script type="module" src="./encryption-factory.js"></script>
 
-  <script>
-    (function() {
-      // should adds objects to primitives which requires this call to be made
-      // before any tests are run.
-      window.chai.should();
+  <script type="module">
+    // should adds objects to primitives which requires this call to be made
+    // before any tests are run.
+    window.chai.should();
 
-      window.goog.mochaUtils.startInBrowserMochaTests()
-      .then(results => {
-        window.testsuite = results;
-      });
-    })();
+    let passedTests = [];
+    let failedTests = [];
+
+    const runner = mocha.run();
+    runner.on('pass', (test) => {
+      const parseableTest = processTest(test);
+      passedTests.push(parseableTest);
+    });
+    runner.on('fail', test => {
+      const parseableTest = processTest(test);
+      failedTests.push(parseableTest);
+    });
+    runner.on('end', () => {
+      window['test-results'] = {
+        passed: passedTests,
+        failed: failedTests,
+      };
+    })
+
+    function processTest(testResult) {
+      const friendlyResult = {
+        parentTitle: testResult.parent.title,
+        title: testResult.title,
+        state: testResult.state,
+      };
+
+      if (testResult.err) {
+        friendlyResult.errMessage = testResult.err.message;
+        friendlyResult.stack = testResult.err.stack;
+      }
+
+      return friendlyResult;
+    }
   </script>
 </body>
 </html>

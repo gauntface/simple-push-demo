@@ -7,9 +7,10 @@ import {
   joinUint8Arrays,
   arrayBuffersToCryptoKeys,
   cryptoKeysToUint8Array,
-  generateSalt} from '/scripts/encryption/helpers.js';
-import {APPLICATION_KEYS} from '/scripts/constants.js';
-import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';
+  generateSalt} from './helpers.js';
+import {APPLICATION_KEYS} from '../constants.js';
+import {VapidHelper1} from './vapid-helper-1.js';
+import {HKDF} from './hkdf.js';
 
 export class EncryptionAESGCM {
   constructor(options = {}) {

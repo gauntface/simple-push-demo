@@ -2,10 +2,10 @@
 
 'use strict';
 
-import {uint8ArrayToBase64Url, cryptoKeysToUint8Array} from '/scripts/encryption/helpers.js';
-import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';
+import {uint8ArrayToBase64Url, cryptoKeysToUint8Array} from '/frontend/scripts/encryption/helpers.js';
+import {VapidHelper1} from '/frontend/scripts/encryption/vapid-helper-1.js';
 
-describe('Test VAPID 1', function() {
+describe('VAPID 1', function() {
   const VALID_VAPID_KEYS = {
     publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
     privateKey: 'Dt1CLgQlkiaA-tmCkATyKZeoF1-Gtw1-gdEP6pOCqj4',

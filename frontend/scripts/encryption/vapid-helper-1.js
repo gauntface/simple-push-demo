@@ -9,7 +9,7 @@
 
 import {
   uint8ArrayToBase64Url,
-  base64UrlToUint8Array} from '/scripts/encryption/helpers.js';
+  base64UrlToUint8Array} from './helpers.js';
 
 export class VapidHelper1 {
   static async createVapidAuthHeader(vapidKeys, audience, subject, exp) {

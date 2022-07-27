@@ -5,9 +5,9 @@
  * Massive H/T to Peter Beverloo for this.
  */
 
-import {EncryptionAESGCM} from '/scripts/encryption/encryption-aes-gcm.js';
+import {EncryptionAESGCM} from './encryption-aes-gcm.js';
 import {EncryptionAES128GCM}
-  from '/scripts/encryption/encryption-aes-128-gcm.js';
+  from './encryption-aes-128-gcm.js';
 
 /* eslint-env browser */
 
