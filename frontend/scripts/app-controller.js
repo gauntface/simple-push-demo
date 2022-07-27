@@ -3,61 +3,63 @@
 import {EncryptionFactory} from './encryption/encryption-factory.js';
 import {APPLICATION_KEYS, BACKEND_ORIGIN} from './constants.js';
 import {PushClient} from './push-client.js';
+import {logger} from './logger.js';
 
 class AppController {
   constructor() {
     this._encryptionHelper = EncryptionFactory.generateHelper();
-
-    const contentEncodingCode = document.querySelector(
-        '.js-supported-content-encodings');
-    contentEncodingCode.textContent =
-      JSON.stringify(
-          PushManager.supportedContentEncodings ||
-        ['aesgcm'], null, 2);
-
-    // This div contains the UI for CURL commands to trigger a push
-    this._sendPushOptions = document.querySelector('.js-send-push-options');
-    this._subscriptionJSONCode = document.querySelector(
-        '.js-subscription-json');
-    this._payloadTextField = document.querySelector('.js-payload-textfield');
-    this._payloadTextField.oninput = () => {
-      this.updatePushInfo();
-    };
-
-    const toggleSwitch = document.querySelector('.js-enable-checkbox');
-    this._uiInitialised(toggleSwitch);
-  }
-
-  _uiInitialised(toggleSwitch) {
     this._stateChangeListener = this._stateChangeListener.bind(this);
     this._subscriptionUpdate = this._subscriptionUpdate.bind(this);
 
-    this._toggleSwitch = toggleSwitch;
     this._pushClient = new PushClient(
         this._stateChangeListener,
         this._subscriptionUpdate,
         APPLICATION_KEYS.publicKey,
     );
 
-    this._toggleSwitch
-        .addEventListener('click', (event) => {
-          // Inverted because clicking will change the checked state by
-          // the time we get here
-          if (event.target.checked) {
-            this._pushClient.subscribeDevice();
-          } else {
-            this._pushClient.unsubscribeDevice();
-          }
-        });
+    // This div contains the UI for CURL commands to trigger a push
+    this._sendPushOptions = getElement('.js-send-push-options');
+    this._subscriptionJSONCode = getElement('.js-subscription-json');
+    this._payloadContainer = getElement('.js-payload-textfield-container');
+    this._infoPayload = getElement('.js-endpoint');
+    this._infoHeader = getElement('.js-headers-list');
+    this._bodyFormat = getElement('.js-body-format');
+    this._bodyContent = getElement('.js-body-content');
+    this._curlElement = getElement('.js-curl-code');
+    this._payloadDownload = getElement('.js-payload-download');
+    this._payloadLink = getElement('.js-payload-link');
+    this._errorContainer = getElement('.js-error-message-container');
+    this._errorTitle = getElement('.js-error-title');
+    this._errorMessage = getElement('.js-error-message');
 
-    const sendPushViaFetchButton =
-      document.querySelector('.js-send-push-button');
-    sendPushViaFetchButton.addEventListener('click', () => {
-      if (this._currentSubscription) {
-        this.sendPushMessage(this._currentSubscription,
-            this._payloadTextField.value);
-      }
-    });
+    this._encodingElement = getElement('.js-supported-content-encodings');
+    this.setupEncoding();
+
+    this._payloadTextField = getElement('.js-payload-textfield');
+    this._payloadTextField.oninput = () => this.updatePushInfo();
+
+    this._toggleSwitch = getElement('.js-enable-checkbox');
+    this._toggleSwitch.addEventListener('click', () => this.togglePush());
+
+    this._sendPush = getElement('.js-send-push-button');
+    this._sendPush.addEventListener('click', () => this.sendPushMessage());
+  }
+
+  setupEncoding() {
+    let encodings = ['aesgcm'];
+    if (PushManager.supportedContentEncodings) {
+      encodings = [];
+      encodings.push(...PushManager.supportedContentEncodings);
+    }
+    this._encodingElement.textContent = JSON.stringify(encodings, null, 2);
+  }
+
+  togglePush() {
+    if (this._toggleSwitch.checked) {
+      this._pushClient.subscribeDevice();
+    } else {
+      this._pushClient.unsubscribeDevice();
+    }
   }
 
   registerServiceWorker() {
@@ -65,12 +67,12 @@ class AppController {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./service-worker.js')
           .catch((err) => {
+            logger.error(err);
             this.showErrorMessage(
                 'Unable to Register SW',
                 'Sorry this demo requires a service worker to work and it ' +
                 'failed to install - sorry :(',
             );
-            console.error(err);
           });
     } else {
       this.showErrorMessage(
@@ -130,17 +132,15 @@ class AppController {
 
     // This is too handle old versions of Firefox where keys would exist
     // but auth wouldn't
-    const payloadTextfieldContainer = document.querySelector(
-        '.js-payload-textfield-container');
     const subscriptionObject = JSON.parse(JSON.stringify(subscription));
     if (
       subscriptionObject &&
       subscriptionObject.keys &&
       subscriptionObject.keys.auth &&
       subscriptionObject.keys.p256dh) {
-      payloadTextfieldContainer.classList.remove('hidden');
+      this._payloadContainer.classList.remove('hidden');
     } else {
-      payloadTextfieldContainer.classList.add('hidden');
+      this._payloadContainer.classList.add('hidden');
     }
 
     this.updatePushInfo();
@@ -157,56 +157,49 @@ class AppController {
         .then((requestDetails) => {
           let curlCommand = `curl "${requestDetails.endpoint}" --request POST`;
 
-          document.querySelector('.js-endpoint').textContent =
-            requestDetails.endpoint;
-          const headersList = document.querySelector('.js-headers-list');
-          while (headersList.hasChildNodes()) {
-            headersList.removeChild(headersList.firstChild);
+          this._infoPayload.textContent = requestDetails.endpoint;
+
+          while (this._infoHeader.hasChildNodes()) {
+            this._infoHeader.removeChild(this._infoHeader.firstChild);
           }
           Object.keys(requestDetails.headers).forEach((header) => {
-            const liElement = document.createElement('p');
-            liElement.innerHTML = `<span>${header}</span>: ` +
-              `${requestDetails.headers[header]}`;
-            headersList.appendChild(liElement);
+            const value = requestDetails.headers[header];
+            const ele = document.createElement('p');
+            ele.innerHTML = `<span>${header}</span>: ${value}`;
+            this._infoHeader.appendChild(ele);
 
-            curlCommand +=
-              ` --header "${header}: ${requestDetails.headers[header]}"`;
+            curlCommand += ` --header "${header}: ${value}"`;
           });
 
-          const bodyFormat = document.querySelector('.js-body-format');
-          const bodyContent = document.querySelector('.js-body-content');
-          const payloadDownloadElement =
-            document.querySelector('.js-payload-download');
+
           if (requestDetails.body &&
             requestDetails.body instanceof ArrayBuffer) {
-            bodyFormat.textContent =
+            this._bodyFormat.textContent =
               'Encrypted binary (see hexadecimal representation below)';
-            bodyContent.textContent = this.toHex(requestDetails.body);
+            this._bodyContent.textContent = this.toHex(requestDetails.body);
 
             curlCommand += ' --data-binary @payload.bin';
 
-            payloadDownloadElement.style.display = 'inline';
+            this._payloadDownload.style.display = 'inline';
 
-            const payloadLink = document.querySelector('.js-payload-link');
             const blob = new Blob([requestDetails.body]);
-            payloadLink.href = URL.createObjectURL(blob);
-            payloadLink.download = 'payload.bin';
+            this._payloadLink.href = URL.createObjectURL(blob);
+            this._payloadLink.download = 'payload.bin';
           } else if (requestDetails.body) {
-            bodyFormat.textContent = 'String';
-            bodyContent.textContent = requestDetails.body;
+            this._bodyFormat.textContent = 'String';
+            this._bodyContent.textContent = requestDetails.body;
 
             curlCommand += ` -d ${JSON.stringify(requestDetails.body)}`;
 
-            payloadDownloadElement.style.display = 'none';
+            this._payloadDownload.style.display = 'none';
           } else {
-            bodyFormat.textContent = 'No Body';
-            bodyContent.textContent = 'N/A';
+            this._bodyFormat.textContent = 'No Body';
+            this._bodyContent.textContent = 'N/A';
 
-            payloadDownloadElement.style.display = 'none';
+            this._payloadDownload.style.display = 'none';
           }
 
-          const curlCodeElement = document.querySelector('.js-curl-code');
-          curlCodeElement.textContent = curlCommand;
+          this._curlElement.textContent = curlCommand;
         });
   }
 
@@ -236,7 +229,13 @@ class AppController {
     };
   }
 
-  sendPushMessage(subscription, payloadText) {
+  sendPushMessage() {
+    if (!this._currentSubscription) {
+      logger.error('Cannot send push because there is no subscription.');
+      return;
+    }
+
+    const payloadText = this._payloadTextField.value;
     return this._encryptionHelper.getRequestDetails(
         this._currentSubscription, payloadText)
         .then((requestDetails) => {
@@ -248,7 +247,9 @@ class AppController {
   }
 
   sendRequestToProxyServer(requestInfo) {
-    console.log('Sending network request to CORS proxy server', requestInfo);
+    logger.groupCollapsed('Sending push message via proxy server');
+    console.log(requestInfo);
+    logger.groupEnd();
 
     const fetchOptions = {
       method: 'post',
@@ -269,7 +270,7 @@ class AppController {
           if (response.status >= 400 && response.status < 500) {
             return response.text()
                 .then((responseText) => {
-                  console.log('Failed web push response: ',
+                  logger.error('Failed web push response: ',
                       response, response.status);
                   throw new Error(
                       `Failed to send push message via web push protocol: ` +
@@ -278,7 +279,7 @@ class AppController {
           }
         })
         .catch((err) => {
-          console.log(err);
+          logger.error(err);
           this.showErrorMessage(
               'Ooops Unable to Send a Push',
               err,
@@ -301,19 +302,22 @@ class AppController {
   }
 
   showErrorMessage(title, message) {
-    const errorContainer = document
-        .querySelector('.js-error-message-container');
-
-    const titleElement = errorContainer.querySelector('.js-error-title');
-    const messageElement = errorContainer.querySelector('.js-error-message');
-    titleElement.textContent = title;
-    messageElement.innerHTML = message;
-    errorContainer.style.opacity = 1;
-
-    const pushOptionsContainer = document
-        .querySelector('.js-send-push-options');
-    pushOptionsContainer.style.display = 'none';
+    this._errorTitle.textContent = title;
+    this._errorMessage.innerHTML = message;
+    this._errorContainer.style.opacity = 1;
+    this._sendPushOptions.style.display = 'none';
   }
+}
+
+// This is a helper method so we get an error and log in case we delete or
+// rename an element we expect to be in the DOM.
+function getElement(selector) {
+  const e = document.querySelector(selector);
+  if (!e) {
+    logger.error(`Failed to find element: '${selector}'`);
+    throw new Error(`Failed to find element: '${selector}'`);
+  }
+  return e;
 }
 
 if (window) {
@@ -321,19 +325,21 @@ if (window) {
     if (window.location.host === 'gauntface.github.io' &&
       window.location.protocol !== 'https:') {
       // Enforce HTTPS
+      logger.warn('Service workers are only available on secure origins.');
       window.location.protocol = 'https:';
     }
 
     if (!navigator.serviceWorker) {
-      console.warn('Service worker not supported.');
+      logger.warn('Service workers are not supported in this browser.');
       return;
     }
 
     if (!('PushManager' in window)) {
-      console.warn('Push not supported.');
+      logger.warn('Push is not supported in this browser.');
       return;
     }
 
+    logger.debug('Setting up demo.');
     const appController = new AppController();
     appController.registerServiceWorker();
   };
