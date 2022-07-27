@@ -6,3 +6,9 @@ export const APPLICATION_KEYS = {
     'pwXKpNcF1rRPF3foIiBHXRdJI2Qhumhf6_LFTeZaNndIo',
   privateKey: 'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI',
 };
+
+const defaultBackend = 'https://simple-push-demo-api.glitch.me';
+const localBackend = 'http://localhost:8081';
+const urlParams = new URLSearchParams(window.location.search);
+const env = urlParams.get('environment');
+export const BACKEND_ORIGIN = env == 'dev' ? localBackend : defaultBackend;
