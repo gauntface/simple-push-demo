@@ -290,7 +290,7 @@ class AppController {
     end = end || arrayBuffer.byteLength;
 
     const partialBuffer = new Uint8Array(arrayBuffer.slice(start, end));
-    return btoa(String.fromCharCode.apply(null, partialBuffer));
+    return Buffer.toString(partialBuffer, 'base64');
   }
 
   toHex(arrayBuffer) {
