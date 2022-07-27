@@ -1,11 +1,8 @@
 /* eslint-env browser */
 
 import {EncryptionFactory} from './encryption/encryption-factory.js';
-import {APPLICATION_KEYS} from './constants.js';
+import {APPLICATION_KEYS, BACKEND_ORIGIN} from './constants.js';
 import {PushClient} from './push-client.js';
-
-const BACKEND_ORIGIN = `https://simple-push-demo-api.glitch.me`;
-// const BACKEND_ORIGIN = `http://localhost:8080`;
 
 class AppController {
   constructor() {

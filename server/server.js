@@ -8,12 +8,9 @@ const fastify = Fastify({
 });
 
 fastify.post('/api/v3/sendpush', async function(request, reply) {
-  const body = JSON.parse(request.body);
-
-  console.log(body);
-
   reply.header('Access-Control-Allow-Origin', process.env['ACCESS_CONTROL']);
 
+  const body = JSON.parse(request.body);
   const httpsOptions = {
     headers: body.headers,
     method: 'POST',
