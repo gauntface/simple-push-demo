@@ -1,4 +1,4 @@
-/* global PushClient, MaterialComponentsSnippets */
+/* global PushClient */
 /* eslint-env browser */
 
 const BACKEND_ORIGIN = `https://simple-push-demo-api.glitch.me`;
@@ -25,28 +25,8 @@ class AppController {
       this.updatePushInfo();
     };
 
-    // Below this comment is code to initialise a material design lite view.
-    const toggleSwitch = document.querySelector('.js-push-toggle-switch');
-    if (toggleSwitch.classList.contains('is-upgraded')) {
-      this.ready = Promise.resolve();
-      this._uiInitialised(toggleSwitch.MaterialSwitch);
-    } else {
-      this.ready = new Promise((resolve) => {
-        const mdlUpgradeCb = () => {
-          if (!toggleSwitch.classList.contains('is-upgraded')) {
-            return;
-          }
-
-          this._uiInitialised(toggleSwitch.MaterialSwitch);
-          document.removeEventListener(mdlUpgradeCb);
-
-          resolve();
-        };
-
-        // This is to wait for MDL initialising
-        document.addEventListener('mdl-componentupgraded', mdlUpgradeCb);
-      });
-    }
+    const toggleSwitch = document.querySelector('.js-enable-checkbox');
+    this._uiInitialised(toggleSwitch);
   }
 
   _uiInitialised(toggleSwitch) {
@@ -60,7 +40,7 @@ class AppController {
         window.gauntface.CONSTANTS.APPLICATION_KEYS.publicKey,
     );
 
-    document.querySelector('.js-push-toggle-switch > input')
+    this._toggleSwitch
         .addEventListener('click', (event) => {
           // Inverted because clicking will change the checked state by
           // the time we get here
@@ -79,9 +59,6 @@ class AppController {
             this._payloadTextField.value);
       }
     });
-
-    // allow snippets to be copied via click
-    new MaterialComponentsSnippets().init();
   }
 
   registerServiceWorker() {
@@ -108,17 +85,17 @@ class AppController {
   _stateChangeListener(state, data) {
     if (typeof state.interactive !== 'undefined') {
       if (state.interactive) {
-        this._toggleSwitch.enable();
+        this._toggleSwitch.disabled = false;
       } else {
-        this._toggleSwitch.disable();
+        this._toggleSwitch.disabled = true;
       }
     }
 
     if (typeof state.pushEnabled !== 'undefined') {
       if (state.pushEnabled) {
-        this._toggleSwitch.on();
+        this._toggleSwitch.checked = true;
       } else {
-        this._toggleSwitch.off();
+        this._toggleSwitch.checked = false;
       }
     }
 
@@ -342,29 +319,23 @@ class AppController {
 
 if (window) {
   window.onload = function() {
+    if (window.location.host === 'gauntface.github.io' &&
+      window.location.protocol !== 'https:') {
+      // Enforce HTTPS
+      window.location.protocol = 'https:';
+    }
+
     if (!navigator.serviceWorker) {
       console.warn('Service worker not supported.');
       return;
     }
+
     if (!('PushManager' in window)) {
       console.warn('Push not supported.');
       return;
     }
 
     const appController = new AppController();
-    appController.ready
-        .then(() => {
-          document.body.dataset.simplePushDemoLoaded = true;
-
-          const host = 'gauntface.github.io';
-          if (
-            window.location.host === host &&
-            window.location.protocol !== 'https:') {
-            // Enforce HTTPS
-            window.location.protocol = 'https';
-          }
-
-          appController.registerServiceWorker();
-        });
+    appController.registerServiceWorker();
   };
 }

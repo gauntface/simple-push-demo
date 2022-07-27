@@ -1,0 +1,75 @@
+.c-text-input {
+  display: block;
+  position: relative;
+  margin: auto;
+  width: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.c-text-input--label {
+  position: absolute;
+  top: 20px;
+  left: 12px;
+  font-size: 16px;
+  color: rgba(0, 0, 0,.5);
+  font-weight: 500;
+  transform-origin: 0 0;
+  transform: translate3d(0,0,0);
+  transition: all .2s ease;
+  pointer-events: none;
+}
+
+.c-text-input--bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0,.05);
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.c-text-input input {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  font-family: inherit;
+  padding: 16px 12px 0 12px;
+  box-sizing: border-box;
+  height: 56px;
+  font-size: 16px;
+  font-weight: 400;
+  background: rgba(0, 0, 0,.02);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0,.3);
+  color: #000;
+  transition: all .15s ease;
+}
+
+.c-text-input input:hover {
+  background: rgba(0, 0, 0,.04);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0,.5);
+}
+
+.c-text-input input:not(:placeholder-shown) + .c-text-input--label {
+  color: rgba(0, 0, 0, .5);
+  transform: translate3d(0,-12px,0) scale(.75);
+}
+
+.c-text-input input:focus {
+  background: rgba(0, 0, 0,.03);
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--green);
+}
+
+.c-text-input input:focus + .c-text-input--label {
+  color: var(--green);
+  transform: translate3d(0,-12px,0) scale(.75);
+}
+
+.c-text-input input:focus + .c-text-input--label + .c-text-input--bg {
+  transform: scaleX(1);
+  transition: all .1s ease;
+}
