@@ -10,12 +10,13 @@ const fastify = Fastify({
 fastify.post('/api/v3/sendpush', async function(request, reply) {
   reply.header('Access-Control-Allow-Origin', process.env['ACCESS_CONTROL']);
 
-  const body = JSON.parse(request.body);
+  const requestData = JSON.parse(request.body);
+
   const httpsOptions = {
-    headers: body.headers,
+    headers: requestData.headers,
     method: 'POST',
   };
-  const urlParts = new URL(body.endpoint);
+  const urlParts = new URL(requestData.endpoint);
   httpsOptions.hostname = urlParts.hostname;
   httpsOptions.port = urlParts.port;
   httpsOptions.path = urlParts.pathname;
@@ -43,8 +44,8 @@ fastify.post('/api/v3/sendpush', async function(request, reply) {
     reply.send(e);
   });
 
-  if (body.body) {
-    pushRequest.write(body.body);
+  if (requestData.body) {
+    pushRequest.write(Buffer.from(requestData.body, 'base64'));
   }
 
   pushRequest.end();
