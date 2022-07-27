@@ -2,7 +2,7 @@
 
 /* eslint-env browser */
 
-import {base64UrlToUint8Array} from '/scripts/encryption/helpers.js';
+import {base64UrlToUint8Array} from './encryption/helpers.js';
 
 export class PushClient {
   constructor(stateChangeCb, subscriptionUpdate, publicAppKey) {
