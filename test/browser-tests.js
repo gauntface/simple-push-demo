@@ -46,9 +46,15 @@ test('browser tests', async (t) => {
     waitUntil: 'networkidle0',
   });
 
-  await page.waitForFunction(() => 'test-results' in window);
+  await page.waitForFunction(() => {
+    // eslint-disable-next-line
+    return 'test-results' in window;
+  });
 
-  const results = await page.evaluate(() => window['test-results']);
+  const results = await page.evaluate(() => {
+    // eslint-disable-next-line
+    return window['test-results'];
+  });
   console.log(prettyPrintResults(results));
   t.deepEqual(results.failed, [], `There were ${results.failed.length} test failures`);
 });

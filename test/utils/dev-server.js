@@ -11,10 +11,10 @@ export function startServer() {
     server.start(() => {
       console.log(`Using http://localhost:${server.port}`);
       resolve(`http://localhost:${server.port}`);
-    })
+    });
   });
-};
+}
 
 export function stopServer() {
   server.stop();
-};
+}

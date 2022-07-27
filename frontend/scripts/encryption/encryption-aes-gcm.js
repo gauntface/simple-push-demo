@@ -1,5 +1,4 @@
 /* eslint-env browser */
-/* global HKDF */
 
 import {
   uint8ArrayToBase64Url,

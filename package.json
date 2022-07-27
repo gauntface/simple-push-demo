@@ -26,7 +26,7 @@
   "scripts": {
     "ava": "npx ava ./test/*.js",
     "lint": "eslint '.'",
-    "test": "npm run lint && node ./test/helpers/download-browsers.js && mocha"
+    "test": "npm run lint && npm run ava"
   },
   "dependencies": {
     "atob": "^2.0.0",
