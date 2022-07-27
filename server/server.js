@@ -1,17 +1,16 @@
-import fetch from 'node-fetch';
-import Fastify from "fastify";
-import https from "https";
-import { response } from 'express';
+import Fastify from 'fastify';
+import https from 'https';
 
+// eslint-disable-next-line new-cap
 const fastify = Fastify({
   // Set this to true for detailed logging:
-  logger: false
+  logger: false,
 });
 
-fastify.post("/api/v3/sendpush", async function(request, reply) {
+fastify.post('/api/v3/sendpush', async function(request, reply) {
   const body = JSON.parse(request.body);
 
-    console.log(body);
+  console.log(body);
 
   reply.header('Access-Control-Allow-Origin', process.env['ACCESS_CONTROL']);
 
@@ -34,14 +33,15 @@ fastify.post("/api/v3/sendpush", async function(request, reply) {
     pushResponse.on('end', function() {
       reply.code(pushResponse.statusCode);
       reply.send(responseText);
-      if (pushResponse.statusCode < 200 || pushResponse.statusCode > 299) {
+      if (pushResponse.statusCode &&
+        (pushResponse.statusCode < 200 || pushResponse.statusCode > 299)) {
         console.log(`Error: ${responseText}`);
       }
     });
   });
 
   pushRequest.on('error', function(e) {
-    console.log(`Error: ${responseText}`);
+    console.log(`Error: ${e}`);
     reply.code(500);
     reply.send(e);
   });
@@ -51,12 +51,6 @@ fastify.post("/api/v3/sendpush", async function(request, reply) {
   }
 
   pushRequest.end();
-  /** await fetch(body.endpoint, {
-      headers: body.headers,
-  });**/
-
-
-
 });
 
 // Run the server and report out to the logs
