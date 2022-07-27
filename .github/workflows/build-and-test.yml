@@ -16,7 +16,4 @@ jobs:
           npm install
           sudo apt-get install xvfb
       - name: Test
-        run: |
-          xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
-          export DISPLAY=:99.0 &
-          npm run test
+        run: xvfb-run --auto-servernum npm run test
