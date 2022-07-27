@@ -2,6 +2,7 @@
 
 /* eslint-env browser, serviceworker */
 
+/* global logger */
 importScripts('https://unpkg.com/@gauntface/logger@3.0.13/build/browser-globals.js');
 
 logger.setPrefix('simple-push-demo/service worker');
