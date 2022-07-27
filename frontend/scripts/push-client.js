@@ -121,7 +121,6 @@ class PushClient {
       }
 
       this._stateChangeCb(this._state.SUBSCRIBED);
-
     } catch (err) {
       console.log('setUpPushPermission() ', err);
       this._stateChangeCb(this._state.ERROR, err);
