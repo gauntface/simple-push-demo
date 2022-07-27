@@ -18,11 +18,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./frontend
-      - name: Deploy Backend
-        uses: wei/git-sync@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          source_repo: "https://github.com/gauntface/simple-push-demo.git"
-          source_branch: "main"
-          destination_repo: ${{ secrets.GLITCH_REPO_URL }}
-          destination_branch: "main"
