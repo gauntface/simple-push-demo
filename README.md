@@ -14,3 +14,19 @@ notifications into your web app.
 
 Just visit [Github Pages Demo](https://gauntface.github.io/simple-push-demo/).
 
+## Development
+
+You can develop this project locally by running the following:
+
+```shell
+npm run install
+npm run dev
+```
+
+## Testing
+
+Tests can be run with `npm run test` which will run tests using puppeteer.
+
+If you want to view and run the browser tests in your own browser, which
+is useful for debugging, start a server in the root of this project and
+navigate to the `/test/browser-tests/index.html` page.
