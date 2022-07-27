@@ -111,7 +111,9 @@ class PushClient {
       const reg = await navigator.serviceWorker.ready;
       // Let's see if we have a subscription already
       const subscription = await reg.pushManager.getSubscription();
-
+      // Update the current state with the
+      // subscriptionid and endpoint
+      this._subscriptionUpdate(subscription);
       if (!subscription) {
         // NOOP since we have no subscription and the permission state
         // will inform whether to enable or disable the push UI
@@ -119,10 +121,6 @@ class PushClient {
       }
 
       this._stateChangeCb(this._state.SUBSCRIBED);
-
-      // Update the current state with the
-      // subscriptionid and endpoint
-      this._subscriptionUpdate(subscription);
     } catch (err) {
       console.log('setUpPushPermission() ', err);
       this._stateChangeCb(this._state.ERROR, err);
