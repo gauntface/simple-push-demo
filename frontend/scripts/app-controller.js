@@ -1,4 +1,3 @@
-/* global PushClient */
 /* eslint-env browser */
 
 import {EncryptionFactory} from '/scripts/encryption/encryption-factory.js';

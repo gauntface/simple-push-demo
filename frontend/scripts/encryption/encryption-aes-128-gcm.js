@@ -1,7 +1,12 @@
 /* eslint-env browser */
-/* global HKDF */
 
-import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+import {
+  uint8ArrayToBase64Url,
+  base64UrlToUint8Array,
+  joinUint8Arrays,
+  arrayBuffersToCryptoKeys,
+  cryptoKeysToUint8Array,
+  generateSalt} from '/scripts/encryption/helpers.js';
 import {HKDF} from '/scripts/encryption/hkdf.js';
 import {APPLICATION_KEYS} from '/scripts/constants.js';
 import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';

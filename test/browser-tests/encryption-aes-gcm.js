@@ -2,7 +2,9 @@
 
 'use strict';
 
-import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+import {uint8ArrayToBase64Url, base64UrlToUint8Array, cryptoKeysToUint8Array} from '/scripts/encryption/helpers.js';
+import {EncryptionAESGCM} from '/scripts/encryption/encryption-aes-gcm.js';
+import {APPLICATION_KEYS} from '/scripts/constants.js';
 
 describe('Test EncryptionAESGCM', function() {
   const PAYLOAD = 'Hello, world!';

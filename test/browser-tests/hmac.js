@@ -1,6 +1,7 @@
 /* eslint-env browser */
 
-import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+import {uint8ArrayToBase64Url, base64UrlToUint8Array} from '/scripts/encryption/helpers.js';
+import {HMAC} from '/scripts/encryption/hmac.js';
 
 describe('HMAC', async () => {
   it('should have a working HMAC implementation', async () => {

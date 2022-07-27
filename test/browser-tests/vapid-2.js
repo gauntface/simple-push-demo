@@ -2,6 +2,7 @@
 
 'use strict';
 
+import {uint8ArrayToBase64Url, cryptoKeysToUint8Array} from '/scripts/encryption/helpers.js';
 import {VapidHelper2} from '/scripts/encryption/vapid-helper-2.js';
 
 describe('Test VAPID 2', function() {

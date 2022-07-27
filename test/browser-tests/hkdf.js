@@ -1,6 +1,7 @@
 /* eslint-env browser */
 
-import {uint8ArrayToBase64Url, base64UrlToUint8Array, joinUint8Arrays, arrayBuffersToCryptoKeys, cryptoKeysToUint8Array, generateSalt} from '/scripts/encryption/helpers.js';
+import {uint8ArrayToBase64Url, base64UrlToUint8Array} from '/scripts/encryption/helpers.js';
+import {HKDF} from '/scripts/encryption/hkdf.js';
 
 describe('HKDF', function() {
   it('should have a working HKDF implementation', async () => {

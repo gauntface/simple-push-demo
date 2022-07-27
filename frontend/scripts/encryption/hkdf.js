@@ -1,4 +1,3 @@
-/* global HMAC */
 /* eslint-env browser */
 
 'use strict';

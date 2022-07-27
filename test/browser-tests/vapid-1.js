@@ -1,6 +1,8 @@
 /* eslint-env browser,mocha */
 
 'use strict';
+
+import {uint8ArrayToBase64Url, cryptoKeysToUint8Array} from '/scripts/encryption/helpers.js';
 import {VapidHelper1} from '/scripts/encryption/vapid-helper-1.js';
 
 describe('Test VAPID 1', function() {
