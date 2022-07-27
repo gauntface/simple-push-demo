@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install NPM Deps
-        run: npm install
+      - name: Install Deps
+        run: |
+          npm install
+          sudo apt-get install xvfb
       - name: Test
         run: npm run test
