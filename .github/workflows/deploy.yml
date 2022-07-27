@@ -25,6 +25,6 @@ jobs:
           SOURCE_REPO: "https://github.com/gauntface/simple-push-demo.git"
           SOURCE_BRANCH: "main"
           DESTINATION_REPO: ${{ secrets.GLITCH_REPO_URL }}
-          DESTINATION_BRANCH: "master"
+          DESTINATION_BRANCH: "main"
         with:
           args: $SOURCE_REPO $SOURCE_BRANCH $DESTINATION_REPO $DESTINATION_BRANCH
