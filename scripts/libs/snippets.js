@@ -29,6 +29,7 @@ class MaterialComponentsSnippets {
     selection.addRange(range);
     let successful = false;
     try {
+      // TODO: Switch to `navigator.clipboard.writeText("TEXT_TO_COPY_TO")`
       successful = document.execCommand('copy');
     } catch (err) {
       successful = false;
