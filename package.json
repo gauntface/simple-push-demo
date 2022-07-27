@@ -25,6 +25,9 @@
   "private": true,
   "scripts": {
     "ava": "npx ava ./test/*.js",
+    "dev": "npm run dev-frontend & npm run dev-backend",
+    "dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?environment=dev",
+    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server/server.js",
     "lint": "eslint '.'",
     "test": "npm run lint && npm run ava"
   },
