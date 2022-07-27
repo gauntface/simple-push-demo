@@ -1,0 +1,30 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch name to trigger deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy Frontend
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend
+      - name: Deploy Backend
+        uses: wei/git-sync@v1
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          SOURCE_REPO: "https://github.com/gauntface/simple-push-demo.git"
+          SOURCE_BRANCH: "main"
+          DESTINATION_REPO: ${{ secrets.GLITCH_REPO_URL }}
+          DESTINATION_BRANCH: "master"
+        with:
+          args: $SOURCE_REPO $SOURCE_BRANCH $DESTINATION_REPO $DESTINATION_BRANCH
