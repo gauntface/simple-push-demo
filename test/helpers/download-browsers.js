@@ -1,4 +1,4 @@
-const seleniumAssistant = require('selenium-assistant');
+import seleniumAssistant from 'selenium-assistant';
 
 async function run() {
   const promises = [

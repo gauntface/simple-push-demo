@@ -1,0 +1,17 @@
+name: Build and Test
+
+on: push
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install NPM Deps
+        run: npm install
+      - name: Lint
+        run: npm run lint
