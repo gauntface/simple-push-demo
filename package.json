@@ -13,9 +13,11 @@
     "eslint": "^8.0.0",
     "eslint-config-google": "^0.14.0",
     "express": "^4.13.3",
+    "fastify": "^4.3.0",
     "geckodriver": "^3.0.0",
     "mkdirp": "^1.0.4",
     "mocha": "10.0.0",
+    "node-fetch": "^3.2.9",
     "puppeteer": "^15.5.0",
     "rollupify": "^0.5.1",
     "selenium-assistant": "^6.1.0",
@@ -29,6 +31,7 @@
     "dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?environment=dev",
     "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server/server.js",
     "lint": "eslint '.'",
+    "start": "node ./server/server.js",
     "test": "npm run lint && npm run ava"
   },
   "dependencies": {

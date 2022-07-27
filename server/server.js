@@ -52,11 +52,7 @@ fastify.post('/api/v3/sendpush', async function(request, reply) {
 });
 
 // Run the server and report out to the logs
-fastify.listen(process.env.PORT, function(err, address) {
-  if (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
+(async function() {
+  const address = await fastify.listen({port: process.env.PORT});
   console.log(`Your app is listening on ${address}`);
-  fastify.log.info(`server listening on ${address}`);
-});
+})();
