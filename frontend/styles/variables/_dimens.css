@@ -1,0 +1,11 @@
+:root {
+  --s-padding: 8px;
+  --m-padding: 14px;
+  --l-padding: 32px;
+  --xl-padding: 48px;
+
+  --checkbox-width: 48px;
+  --checkbox-height: 24px;
+  --checkbox-inner-gap: 4px;
+  --checkbox-inner: calc(var(--checkbox-height) - calc(2 * var(--checkbox-inner-gap)));
+}

@@ -1,10 +1,14 @@
-/*
- * Web Starter Kit
- *
- * Multi-screen layout styles for your page. Brought to you by the
- * Web Starter Kit team.
- *
- */
+/* TODO: Use a build process to optimize loading of styles */
+@import url("/styles/variables/_colors.css");
+@import url("/styles/variables/_dimens.css");
+
+@import url("/styles/components/c-header.css");
+@import url("/styles/components/c-toggle.css");
+@import url("/styles/components/c-button.css");
+@import url("/styles/components/c-text-input.css");
+
+@import url("/styles/layouts/l-enable.css");
+@import url("/styles/layouts/l-push-payload.css");
 
 html,
 body {

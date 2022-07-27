@@ -2,11 +2,6 @@
 
 /* eslint-env browser, serviceworker */
 
-importScripts('./scripts/libs/idb-keyval.js');
-importScripts('./scripts/analytics-sw.js');
-
-self.analytics.trackingId = 'UA-77119321-2';
-
 self.addEventListener('push', function(event) {
   console.log('Received push');
   let notificationTitle = 'Hello';
@@ -27,13 +22,10 @@ self.addEventListener('push', function(event) {
   }
 
   event.waitUntil(
-      Promise.all([
-        self.registration.showNotification(
-            notificationTitle,
-            notificationOptions,
-        ),
-        self.analytics.trackEvent('push-received'),
-      ]),
+      self.registration.showNotification(
+          notificationTitle,
+          notificationOptions,
+      ),
   );
 });
 
@@ -45,18 +37,5 @@ self.addEventListener('notificationclick', function(event) {
     clickResponsePromise = clients.openWindow(event.notification.data.url);
   }
 
-  event.waitUntil(
-      Promise.all([
-        clickResponsePromise,
-        self.analytics.trackEvent('notification-click'),
-      ]),
-  );
-});
-
-self.addEventListener('notificationclose', function(event) {
-  event.waitUntil(
-      Promise.all([
-        self.analytics.trackEvent('notification-close'),
-      ]),
-  );
+  event.waitUntil(clickResponsePromise);
 });
