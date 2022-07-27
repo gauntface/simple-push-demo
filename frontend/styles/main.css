@@ -1,14 +1,14 @@
 /* TODO: Use a build process to optimize loading of styles */
-@import url("/styles/variables/_colors.css");
-@import url("/styles/variables/_dimens.css");
+@import url("./variables/_colors.css");
+@import url("./variables/_dimens.css");
 
-@import url("/styles/components/c-header.css");
-@import url("/styles/components/c-toggle.css");
-@import url("/styles/components/c-button.css");
-@import url("/styles/components/c-text-input.css");
+@import url("./components/c-header.css");
+@import url("./components/c-toggle.css");
+@import url("./components/c-button.css");
+@import url("./components/c-text-input.css");
 
-@import url("/styles/layouts/l-enable.css");
-@import url("/styles/layouts/l-push-payload.css");
+@import url("./layouts/l-enable.css");
+@import url("./layouts/l-push-payload.css");
 
 html,
 body {
