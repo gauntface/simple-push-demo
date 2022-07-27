@@ -13,7 +13,7 @@
     "eslint": "^8.0.0",
     "eslint-config-google": "^0.14.0",
     "express": "^4.13.3",
-    "geckodriver": "^2.0.4",
+    "geckodriver": "^3.0.0",
     "mkdirp": "^1.0.4",
     "mocha": "10.0.0",
     "puppeteer": "^15.5.0",
