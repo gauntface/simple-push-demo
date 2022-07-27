@@ -2,7 +2,10 @@
 
 'use strict';
 
-describe('Test VAPID 2', function() {
+import {uint8ArrayToBase64Url, cryptoKeysToUint8Array} from '/frontend/scripts/encryption/helpers.js';
+import {VapidHelper2} from '/frontend/scripts/encryption/vapid-helper-2.js';
+
+describe('VAPID 2', function() {
   const VALID_VAPID_KEYS = {
     publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',
     privateKey: 'Dt1CLgQlkiaA-tmCkATyKZeoF1-Gtw1-gdEP6pOCqj4',
@@ -22,7 +25,7 @@ describe('Test VAPID 2', function() {
         true, ['deriveBits'],
     );
 
-    return window.cryptoKeysToUint8Array(keys.publicKey, keys.privateKey);
+    return cryptoKeysToUint8Array(keys.publicKey, keys.privateKey);
   };
 
   it('should be able to generate vapid keys', async () => {
@@ -34,10 +37,10 @@ describe('Test VAPID 2', function() {
 
   it('should be able to generate VAPID authentication headers', async () => {
     const keys = await generateVapidKeys();
-    const authHeaders = await window.gauntface.VapidHelper2.createVapidAuthHeader(
+    const authHeaders = await VapidHelper2.createVapidAuthHeader(
         {
-          publicKey: window.uint8ArrayToBase64Url(keys.publicKey),
-          privateKey: window.uint8ArrayToBase64Url(keys.privateKey),
+          publicKey: uint8ArrayToBase64Url(keys.publicKey),
+          privateKey: uint8ArrayToBase64Url(keys.privateKey),
         },
         'http://localhost',
         'mailto:simple-push-demo@gauntface.co.uk');
@@ -58,7 +61,7 @@ describe('Test VAPID 2', function() {
   });
 
   it('should generate specific VAPID authentication headers', async () => {
-    const authHeaders = await window.gauntface.VapidHelper2.createVapidAuthHeader(
+    const authHeaders = await VapidHelper2.createVapidAuthHeader(
         VALID_VAPID_KEYS,
         VALID_AUDIENCE,
         VALID_SUBJECT,

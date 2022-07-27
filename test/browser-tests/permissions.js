@@ -22,7 +22,7 @@
 
 'use strict';
 
-describe('Test Current Browser State', function() {
+describe('Init Current Browser State', () => {
   it('should have Notification permission', function(done) {
     this.timeout(10000);
 
