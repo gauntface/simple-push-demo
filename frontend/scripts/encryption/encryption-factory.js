@@ -13,7 +13,7 @@ import {EncryptionAES128GCM}
 
 export class EncryptionFactory {
   static generateHelper() {
-    let supportedContentEncodings = ['aesgcm'];
+    let supportedContentEncodings = ['aes128gcm'];
     if (PushManager.supportedContentEncodings) {
       supportedContentEncodings = PushManager.supportedContentEncodings;
     }
