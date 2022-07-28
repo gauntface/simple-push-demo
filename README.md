@@ -30,3 +30,12 @@ Tests can be run with `npm run test` which will run tests using puppeteer.
 If you want to view and run the browser tests in your own browser, which
 is useful for debugging, start a server in the root of this project and
 navigate to the `/test/browser-tests/index.html` page.
+
+## Hosting
+
+This project is hosted on vercel and can be tested locally using the vercel
+CLI by running:
+
+```shell
+npm run vercel
+```

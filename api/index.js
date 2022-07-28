@@ -1,7 +1,7 @@
 import express from 'express';
 import https from 'https';
 
-export const app = express();
+const app = express();
 
 // Parse body as json when content-type: application/json
 app.use(express.json());
@@ -61,3 +61,5 @@ app.post('/api/v3/sendpush', async function(request, res) {
     res.send('Failed to process request');
   }
 });
+
+export default app;
