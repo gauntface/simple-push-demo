@@ -1,0 +1,8 @@
+code {
+  padding: 0 2px;
+
+  background-color: var(--light-grey);
+  color: var(--black);
+
+  font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+}

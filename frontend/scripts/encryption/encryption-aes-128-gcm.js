@@ -46,7 +46,7 @@ export class EncryptionAES128GCM {
     return APPLICATION_KEYS;
   }
 
-  getRequestDetails(subscription, payloadText) {
+  async getRequestDetails(subscription, payloadText) {
     let vapidHelper = VapidHelper1;
 
     let endpoint = subscription.endpoint;
@@ -62,42 +62,40 @@ export class EncryptionAES128GCM {
       vapidHelper = VapidHelper2;
     }
 
-    return vapidHelper.createVapidAuthHeader(
+    const vapidHeaders = await vapidHelper.createVapidAuthHeader(
         this.getVapidKeys(),
         subscription.endpoint,
-        'mailto:simple-push-demo@gauntface.co.uk')
-        .then((vapidHeaders) => {
-          return this.encryptPayload(subscription, payloadText)
-              .then((encryptedPayloadDetails) => {
-                let body = null;
-                const headers = {};
-                headers.TTL = 60;
+        'mailto:simple-push-demo@gauntface.co.uk');
+    const encryptedPayloadDetails = await this.encryptPayload(
+        subscription, payloadText);
 
-                if (encryptedPayloadDetails) {
-                  body = encryptedPayloadDetails.cipherText;
-                  headers['Content-Encoding'] = 'aes128gcm';
-                } else {
-                  headers['Content-Length'] = 0;
-                }
+    let body = null;
+    const headers = {};
+    headers.TTL = 60;
 
-                if (vapidHeaders) {
-                  Object.keys(vapidHeaders).forEach((headerName) => {
-                    headers[headerName] = vapidHeaders[headerName];
-                  });
-                }
+    if (encryptedPayloadDetails) {
+      body = encryptedPayloadDetails.cipherText;
+      headers['Content-Encoding'] = 'aes128gcm';
+    } else {
+      headers['Content-Length'] = 0;
+    }
 
-                const response = {
-                  headers: headers,
-                  endpoint,
-                };
+    if (vapidHeaders) {
+      Object.keys(vapidHeaders).forEach((headerName) => {
+        headers[headerName] = vapidHeaders[headerName];
+      });
+    }
 
-                if (body) {
-                  response.body = body;
-                }
+    const response = {
+      headers: headers,
+      endpoint,
+    };
 
-                return Promise.resolve(response);
-              });
-        });
+    if (body) {
+      response.body = body;
+    }
+
+    return response;
   }
 
   async encryptPayload(subscription, payloadText) {

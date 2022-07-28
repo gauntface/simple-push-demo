@@ -4,8 +4,8 @@
   "short_name": "Push Demo",
   "start_url": "./?utm_source=homescreen",
   "display": "standalone",
-  "theme_color": "#2e3aa1",
-  "background_color": "#ffffff",
+  "theme_color": "#288990",
+  "background_color": "#f9f9f8",
   "icons": [
     {
       "src": "./images/logo-192x192.png",

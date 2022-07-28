@@ -82,11 +82,13 @@ export class PushClient {
       return;
     }
 
-    navigator.serviceWorker.ready
-        .then(() => {
-          this._stateChangeCb(this._state.INITIALISING);
-          this.setUpPushPermission();
-        });
+    this.init();
+  }
+
+  async init() {
+    await navigator.serviceWorker.ready;
+    this._stateChangeCb(this._state.INITIALISING);
+    this.setUpPushPermission();
   }
 
   _permissionStateChange(permissionState) {

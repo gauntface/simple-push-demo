@@ -6,7 +6,7 @@
 
   <title>Simple Push Demo</title>
 
-  <meta name="theme-color" content="#2e3aa1">
+  <meta name="theme-color" content="#288990">
 
   <link rel="manifest" href="./manifest.json">
 
@@ -25,7 +25,7 @@
     </nav>
   </header>
 
-  <main>
+  <main class="l-main">
     <div class="l-enable">
       <div class="c-toggle">
         <input class="c-toggle--checkbox js-enable-checkbox" type="checkbox" id="enable-push-switch" disabled />
@@ -47,7 +47,7 @@
 
       <h4>This Browsers Subscription</h4>
         <p>Below is your current subscription.</p>
-        <pre><code class="code-example js-subscription-json language-json"></code></pre>
+        <pre><code class="js-subscription-json language-json"></code></pre>
 
         <hr />
 
@@ -59,7 +59,7 @@
 
         <p>Below is the list of supported encodings.</p>
 
-        <pre><code class="code-example js-supported-content-encodings language-json"></code></pre>
+        <pre><code class="js-supported-content-encodings language-json"></code></pre>
 
         <div class="js-curl-container">
           <hr />
@@ -71,7 +71,7 @@
           file has been downloaded.</span> Copy and paste the following CURL
           command into your terminal to send a push message to this browser.</p>
 
-          <pre class="c-snippet-code js-snippet-code"><code class="code-example js-curl-code language-markup"></code></pre>
+          <pre class="c-snippet-code js-snippet-code"><code class="js-curl-code language-markup"></code></pre>
         </div>
 
         <div class="js-api-request">
@@ -89,16 +89,14 @@
 
           <pre><code class="js-endpoint"></code></pre>
 
-          <h5>Headers</h5>
+          <h5>Request Headers</h5>
 
-          <div class="js-headers-list">
-          </div>
+          <table class="js-headers-table"></table>
 
           <h5>Request Body</h5>
 
-          <p class="small-margin"><strong>Type</strong>: <span class="js-body-format"></span></p>
+          <table class="js-request-body-table"></table>
 
-          <p  class="small-margin"><strong>Content</strong>: <span class="js-body-content"></span></p>
           <hr />
         </div>
 
@@ -130,9 +128,9 @@
         </ul>
     </div>
 
-    <div class="error-message-container js-error-message-container">
-      <h1 class="error-title js-error-title"></h1>
-      <p class="error-message js-error-message"></p>
+    <div class="c-error-msg js-error-message-container">
+      <h1 class="c-error-msg--title js-error-title"></h1>
+      <p class="js-error-message"></p>
     </div>
   </main>
 

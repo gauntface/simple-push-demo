@@ -1,0 +1,10 @@
+.c-error-msg {
+  opacity: 0;
+
+  transition:opacity 0.5s;
+}
+
+.c-error-msg--title {
+	font-size: 28px;
+	margin-bottom: 4px;
+}
