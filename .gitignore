@@ -2,3 +2,4 @@ node_modules/
 .tmp/
 test/output/
 npm-debug.log
+.vercel/
