@@ -5,6 +5,21 @@
  * Massive H/T to Peter Beverloo for this.
  */
 
+/**
+ * The main difference between vapid-helper- 1 and 2 is
+ * the headers returned.
+ *
+ * Helpers 2 is the latest spec and works in the latest
+ * versions of Chrome and Firefox and should be safe to
+ * rely on for now.
+ *
+ * There was no feature detect for which headers are supported
+ * so previously this demo used the subscription endpoint and
+ * switched for the fcm.googleapis.com origin.
+ *
+ * https://github.com/mozilla-services/autopush/issues/879
+ */
+
 /* eslint-env browser */
 
 import {

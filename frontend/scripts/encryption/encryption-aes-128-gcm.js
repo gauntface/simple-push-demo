@@ -9,7 +9,6 @@ import {
   generateSalt} from './helpers.js';
 import {HKDF} from './hkdf.js';
 import {APPLICATION_KEYS} from '../constants.js';
-import {VapidHelper1} from './vapid-helper-1.js';
 import {VapidHelper2} from './vapid-helper-2.js';
 
 export class EncryptionAES128GCM {
@@ -47,20 +46,9 @@ export class EncryptionAES128GCM {
   }
 
   async getRequestDetails(subscription, payloadText) {
-    let vapidHelper = VapidHelper1;
+    const vapidHelper = VapidHelper2;
 
-    let endpoint = subscription.endpoint;
-
-    // Latest spec changes for VAPID is implemented on this custom FCM
-    // endpoint. This is experimental and SHOULD NOT BE USED IN PRODUCTION
-    // web apps.
-    //
-    // Need to get a proper feature detect in place for these vapid changes
-    // https://github.com/mozilla-services/autopush/issues/879
-    if (endpoint.indexOf('https://fcm.googleapis.com') === 0) {
-      endpoint = endpoint.replace('fcm/send', 'wp');
-      vapidHelper = VapidHelper2;
-    }
+    const endpoint = subscription.endpoint;
 
     const vapidHeaders = await vapidHelper.createVapidAuthHeader(
         this.getVapidKeys(),
