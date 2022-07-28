@@ -10,9 +10,9 @@ notifications into your web app.
 - [Blog Post on VAPID](https://developers.google.com/web/updates/2016/07/web-push-interop-wins)
 - [Web Push Book](https://web-push-book.gauntface.com)
 
-## Github Pages Demo
+## Demo
 
-Just visit [Github Pages Demo](https://gauntface.github.io/simple-push-demo/).
+Visit [the demo here](https://simple-push-demo.vercel.app/).
 
 ## Development
 
