@@ -7,8 +7,9 @@ export const APPLICATION_KEYS = {
   privateKey: 'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI',
 };
 
-const defaultBackend = 'https://simple-push-demo.vercel.app';
-const localBackend = 'http://localhost:8081';
+// Hosting on vercel will have the API and frontend served from the
+// same origin, so '' is fine.
+// For local development the backend url param can be used.
 const urlParams = new URLSearchParams(window.location.search);
-const env = urlParams.get('environment');
-export const BACKEND_ORIGIN = env == 'dev' ? localBackend : defaultBackend;
+const backendParam = urlParams.get('backend');
+export const BACKEND_ORIGIN = backendParam ? backendParam : '';

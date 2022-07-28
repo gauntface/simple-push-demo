@@ -10,9 +10,9 @@ notifications into your web app.
 - [Blog Post on VAPID](https://developers.google.com/web/updates/2016/07/web-push-interop-wins)
 - [Web Push Book](https://web-push-book.gauntface.com)
 
-## Github Pages Demo
+## Demo
 
-Just visit [Github Pages Demo](https://gauntface.github.io/simple-push-demo/).
+Visit [the demo here](https://simple-push-demo.vercel.app/).
 
 ## Development
 
@@ -30,3 +30,12 @@ Tests can be run with `npm run test` which will run tests using puppeteer.
 If you want to view and run the browser tests in your own browser, which
 is useful for debugging, start a server in the root of this project and
 navigate to the `/test/browser-tests/index.html` page.
+
+## Hosting
+
+This project is hosted on vercel and can be tested locally using the vercel
+CLI by running:
+
+```shell
+npm run vercel
+```
