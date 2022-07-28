@@ -45,11 +45,7 @@ class AppController {
   }
 
   setupEncoding() {
-    let encodings = ['aesgcm'];
-    if (PushManager.supportedContentEncodings) {
-      encodings = [];
-      encodings.push(...PushManager.supportedContentEncodings);
-    }
+    const encodings = EncryptionFactory.supportedEncodings();
     this._encodingElement.textContent = JSON.stringify(encodings, null, 2);
   }
 
