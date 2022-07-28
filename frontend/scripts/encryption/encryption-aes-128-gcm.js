@@ -9,7 +9,6 @@ import {
   generateSalt} from './helpers.js';
 import {HKDF} from './hkdf.js';
 import {APPLICATION_KEYS} from '../constants.js';
-import {VapidHelper1} from './vapid-helper-1.js';
 import {VapidHelper2} from './vapid-helper-2.js';
 
 export class EncryptionAES128GCM {
