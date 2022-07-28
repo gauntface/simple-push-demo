@@ -105,10 +105,28 @@
         <p><strong>Notes:</strong></p>
 
         <ul>
-          <li>For more info on the payload encryption check out <a href="https://developer.chrome.com/blog/web-push-encryption/" target="_blank">this blog post</a> and <a href="https://docs.google.com/document/d/1_kWRLJHRYN0KH73WipFyfIXI1UzZ5IyOYSs-y_mLxEE" target="_blank">this document</a>.</li>
-          <li>The <a href="./service-worker.js" target="_blank">service worker</a> in this demo uses Google Analytics to track <code>push</code>, <code>notificationclick</code> and <code>notificationclose</code> events. So ad blockers may prevent the service worker to be installed.</li>
           <li>Not seeing a notification in Firefox? <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1233086" target="_blank">This bug may be the culprit.</a> Check the logs for a note when the push is received though.</li>
           <li>Opera supports push on Android, but not on desktop and there is no feature detect for this. :( Bug has been filed on their private issue tracker.</li>
+        </ul>
+
+        <p><strong>Further reading:</strong></p>
+
+        <ul>
+          <li><a href="https://web-push-book.gauntface.com" target="_blank">Web Push Book</a></li>
+          <li><a href="https://developer.chrome.com/blog/web-push-encryption/" target="_blank">Web Push Payload Encryption</a></li>
+          <li><a href="https://docs.google.com/document/d/1_kWRLJHRYN0KH73WipFyfIXI1UzZ5IyOYSs-y_mLxEE" target="_blank">Web Push Encryption</a></li>
+          <li><a href="https://developer.chrome.com/blog/web-push-interop-wins/" target="_blank">Blog post about VAPID</a></li>
+        </ul>
+
+        <p><strong>Tools/Samples:</strong></p>
+
+        <ul>
+          <li><a href="https://github.com/web-push-libs/" target="_blank">A collection of RFC8030 related WebPush libraries</a></li>
+          <li><a href="https://tests.peter.sh/notification-generator/" target="_blank">Notification Generator</a></li>
+          <li><a href="https://tests.peter.sh/push-message-generator/" target="_blank">Push Message Generator</a></li>
+          <li><a href="https://tests.peter.sh/push-encryption-verifier/" target="_blank">Push Encryption Verifier</a></li>
+          <li><a href="https://mozilla-services.github.io/WebPushDataTestPage/" target="_blank">Web Push Data Encryption Test Page</a></li>
+          <li><a href="https://github.com/gauntface/web-push-book/tree/master/demos/node-server" target="_blank">Complete Web Push Node.js sample project with client, admin panel and server that uses <code>web-push</code> npm package</a></li>
         </ul>
     </div>
 
