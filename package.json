@@ -29,7 +29,7 @@
     "ava": "npx ava ./test/*.js",
     "dev": "npm run dev-frontend & npm run dev-backend",
     "dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?environment=dev",
-    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server/server.js",
+    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./api/index.js",
     "lint": "eslint '.'",
     "start": "node ./server/server.js",
     "test": "npm run lint && npm run ava"
