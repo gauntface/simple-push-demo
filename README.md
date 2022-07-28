@@ -1,4 +1,6 @@
-# Simple Service Worker Push Demo
+![Simple Push Demo title card with a paper airplane](./default-social.png)
+
+# Simple Push Demo
 
 The goal of this repo is to demonstrate how to implement push
 notifications into your web app.
