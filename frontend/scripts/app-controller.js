@@ -254,6 +254,9 @@ class AppController {
 
     const fopts = {
       method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     };
 
     // Can't send a stream like is needed for web push protocol,
@@ -290,7 +293,7 @@ class AppController {
     end = end || arrayBuffer.byteLength;
 
     const partialBuffer = new Uint8Array(arrayBuffer.slice(start, end));
-    return btoa(String.fromCharCode.apply(null, partialBuffer));
+    return window.btoa(String.fromCharCode.apply(null, partialBuffer));
   }
 
   toHex(arrayBuffer) {

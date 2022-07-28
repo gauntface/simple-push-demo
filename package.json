@@ -1,46 +1,25 @@
 {
   "type": "module",
   "devDependencies": {
-    "@babel/core": "7.18.9",
-    "@babel/preset-env": "7.18.9",
     "ava": "4.3.1",
-    "babel-preset-es2015": "6.24.1",
-    "babelify": "10.0.0",
-    "browser-sync": "2.27.10",
     "chai": "4.3.6",
-    "chromedriver": "103.0.0",
-    "del": "7.0.0",
     "eslint": "8.20.0",
     "eslint-config-google": "0.14.0",
-    "express": "4.18.1",
-    "fastify": "4.3.0",
-    "geckodriver": "3.0.2",
-    "mkdirp": "1.0.4",
     "mocha": "10.0.0",
-    "node-fetch": "3.2.9",
     "puppeteer": "15.5.0",
-    "rollupify": "0.5.1",
-    "selenium-assistant": "6.1.1",
-    "static-server": "2.2.1",
-    "sw-testing-helpers": "1.0.2"
+    "static-server": "2.2.1"
   },
   "private": true,
   "scripts": {
     "ava": "npx ava ./test/*.js",
     "dev": "npm run dev-frontend & npm run dev-backend",
     "dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?environment=dev",
-    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./api/index.js",
+    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server.js",
     "lint": "eslint '.'",
     "start": "node ./server/server.js",
     "test": "npm run lint && npm run ava"
   },
   "dependencies": {
-    "atob": "2.1.2",
-    "base64url": "3.0.1",
-    "body-parser": "1.20.0",
-    "idb-keyval": "6.2.0",
-    "nstall": "0.2.0",
-    "request-promise": "4.2.6",
-    "urlsafe-base64": "1.0.0"
+    "express": "^4.18.1"
   }
 }
