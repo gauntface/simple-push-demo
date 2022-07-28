@@ -205,7 +205,7 @@ class AppController {
     for (const k of Object.keys(bodyDetails)) {
       const value = bodyDetails[k];
       const row = document.createElement('tr');
-      row.innerHTML = `<th>${k}</th><td>${value}</td>`
+      row.innerHTML = `<th>${k}</th><td>${value}</td>`;
       this._infoBodyTable.appendChild(row);
     }
 
