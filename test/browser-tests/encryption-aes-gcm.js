@@ -156,19 +156,6 @@ describe('EncryptionAESGCM', function() {
     cekInfo.byteLength.should.equal(24 + 1 + 5 + 1 + 2 + 65 + 2 + 65);
   });
 
-  /** it('should generate a cekInfo for aes128gcm', async () => {
-    const factory = EncryptionFactory;
-    return factory.generateHelper()
-    .then((testEncryption) => {
-      return testEncryption.generateCEKInfo(
-        null, VALID_SUBSCRIPTION, 'aes128gcm');
-    })
-    .then((cekInfo) => {
-      (cekInfo instanceof Uint8Array).should.equal(true);
-      cekInfo.byteLength.should.equal(27 + 1);
-    });
-  });**/
-
   it('should generate the specific cekInfo', async () => {
     const encryptionHelper = new EncryptionAESGCM({
       serverKeys: VALID_SERVER_KEYS,
@@ -218,17 +205,6 @@ describe('EncryptionAESGCM', function() {
     const prk = await encryptionHelper._generatePRK(VALID_SUBSCRIPTION, serverKeys);
     (prk instanceof ArrayBuffer).should.equal(true);
   });
-
-  /** it('should generate a pseudo random key for aes128gcm', async () => {
-    const factory = EncryptionFactory;
-    return factory.generateHelper()
-    .then((testEncryption) => {
-      return testEncryption.generatePRK(VALID_SUBSCRIPTION, 'aes128gcm');
-    })
-    .then((prk) => {
-      (prk instanceof ArrayBuffer).should.equal(true);
-    });
-  });**/
 
   it('should generate the specific pseudo random key', async () => {
     const encryptionHelper = new EncryptionAESGCM({

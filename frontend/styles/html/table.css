@@ -1,0 +1,12 @@
+th {
+  background: var(--light-grey);
+  text-align: center;
+}
+
+th, td {
+  padding: var(--s-padding);
+}
+
+td {
+  word-break: break-all;
+}

@@ -1,0 +1,7 @@
+pre > code {
+  display: block;
+  width: 100%;
+  padding: var(--m-padding);
+  box-sizing: border-box;
+  overflow: auto;
+}

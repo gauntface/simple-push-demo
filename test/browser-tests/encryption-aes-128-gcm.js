@@ -124,37 +124,6 @@ describe('EncryptionAES128GCM', () => {
     base64Salt.should.equal(VALID_SALT);
   });
 
-  // See: https://martinthomson.github.io/http-encrypt
-  /** it('should generate a context', async () => {
-    const encryptionHelper = new EncryptionAES128GCM();
-    return encryptionHelper.getServerKeys()
-    .then((serverKeys) => {
-      return encryptionHelper._generateContext(VALID_SUBSCRIPTION, serverKeys);
-    })
-    .then((context) => {
-      (context instanceof Uint8Array).should.equal(true);
-      context.byteLength.should.equal(5 + 1 + 2 + 65 + 2 + 65);
-    });
-  });
-
-  it('should generate a context with the expected output', async () => {
-    const encryptionHelper = new sEncryptionAES128GCM({
-      serverKeys: VALID_SERVER_KEYS,
-      salt: VALID_SALT,
-    });
-
-    return encryptionHelper.getServerKeys()
-    .then((serverKeys) => {
-      return encryptionHelper._generateContext(VALID_SUBSCRIPTION, serverKeys);
-    })
-    .then((context) => {
-      (context instanceof Uint8Array).should.equal(true);
-      context.byteLength.should.equal(5 + 1 + 2 + 65 + 2 + 65);
-      const base64Context = uint8ArrayToBase64Url(context);
-      base64Context.should.equal(VALID_OUTPUT.context);
-    });
-  });**/
-
   it('should generate a cekInfo for aesgcm', async () => {
     const encryptionHelper = new EncryptionAES128GCM();
 

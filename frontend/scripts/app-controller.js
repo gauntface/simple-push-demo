@@ -22,9 +22,8 @@ class AppController {
     this._subscriptionJSONCode = getElement('.js-subscription-json');
     this._payloadContainer = getElement('.js-payload-textfield-container');
     this._infoPayload = getElement('.js-endpoint');
-    this._infoHeader = getElement('.js-headers-list');
-    this._bodyFormat = getElement('.js-body-format');
-    this._bodyContent = getElement('.js-body-content');
+    this._infoHeadersTable = getElement('.js-headers-table');
+    this._infoBodyTable = getElement('.js-request-body-table');
     this._curlElement = getElement('.js-curl-code');
     this._payloadDownload = getElement('.js-payload-download');
     this._payloadLink = getElement('.js-payload-link');
@@ -163,24 +162,26 @@ class AppController {
 
     this._infoPayload.textContent = reqDetails.endpoint;
 
-    while (this._infoHeader.hasChildNodes()) {
-      this._infoHeader.removeChild(this._infoHeader.firstChild);
-    }
+    this._infoHeadersTable.innerHTML = '';
 
     Object.keys(reqDetails.headers).forEach((header) => {
       const value = reqDetails.headers[header];
-      const ele = document.createElement('p');
-      ele.innerHTML = `<span>${header}</span>: ${value}`;
-      this._infoHeader.appendChild(ele);
+
+      const row = document.createElement('tr');
+      row.innerHTML = `<th>${header}</th><td>${value}</td>`;
+      this._infoHeadersTable.appendChild(row);
 
       curlCommandParts.push(`--header "${header}: ${value}"`);
     });
 
-
+    const bodyDetails = {
+      Type: 'No Body',
+      Content: 'N/A',
+    };
     if (reqDetails.body && reqDetails.body instanceof ArrayBuffer) {
-      this._bodyFormat.textContent =
+      bodyDetails.Type =
         'Encrypted binary (see hexadecimal representation below)';
-      this._bodyContent.textContent = this.toHex(reqDetails.body);
+      bodyDetails.Content = this.toHex(reqDetails.body);
 
       curlCommandParts.push('--data-binary @payload.bin');
 
@@ -190,17 +191,22 @@ class AppController {
       this._payloadLink.href = URL.createObjectURL(blob);
       this._payloadLink.download = 'payload.bin';
     } else if (reqDetails.body) {
-      this._bodyFormat.textContent = 'String';
-      this._bodyContent.textContent = reqDetails.body;
+      bodyDetails.Type = 'String';
+      bodyDetails.Content = reqDetails.body;
 
       curlCommandParts.push(`-d ${JSON.stringify(reqDetails.body)}`);
 
       this._payloadDownload.style.display = 'none';
     } else {
-      this._bodyFormat.textContent = 'No Body';
-      this._bodyContent.textContent = 'N/A';
-
       this._payloadDownload.style.display = 'none';
+    }
+
+    this._infoBodyTable.innerHTML = '';
+    for (const k of Object.keys(bodyDetails)) {
+      const value = bodyDetails[k];
+      const row = document.createElement('tr');
+      row.innerHTML = `<th>${k}</th><td>${value}</td>`
+      this._infoBodyTable.appendChild(row);
     }
 
     this._curlElement.textContent = curlCommandParts.join(' \\' + '\n  ');
