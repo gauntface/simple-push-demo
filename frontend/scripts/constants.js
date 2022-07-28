@@ -7,7 +7,7 @@ export const APPLICATION_KEYS = {
   privateKey: 'xKZKYRNdFFn8iQIF2MH54KTfUHwH105zBdzMR7SI3xI',
 };
 
-const defaultBackend = 'https://simple-push-demo-api.glitch.me';
+const defaultBackend = 'https://simple-push-demo.vercel.app';
 const localBackend = 'http://localhost:8081';
 const urlParams = new URLSearchParams(window.location.search);
 const env = urlParams.get('environment');
