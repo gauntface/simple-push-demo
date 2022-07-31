@@ -16,10 +16,10 @@ describe('EncryptionFactory', function() {
 	});
 
 	// Test no content encoding
-	it('should default to aesgcm if no content encoding', function() {
+	it('should default to aes128gcm if no content encoding', function() {
 		delete window.PushManager.supportedContentEncodings;
 		const helper = EncryptionFactory.generateHelper();
-		(helper instanceof EncryptionAESGCM).should.equal(true);
+		(helper instanceof EncryptionAES128GCM).should.equal(true);
 	});
 
 	// Test with content encoding of just aesgcm
