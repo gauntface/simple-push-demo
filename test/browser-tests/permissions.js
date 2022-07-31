@@ -17,18 +17,18 @@
 // This is a test and we want descriptions to be useful, if this
 // breaks the max-length, it's ok.
 
-/* eslint-disable max-len, no-unused-expressions */
+/* eslint-disable max-len, no-unused-expressions, no-invalid-this */
 /* eslint-env browser, mocha */
 
 'use strict';
 
 describe('Init Current Browser State', () => {
-  it('should have Notification permission', function(done) {
-    this.timeout(10000);
+	it('should have Notification permission', function(done) {
+		this.timeout(10000);
 
-    Notification.requestPermission(() => {
-      Notification.permission.should.equal('granted');
-      done();
-    });
-  });
+		Notification.requestPermission(() => {
+			Notification.permission.should.equal('granted');
+			done();
+		});
+	});
 });

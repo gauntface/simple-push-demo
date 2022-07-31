@@ -1,8 +1,9 @@
 code {
-  padding: 0 2px;
+	padding: 0 2px;
 
-  background-color: var(--light-grey);
-  color: var(--black);
+	background-color: var(--light-grey);
+	color: var(--black);
 
-  font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+	font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console,
+		monospace;
 }

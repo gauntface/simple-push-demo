@@ -1,25 +1,27 @@
 {
-  "type": "module",
-  "devDependencies": {
-    "ava": "4.3.1",
-    "chai": "4.3.6",
-    "eslint": "8.20.0",
-    "eslint-config-google": "0.14.0",
-    "mocha": "10.0.0",
-    "puppeteer": "15.5.0",
-    "static-server": "2.2.1"
-  },
-  "private": true,
-  "scripts": {
-    "ava": "npx ava ./test/*.js",
-    "dev": "npm run dev-frontend & npm run dev-backend",
-    "dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?backend=http://localhost:8081",
-    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server.js",
-    "lint": "eslint '.'",
-    "test": "npm run lint && npm run ava",
-    "vercel": "npx vercel dev"
-  },
-  "dependencies": {
-    "express": "^4.18.1"
-  }
+	"type": "module",
+	"devDependencies": {
+		"ava": "4.3.1",
+		"chai": "4.3.6",
+		"eslint": "8.20.0",
+		"eslint-config-google": "0.14.0",
+		"eslint-config-prettier": "^8.5.0",
+		"mocha": "10.0.0",
+		"prettier": "2.7.1",
+		"puppeteer": "15.5.0",
+		"static-server": "2.2.1"
+	},
+	"private": true,
+	"scripts": {
+		"ava": "npx ava ./test/*.js",
+		"dev": "npm run dev-frontend & npm run dev-backend",
+		"dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?backend=http://localhost:8081",
+		"dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server.js",
+		"lint": "eslint --fix '.'",
+		"test": "npm run lint && npm run ava",
+		"vercel": "npx vercel dev"
+	},
+	"dependencies": {
+		"express": "^4.18.1"
+	}
 }

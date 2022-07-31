@@ -1,19 +1,19 @@
 /* TODO: Use a build process to optimize loading of styles */
-@import url("./variables/_colors.css");
-@import url("./variables/_dimens.css");
+@import url('./variables/_colors.css');
+@import url('./variables/_dimens.css');
 
-@import url("./html/body.css");
-@import url("./html/pre.css");
-@import url("./html/code.css");
-@import url("./html/table.css");
+@import url('./html/body.css');
+@import url('./html/pre.css');
+@import url('./html/code.css');
+@import url('./html/table.css');
 
-@import url("./components/c-header.css");
-@import url("./components/c-toggle.css");
-@import url("./components/c-button.css");
-@import url("./components/c-text-input.css");
-@import url("./components/c-snippet-code.css");
-@import url("./components/c-error-msg.css");
+@import url('./components/c-header.css');
+@import url('./components/c-toggle.css');
+@import url('./components/c-button.css');
+@import url('./components/c-text-input.css');
+@import url('./components/c-snippet-code.css');
+@import url('./components/c-error-msg.css');
 
-@import url("./layouts/l-main.css");
-@import url("./layouts/l-enable.css");
-@import url("./layouts/l-push-payload.css");
+@import url('./layouts/l-main.css');
+@import url('./layouts/l-enable.css');
+@import url('./layouts/l-push-payload.css');

@@ -11,35 +11,35 @@
   limitations under the License.
 -->
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Browser Tests</title>
-  <link href="/node_modules/mocha/mocha.css" rel="stylesheet" />
+	<head>
+		<meta charset="utf-8" />
+		<title>Browser Tests</title>
+		<link href="/node_modules/mocha/mocha.css" rel="stylesheet" />
 
-  <!--
+		<!--
     iframes are used to manage service worker scoping.
     This will hide them and stop the page from jumping around
   -->
-  <style>
-    iframe {
-      width: 0;
-      height: 0;
-    }
-  </style>
-</head>
-<body>
-  <div id="mocha"></div>
+		<style>
+			iframe {
+				width: 0;
+				height: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="mocha"></div>
 
-  <script src="/node_modules/chai/chai.js"></script>
-  <script src="/node_modules/mocha/mocha.js"></script>
+		<script src="/node_modules/chai/chai.js"></script>
+		<script src="/node_modules/mocha/mocha.js"></script>
 
-  <script type="module">
-    mocha.setup({ui: 'bdd'});
-    mocha.checkLeaks();
-  </script>
+		<script type="module">
+			mocha.setup({ ui: 'bdd' });
+			mocha.checkLeaks();
+		</script>
 
-  <!-- Project Files -->
-  <!-- <script src="/frontend/scripts/constants.js"></script>
+		<!-- Project Files -->
+		<!-- <script src="/frontend/scripts/constants.js"></script>
   <script src="/frontend/scripts/encryption/helpers.js"></script>
   <script src="/frontend/scripts/encryption/hmac.js"></script>
   <script src="/frontend/scripts/encryption/hkdf.js"></script>
@@ -50,54 +50,54 @@
   <script src="/frontend/scripts/encryption/encryption-aes-128-gcm.js"></script>
   <script src="/frontend/scripts/encryption/encryption-factory.js"></script> -->
 
-  <!-- Add test scripts here -->
-  <script type="module" src="./permissions.js"></script>
-  <script type="module" src="./hmac.js"></script>
-  <script type="module" src="./hkdf.js"></script>
-  <script type="module" src="./vapid-1.js"></script>
-  <script type="module" src="./vapid-2.js"></script>
-  <script type="module" src="./encryption-aes-gcm.js"></script>
-  <script type="module" src="./encryption-aes-128-gcm.js"></script>
-  <script type="module" src="./encryption-factory.js"></script>
+		<!-- Add test scripts here -->
+		<script type="module" src="./permissions.js"></script>
+		<script type="module" src="./hmac.js"></script>
+		<script type="module" src="./hkdf.js"></script>
+		<script type="module" src="./vapid-1.js"></script>
+		<script type="module" src="./vapid-2.js"></script>
+		<script type="module" src="./encryption-aes-gcm.js"></script>
+		<script type="module" src="./encryption-aes-128-gcm.js"></script>
+		<script type="module" src="./encryption-factory.js"></script>
 
-  <script type="module">
-    // should adds objects to primitives which requires this call to be made
-    // before any tests are run.
-    window.chai.should();
+		<script type="module">
+			// should adds objects to primitives which requires this call to be made
+			// before any tests are run.
+			window.chai.should();
 
-    let passedTests = [];
-    let failedTests = [];
+			let passedTests = [];
+			let failedTests = [];
 
-    const runner = mocha.run();
-    runner.on('pass', (test) => {
-      const parseableTest = processTest(test);
-      passedTests.push(parseableTest);
-    });
-    runner.on('fail', test => {
-      const parseableTest = processTest(test);
-      failedTests.push(parseableTest);
-    });
-    runner.on('end', () => {
-      window['test-results'] = {
-        passed: passedTests,
-        failed: failedTests,
-      };
-    })
+			const runner = mocha.run();
+			runner.on('pass', (test) => {
+				const parseableTest = processTest(test);
+				passedTests.push(parseableTest);
+			});
+			runner.on('fail', (test) => {
+				const parseableTest = processTest(test);
+				failedTests.push(parseableTest);
+			});
+			runner.on('end', () => {
+				window['test-results'] = {
+					passed: passedTests,
+					failed: failedTests,
+				};
+			});
 
-    function processTest(testResult) {
-      const friendlyResult = {
-        parentTitle: testResult.parent.title,
-        title: testResult.title,
-        state: testResult.state,
-      };
+			function processTest(testResult) {
+				const friendlyResult = {
+					parentTitle: testResult.parent.title,
+					title: testResult.title,
+					state: testResult.state,
+				};
 
-      if (testResult.err) {
-        friendlyResult.errMessage = testResult.err.message;
-        friendlyResult.stack = testResult.err.stack;
-      }
+				if (testResult.err) {
+					friendlyResult.errMessage = testResult.err.message;
+					friendlyResult.stack = testResult.err.stack;
+				}
 
-      return friendlyResult;
-    }
-  </script>
-</body>
+				return friendlyResult;
+			}
+		</script>
+	</body>
 </html>

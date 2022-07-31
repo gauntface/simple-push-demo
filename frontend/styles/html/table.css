@@ -1,12 +1,13 @@
 th {
-  background: var(--light-grey);
-  text-align: center;
+	background: var(--light-grey);
+	text-align: center;
 }
 
-th, td {
-  padding: var(--s-padding);
+th,
+td {
+	padding: var(--s-padding);
 }
 
 td {
-  word-break: break-all;
+	word-break: break-all;
 }

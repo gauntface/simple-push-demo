@@ -1,10 +1,10 @@
 .l-main {
-  max-width: 480px;
-  min-width: 64px;
-  width: 100%;
+	max-width: 480px;
+	min-width: 64px;
+	width: 100%;
 
-  padding: 32px;
-  margin: 0 auto;
+	padding: 32px;
+	margin: 0 auto;
 
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
