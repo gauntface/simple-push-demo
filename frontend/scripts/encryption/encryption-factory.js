@@ -7,25 +7,25 @@
 
 import {EncryptionAESGCM} from './encryption-aes-gcm.js';
 import {EncryptionAES128GCM}
-  from './encryption-aes-128-gcm.js';
+	from './encryption-aes-128-gcm.js';
 
 /* eslint-env browser */
 
 export class EncryptionFactory {
-  static generateHelper() {
-    let supportedContentEncodings = ['aes128gcm'];
-    if (PushManager.supportedContentEncodings) {
-      supportedContentEncodings = PushManager.supportedContentEncodings;
-    }
+	static generateHelper() {
+		let supportedContentEncodings = ['aes128gcm'];
+		if (PushManager.supportedContentEncodings) {
+			supportedContentEncodings = PushManager.supportedContentEncodings;
+		}
 
-    switch (supportedContentEncodings[0]) {
-      case 'aesgcm':
-        return new EncryptionAESGCM();
-      case 'aes128gcm':
-        return new EncryptionAES128GCM();
-      default:
-        throw new Error('Unknown content encoding: ' +
+		switch (supportedContentEncodings[0]) {
+		case 'aesgcm':
+			return new EncryptionAESGCM();
+		case 'aes128gcm':
+			return new EncryptionAES128GCM();
+		default:
+			throw new Error('Unknown content encoding: ' +
           supportedContentEncodings[0]);
-    }
-  }
+		}
+	}
 }
