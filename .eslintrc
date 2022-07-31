@@ -1,15 +1,14 @@
 {
-  "extends": ["eslint:recommended", "google"],
-  "parserOptions": {
-    "sourceType": "module"
-  },
-  "env": {
-    "node": true,
-    "es2021": true
-  },
-  "rules": {
-    "no-var": 2,
-    "require-jsdoc": 0,
-    "no-console": 0
-  }
+	"extends": ["eslint:recommended"],
+	"parserOptions": {
+		"sourceType": "module"
+	},
+	"env": {
+		"node": true,
+		"es2021": true
+	},
+	"rules": {
+    "indent": ["error", "tab"],
+		"no-tabs": "off"
+	}
 }
