@@ -6,7 +6,7 @@
     "eslint": "8.23.1",
     "eslint-config-google": "0.14.0",
     "mocha": "10.0.0",
-    "puppeteer": "18.0.2",
+    "puppeteer": "18.0.3",
     "static-server": "2.2.1"
   },
   "private": true,
