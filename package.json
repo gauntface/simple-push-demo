@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "ava": "4.3.3",
+    "ava": "5.0.1",
     "chai": "4.3.6",
     "eslint": "8.26.0",
     "eslint-config-google": "0.14.0",
