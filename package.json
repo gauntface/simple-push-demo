@@ -3,7 +3,7 @@
   "devDependencies": {
     "ava": "5.2.0",
     "chai": "4.3.7",
-    "eslint": "8.33.0",
+    "eslint": "8.34.0",
     "eslint-config-google": "0.14.0",
     "mocha": "10.2.0",
     "puppeteer": "19.6.3",
