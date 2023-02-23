@@ -18,7 +18,6 @@ self.addEventListener('push', function(event) {
 		body: 'Thanks for sending this push msg.',
 		icon: './images/logo-192x192.png',
 		badge: './images/badge-72x72.png',
-		tag: 'simple-push-demo-notification',
 		data: {
 			url: 'https://web.dev/push-notifications-overview/',
 		},
