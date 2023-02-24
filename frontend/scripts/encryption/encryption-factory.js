@@ -8,7 +8,6 @@
 import {EncryptionAESGCM} from './encryption-aes-gcm.js';
 import {EncryptionAES128GCM}
 	from './encryption-aes-128-gcm.js';
-import {logger} from '../logger.js';
 
 /* eslint-env browser */
 
@@ -30,11 +29,11 @@ export class EncryptionFactory {
 			case 'aes128gcm':
 				return new EncryptionAES128GCM();
 			default:
-				logger.warn(`Unknown content encoding: ${e}`);
+				console.warn(`Unknown content encoding: ${e}`);
 			}
 		}
 
-		logger.error(`Failed to find a known encoding: `, encodings);
+		console.error(`Failed to find a known encoding: `, encodings);
 		throw new Error('Unable to find a known encoding');
 	}
 }

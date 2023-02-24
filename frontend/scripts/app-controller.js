@@ -3,7 +3,6 @@
 import {EncryptionFactory} from './encryption/encryption-factory.js';
 import {APPLICATION_KEYS, BACKEND_ORIGIN} from './constants.js';
 import {PushClient} from './push-client.js';
-import {logger} from './logger.js';
 
 class AppController {
 	constructor() {
@@ -62,7 +61,7 @@ class AppController {
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker.register('./service-worker.js')
 				.catch((err) => {
-					logger.error(err);
+					console.error(err);
 					this.showErrorMessage(
 						'Unable to Register SW',
 						'Sorry this demo requires a service worker to work and it ' +
@@ -118,7 +117,7 @@ class AppController {
 		if (!subscription) {
 			// Remove any subscription from your servers if you have
 			// set it up.
-			this._sendPushOptions.style.opacity = 0;
+			this._sendPushOptions.classList.add('u-hidden');
 			return;
 		}
 
@@ -133,15 +132,15 @@ class AppController {
       subscriptionObject.keys &&
       subscriptionObject.keys.auth &&
       subscriptionObject.keys.p256dh) {
-			this._payloadContainer.classList.remove('hidden');
+			this._payloadContainer.classList.remove('u-hidden');
 		} else {
-			this._payloadContainer.classList.add('hidden');
+			this._payloadContainer.classList.add('u-hidden');
 		}
 
 		this.updatePushInfo();
 
 		// Display the UI
-		this._sendPushOptions.style.opacity = 1;
+		this._sendPushOptions.classList.remove('u-hidden');
 	}
 
 	async updatePushInfo() {
@@ -181,7 +180,7 @@ class AppController {
 
 			curlCommandParts.push('--data-binary @payload.bin');
 
-			this._payloadDownload.style.display = 'inline';
+			this._payloadDownload.classList.remove('u-hidden');
 
 			const blob = new Blob([reqDetails.body]);
 			this._payloadLink.href = URL.createObjectURL(blob);
@@ -192,9 +191,9 @@ class AppController {
 
 			curlCommandParts.push(`-d ${JSON.stringify(reqDetails.body)}`);
 
-			this._payloadDownload.style.display = 'none';
+			this._payloadDownload.classList.add('u-hidden');
 		} else {
-			this._payloadDownload.style.display = 'none';
+			this._payloadDownload.classList.add('u-hidden');
 		}
 
 		this._infoBodyTable.innerHTML = '';
@@ -236,7 +235,7 @@ class AppController {
 
 	async sendPushMessage() {
 		if (!this._currentSubscription) {
-			logger.error('Cannot send push because there is no subscription.');
+			console.error('Cannot send push because there is no subscription.');
 			return;
 		}
 
@@ -250,9 +249,9 @@ class AppController {
 	}
 
 	async sendRequestToProxyServer(requestInfo) {
-		logger.groupCollapsed('Sending push message via proxy server');
+		console.groupCollapsed('Sending push message via proxy server');
 		console.log(requestInfo);
-		logger.groupEnd();
+		console.groupEnd();
 
 		const fopts = {
 			method: 'post',
@@ -275,14 +274,14 @@ class AppController {
 			const response = await fetch(`${BACKEND_ORIGIN}/api/v3/sendpush`, fopts);
 			if (response.status >= 400 && response.status < 500) {
 				const text = await response.text();
-				logger.error('Failed web push response: ',
+				console.error('Failed web push response: ',
 					response.status, response.statusText, text);
 				throw new Error(
 					`Failed to send push message via web push protocol: ` +
             `<pre>${encodeURI(text)}</pre>`);
 			}
 		} catch (err) {
-			logger.error(err);
+			console.error(err);
 			this.showErrorMessage(
 				'Ooops Unable to Send a Push',
 				err,
@@ -307,8 +306,8 @@ class AppController {
 	showErrorMessage(title, message) {
 		this._errorTitle.textContent = title;
 		this._errorMessage.innerHTML = message;
-		this._errorContainer.style.opacity = 1;
-		this._sendPushOptions.style.display = 'none';
+		this._errorContainer.classList.remove('u-hidden');
+		this._sendPushOptions.classList.add('u-hidden');
 	}
 }
 
@@ -317,7 +316,7 @@ class AppController {
 function getElement(selector) {
 	const e = document.querySelector(selector);
 	if (!e) {
-		logger.error(`Failed to find element: '${selector}'`);
+		console.error(`Failed to find element: '${selector}'`);
 		throw new Error(`Failed to find element: '${selector}'`);
 	}
 	return e;
@@ -325,24 +324,17 @@ function getElement(selector) {
 
 if (window) {
 	window.onload = function() {
-		if (window.location.host === 'gauntface.github.io' &&
-      window.location.protocol !== 'https:') {
-			// Enforce HTTPS
-			logger.warn('Service workers are only available on secure origins.');
-			window.location.protocol = 'https:';
-		}
-
 		if (!navigator.serviceWorker) {
-			logger.warn('Service workers are not supported in this browser.');
+			console.warn('Service workers are not supported in this browser.');
 			return;
 		}
 
 		if (!('PushManager' in window)) {
-			logger.warn('Push is not supported in this browser.');
+			console.warn('Push is not supported in this browser.');
 			return;
 		}
 
-		logger.debug('Setting up demo.');
+		console.debug('Setting up demo.');
 		const appController = new AppController();
 		appController.registerServiceWorker();
 	};

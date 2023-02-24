@@ -2,17 +2,12 @@
 
 /* eslint-env browser, serviceworker */
 
-/* global logger */
-importScripts('https://unpkg.com/@gauntface/logger@3.0.13/build/browser-globals.js');
-
-logger.setPrefix('simple-push-demo/service worker');
-
 self.addEventListener('install', () => {
 	self.skipWaiting();
 });
 
 self.addEventListener('push', function(event) {
-	logger.log('Push message received.');
+	console.log('Push message received.');
 	let notificationTitle = 'Hello';
 	const notificationOptions = {
 		body: 'Thanks for sending this push msg.',
@@ -39,7 +34,7 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
-	logger.log('Notification clicked.');
+	console.log('Notification clicked.');
 	event.notification.close();
 
 	let clickResponsePromise = Promise.resolve();

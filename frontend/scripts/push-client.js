@@ -3,7 +3,6 @@
 /* eslint-env browser */
 
 import {base64UrlToUint8Array} from './encryption/helpers.js';
-import {logger} from './logger.js';
 
 export class PushClient {
 	constructor(stateChangeCb, subscriptionUpdate, publicAppKey) {
@@ -104,7 +103,7 @@ export class PushClient {
 			this._stateChangeCb(this._state.PERMISSION_PROMPT);
 			break;
 		default:
-			logger.error('Unexpected permission state: ', permissionState);
+			console.error('Unexpected permission state: ', permissionState);
 			break;
 		}
 	}
@@ -127,7 +126,7 @@ export class PushClient {
 
 			this._stateChangeCb(this._state.SUBSCRIBED);
 		} catch (err) {
-			logger.error('setUpPushPermission() ', err);
+			console.error('setUpPushPermission() ', err);
 			this._stateChangeCb(this._state.ERROR, err);
 		}
 	}
@@ -168,7 +167,7 @@ export class PushClient {
 				this._stateChangeCb(this._state.ERROR, err);
 			}
 		} catch (err) {
-			logger.error('subscribeDevice() ', err);
+			console.error('subscribeDevice() ', err);
 			// Check for a permission prompt issue
 			this._permissionStateChange(Notification.permission);
 		}
@@ -200,13 +199,13 @@ export class PushClient {
 				// remove the subscriptionId from our server
 				// and notifications will stop
 				// This just may be in a bad state when the user returns
-				logger.warn('We were unable to unregister from push');
+				console.warn('We were unable to unregister from push');
 			}
 
 			this._stateChangeCb(this._state.UNSUBSCRIBED);
 			this._subscriptionUpdate(null);
 		} catch (err) {
-			logger.error('Error thrown while revoking push notifications. ' +
+			console.error('Error thrown while revoking push notifications. ' +
         'Most likely because push was never registered', err);
 		}
 	}

@@ -1,5 +1,3 @@
-import {logger} from './logger.js';
-
 /* eslint-env browser */
 
 const classNames = {
@@ -29,7 +27,7 @@ async function copyToClipboard(snippet) {
 		await window.navigator.clipboard.writeText(snippet.textContent);
 		return true;
 	} catch (err) {
-		logger.error('Failed to copy text to clipboard: ', err);
+		console.error('Failed to copy text to clipboard: ', err);
 		return false;
 	}
 }
