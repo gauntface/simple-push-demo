@@ -34,7 +34,7 @@
       <span>Enable push notifications</span>
     </div>
 
-    <div class="js-send-push-options">
+    <div class="js-send-push-options u-hidden">
       <section class="l-push-payload js-payload-textfield-container">
         <label class="c-text-input" for="push-payload">
           <input type="text" id="push-payload" class="js-payload-textfield" placeholder="&nbsp;">
@@ -96,41 +96,45 @@
           <h5>Request Body</h5>
 
           <table class="js-request-body-table"></table>
-
-          <hr />
         </div>
 
-        <p><strong>Notes:</strong></p>
-
-        <ul>
-          <li>Not seeing a notification in Firefox? <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1233086" target="_blank">This bug may be the culprit.</a> Check the logs for a note when the push is received though.</li>
-          <li>Opera supports push on Android, but not on desktop and there is no feature detect for this. :( Bug has been filed on their private issue tracker.</li>
-        </ul>
-
-        <p><strong>Further reading:</strong></p>
-
-        <ul>
-          <li><a href="https://web-push-book.gauntface.com" target="_blank">Web Push Book</a></li>
-          <li><a href="https://developer.chrome.com/blog/web-push-encryption/" target="_blank">Web Push Payload Encryption</a></li>
-          <li><a href="https://docs.google.com/document/d/1_kWRLJHRYN0KH73WipFyfIXI1UzZ5IyOYSs-y_mLxEE" target="_blank">Web Push Encryption</a></li>
-          <li><a href="https://developer.chrome.com/blog/web-push-interop-wins/" target="_blank">Blog post about VAPID</a></li>
-        </ul>
-
-        <p><strong>Tools/Samples:</strong></p>
-
-        <ul>
-          <li><a href="https://github.com/web-push-libs/" target="_blank">A collection of RFC8030 related WebPush libraries</a></li>
-          <li><a href="https://tests.peter.sh/notification-generator/" target="_blank">Notification Generator</a></li>
-          <li><a href="https://tests.peter.sh/push-message-generator/" target="_blank">Push Message Generator</a></li>
-          <li><a href="https://tests.peter.sh/push-encryption-verifier/" target="_blank">Push Encryption Verifier</a></li>
-          <li><a href="https://mozilla-services.github.io/WebPushDataTestPage/" target="_blank">Web Push Data Encryption Test Page</a></li>
-          <li><a href="https://github.com/gauntface/web-push-book/tree/master/demos/node-server" target="_blank">Complete Web Push Node.js sample project with client, admin panel and server that uses <code>web-push</code> npm package</a></li>
-        </ul>
+        <hr />
     </div>
 
-    <div class="c-error-msg js-error-message-container">
+    <div class="c-error-msg js-error-message-container u-hidden">
       <h1 class="c-error-msg--title js-error-title"></h1>
       <p class="js-error-message"></p>
+
+      <hr />
+    </div>
+
+    <div>
+      <p><strong>Browser Notes:</strong></p>
+
+      <ul>
+        <li>Not seeing a notification in Firefox? <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1233086" target="_blank">This bug may be the culprit.</a> Check the logs for a note when the push is received though.</li>
+        <li>Opera supports push on Android, but not on desktop and there is no feature detect for this. :( Bug has been filed on their private issue tracker.</li>
+      </ul>
+
+      <p><strong>Further reading:</strong></p>
+
+      <ul>
+        <li><a href="https://web-push-book.gauntface.com" target="_blank">Web Push Book</a></li>
+        <li><a href="https://developer.chrome.com/blog/web-push-encryption/" target="_blank">Web Push Payload Encryption</a></li>
+        <li><a href="https://docs.google.com/document/d/1_kWRLJHRYN0KH73WipFyfIXI1UzZ5IyOYSs-y_mLxEE" target="_blank">Web Push Encryption</a></li>
+        <li><a href="https://developer.chrome.com/blog/web-push-interop-wins/" target="_blank">Blog post about VAPID</a></li>
+      </ul>
+
+      <p><strong>Tools/Samples:</strong></p>
+
+      <ul>
+        <li><a href="https://github.com/web-push-libs/" target="_blank">A collection of RFC8030 related WebPush libraries</a></li>
+        <li><a href="https://tests.peter.sh/notification-generator/" target="_blank">Notification Generator</a></li>
+        <li><a href="https://tests.peter.sh/push-message-generator/" target="_blank">Push Message Generator</a></li>
+        <li><a href="https://tests.peter.sh/push-encryption-verifier/" target="_blank">Push Encryption Verifier</a></li>
+        <li><a href="https://mozilla-services.github.io/WebPushDataTestPage/" target="_blank">Web Push Data Encryption Test Page</a></li>
+        <li><a href="https://github.com/gauntface/web-push-book/tree/master/demos/node-server" target="_blank">Complete Web Push Node.js sample project with client, admin panel and server that uses <code>web-push</code> npm package</a></li>
+      </ul>
     </div>
   </main>
 

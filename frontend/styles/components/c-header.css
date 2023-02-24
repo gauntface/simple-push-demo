@@ -11,7 +11,7 @@
   display: inline-block;
   font-size: 1rem;
   flex: 1;
-  padding: var(--s-padding);
+  padding: var(--m-padding) var(--l-padding);
   font-weight: normal;
 }
 
@@ -23,7 +23,7 @@
 
 .c-header--links a {
   display: inline-block;
-  padding: var(--s-padding);
+  padding: var(--m-padding) var(--l-padding);
   text-decoration: none;
   color: var(--white);
 }
