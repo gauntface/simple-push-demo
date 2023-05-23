@@ -26,6 +26,7 @@ app.post('/api/v3/sendpush', async function(request, res) {
 		httpsOptions.hostname = urlParts.hostname;
 		httpsOptions.port = urlParts.port;
 		httpsOptions.path = urlParts.pathname;
+		httpsOptions.search = urlParts.search;
 
 		const pushRequest = https.request(httpsOptions, function(pushResponse) {
 			let responseText = '';
