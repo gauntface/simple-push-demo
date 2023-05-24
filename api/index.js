@@ -18,16 +18,13 @@ app.use(function(req, res, next) {
 app.post('/api/v3/sendpush', async function(request, res) {
 	try {
 		const requestData = request.body;
-		const httpsOptions = {
+		const url = requestData.endpoint;
+		const options = {
 			headers: requestData.headers,
 			method: 'POST',
 		};
-		const urlParts = new URL(requestData.endpoint);
-		httpsOptions.hostname = urlParts.hostname;
-		httpsOptions.port = urlParts.port;
-		httpsOptions.path = urlParts.pathname;
 
-		const pushRequest = https.request(httpsOptions, function(pushResponse) {
+		const pushRequest = https.request(url, options, function(pushResponse) {
 			let responseText = '';
 
 			pushResponse.on('data', function(chunk) {
