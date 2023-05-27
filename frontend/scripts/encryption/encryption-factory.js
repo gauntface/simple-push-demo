@@ -24,10 +24,10 @@ export class EncryptionFactory {
 		const encodings = this.supportedEncodings();
 		for (const e of encodings) {
 			switch (e) {
-			case 'aesgcm':
-				return new EncryptionAESGCM();
 			case 'aes128gcm':
 				return new EncryptionAES128GCM();
+			case 'aesgcm':
+				return new EncryptionAESGCM();
 			default:
 				console.warn(`Unknown content encoding: ${e}`);
 			}
