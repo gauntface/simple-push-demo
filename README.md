@@ -21,7 +21,7 @@ Visit [the demo here](https://simple-push-demo.vercel.app/).
 You can develop this project locally by running the following:
 
 ```shell
-npm run install
+npm install
 npm run dev
 ```
 
