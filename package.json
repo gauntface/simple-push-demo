@@ -2,7 +2,7 @@
   "type": "module",
   "devDependencies": {
     "ava": "5.3.1",
-    "chai": "4.3.7",
+    "chai": "4.3.8",
     "eslint": "8.47.0",
     "eslint-config-google": "0.14.0",
     "mocha": "10.2.0",
