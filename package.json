@@ -12,11 +12,11 @@
   "private": true,
   "scripts": {
     "ava": "npx ava ./test/*.js",
-    "dev": "npm run dev-frontend & npm run dev-backend",
+    "dev": "npm run dev-frontend | npm run dev-backend",
     "dev-frontend": "npx http-server ./frontend/ -a=localhost --port=8080 -o /?backend=http://localhost:8081",
     "dev-frontend-open": "npx http-server ./frontend/ -a=0.0.0.0 --port=8080 -o /?backend=http://localhost:8081",
-    "dev-backend": "PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server.js",
-    "dev-backend-open": "PORT=8081 ACCESS_CONTROL=* npx nodemon ./server.js",
+    "dev-backend": "npx cross-env PORT=8081 ACCESS_CONTROL=http://localhost:8080 npx nodemon ./server.js",
+    "dev-backend-open": "npx cross-env PORT=8081 ACCESS_CONTROL=* npx nodemon ./server.js",
     "lint": "eslint --fix '.'",
     "test": "npm run lint && npm run ava",
     "vercel": "npx vercel dev"
