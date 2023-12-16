@@ -1,12 +1,12 @@
 {
   "type": "module",
   "devDependencies": {
-    "ava": "5.3.1",
+    "ava": "6.0.1",
     "chai": "4.3.10",
-    "eslint": "8.55.0",
+    "eslint": "8.56.0",
     "eslint-config-google": "0.14.0",
     "mocha": "10.2.0",
-    "puppeteer": "21.5.2",
+    "puppeteer": "21.6.1",
     "static-server": "2.2.1"
   },
   "private": true,
