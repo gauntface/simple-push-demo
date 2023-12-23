@@ -29,7 +29,16 @@ test.beforeEach(async (t) => {
 
 	// Ensure we get 200 responses from the server
 	t.context.page.on('response', (response) => {
+		const url = response.url();
+		if (url.endsWith("/favicon.ico")) {
+			// We don't care about favicons in tests
+			return;
+		}
+
 		if (response) {
+			if (response.status() !== 200) {
+				console.error(`Non-200 response: (${response.status()}) ${url}`);
+			}
 			t.deepEqual(response.status(), 200);
 		}
 	});
