@@ -30,7 +30,6 @@
 <body>
   <div id="mocha"></div>
 
-  <script src="/node_modules/chai/chai.js"></script>
   <script src="/node_modules/mocha/mocha.js"></script>
 
   <script type="module">
@@ -51,6 +50,7 @@
   <script src="/frontend/scripts/encryption/encryption-factory.js"></script> -->
 
   <!-- Add test scripts here -->
+
   <script type="module" src="./permissions.js"></script>
   <script type="module" src="./hmac.js"></script>
   <script type="module" src="./hkdf.js"></script>
@@ -61,9 +61,11 @@
   <script type="module" src="./encryption-factory.js"></script>
 
   <script type="module">
+    import * as chai from '/node_modules/chai/chai.js';
+
     // should adds objects to primitives which requires this call to be made
     // before any tests are run.
-    window.chai.should();
+    chai.should();
 
     let passedTests = [];
     let failedTests = [];
