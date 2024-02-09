@@ -5,7 +5,7 @@
     "chai": "5.0.3",
     "eslint": "8.56.0",
     "eslint-config-google": "0.14.0",
-    "mocha": "10.2.0",
+    "mocha": "10.3.0",
     "puppeteer": "22.0.0",
     "static-server": "2.2.1"
   },
