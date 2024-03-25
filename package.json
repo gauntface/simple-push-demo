@@ -6,7 +6,7 @@
     "eslint": "8.57.0",
     "eslint-config-google": "0.14.0",
     "mocha": "10.3.0",
-    "puppeteer": "22.6.0",
+    "puppeteer": "22.6.1",
     "static-server": "2.2.1"
   },
   "private": true,
@@ -22,6 +22,6 @@
     "vercel": "npx vercel dev"
   },
   "dependencies": {
-    "express": "4.19.1"
+    "express": "4.19.2"
   }
 }
