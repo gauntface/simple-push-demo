@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 import {uint8ArrayToBase64Url, base64UrlToUint8Array} from '/frontend/scripts/encryption/helpers.js';
 import {HMAC} from '/frontend/scripts/encryption/hmac.js';

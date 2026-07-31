@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 import {
 	uint8ArrayToBase64Url,

@@ -1,4 +1,3 @@
-/* eslint-env browser,mocha */
 
 'use strict';
 

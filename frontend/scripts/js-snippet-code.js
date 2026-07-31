@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 const classNames = {
 	COPIED: 'copied',

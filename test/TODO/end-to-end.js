@@ -112,7 +112,7 @@ describe('Test simple-push-demo', function() {
 					break;
 				}
 				case 'opera': {
-					/* eslint-disable camelcase */
+					 
 					const operaPreferences = {
 						profile: {
 							content_settings: {
@@ -133,13 +133,13 @@ describe('Test simple-push-demo', function() {
 					mkdirp.sync(tempPreferenceFile);
 
 					fs.writeFileSync(`${tempPreferenceFile}/Preferences`, JSON.stringify(operaPreferences));
-					/* eslint-enable camelcase */
+					 
 					const options = browserInfo.getSeleniumOptions();
 					options.addArguments(`user-data-dir=${tempPreferenceFile}/`);
 					break;
 				}
 				case 'chrome': {
-					/* eslint-disable camelcase */
+					 
 					const chromePreferences = {
 						profile: {
 							content_settings: {
@@ -154,7 +154,7 @@ describe('Test simple-push-demo', function() {
 							setting: 1,
 						};
 					browserInfo.getSeleniumOptions().setUserPreferences(chromePreferences);
-					/* eslint-enable camelcase */
+					 
 					break;
 				}
 				}
@@ -222,7 +222,6 @@ describe('Test simple-push-demo', function() {
 
 				// Check for network errors
 				const performanceEntriesString = await globalDriverReference.executeScript(function() {
-					/* eslint-env browser */
 					if (!window.performance) {
 						return null;
 					}
@@ -439,7 +438,6 @@ describe('Test simple-push-demo', function() {
 
 				// Toggle subscription switch
 				await globalDriverReference.executeScript(function() {
-					/* eslint-env browser */
 					const toggleSwitch = document.querySelector('.js-push-toggle-switch > input');
 					if (!toggleSwitch.checked) {
 						toggleSwitch.click();

@@ -1,4 +1,3 @@
-/* eslint-env browser,mocha */
 
 'use strict';
 
@@ -39,7 +38,6 @@ describe('EncryptionAES128GCM', () => {
 		nonce: 'QvcILucv_Mh5t9ff',
 		payload: 'AAAAAAAAAAAAAAAAAAAAAAAAEABBBG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK96Kh5TnTaUZZypdS4uO2SzLwNL6N-KfyTk59Qu3hw',
 	};
-
 
 	const VALID_VAPID_KEYS = {
 		publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',

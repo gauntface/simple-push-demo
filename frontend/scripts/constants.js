@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 export const GCM_API_KEY = 'AIzaSyBBh4ddPa96rQQNxqiq_qQj7sq1JdsNQUQ';
 export const APPLICATION_KEYS = {
