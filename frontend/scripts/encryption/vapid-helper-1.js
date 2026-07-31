@@ -20,8 +20,6 @@
  * https://github.com/mozilla-services/autopush/issues/879
  */
 
-/* eslint-env browser */
-
 import {
 	uint8ArrayToBase64Url,
 	base64UrlToUint8Array} from './helpers.js';

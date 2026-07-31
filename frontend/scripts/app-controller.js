@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 import {EncryptionFactory} from './encryption/encryption-factory.js';
 import {APPLICATION_KEYS, BACKEND_ORIGIN} from './constants.js';

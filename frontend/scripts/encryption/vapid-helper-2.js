@@ -5,8 +5,6 @@
  * Massive H/T to Peter Beverloo for this.
  */
 
-/* eslint-env browser */
-
 import {
 	uint8ArrayToBase64Url,
 	base64UrlToUint8Array} from './helpers.js';

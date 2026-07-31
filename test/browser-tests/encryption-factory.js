@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 import {EncryptionFactory} from '/frontend/scripts/encryption/encryption-factory.js';
 import {EncryptionAESGCM} from '/frontend/scripts/encryption/encryption-aes-gcm.js';

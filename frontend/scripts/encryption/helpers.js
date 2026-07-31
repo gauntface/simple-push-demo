@@ -1,4 +1,3 @@
-/* eslint-env browser */
 
 export function uint8ArrayToBase64Url(uint8Array, start, end) {
 	start = start || 0;

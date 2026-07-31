@@ -1,4 +1,3 @@
-/* eslint-env browser,mocha */
 
 'use strict';
 
@@ -38,7 +37,6 @@ describe('EncryptionAESGCM', function() {
 		nonce: '9lpH1RH1uUoNJ8yh',
 		payload: 'WhrsIm-1bGLEyKIaQjhfgMZVGd3wbMsVtvxobcH62Q',
 	};
-
 
 	const VALID_VAPID_KEYS = {
 		publicKey: 'BG3OGHrl3YJ5PHpl0GSqtAAlUPnx1LvwQvFMIc68vhJU6nIkRzPEqtCduQz8wQj0r71NVPzr7ZRk2f-fhsQ5pK8',

@@ -9,8 +9,6 @@ import {EncryptionAESGCM} from './encryption-aes-gcm.js';
 import {EncryptionAES128GCM}
 	from './encryption-aes-128-gcm.js';
 
-/* eslint-env browser */
-
 export class EncryptionFactory {
 	static supportedEncodings() {
 		if (PushManager.supportedContentEncodings) {

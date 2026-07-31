@@ -1,7 +1,5 @@
 'use strict';
 
-/* eslint-env browser */
-
 import {base64UrlToUint8Array} from './encryption/helpers.js';
 
 export class PushClient {
