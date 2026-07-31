@@ -2,7 +2,7 @@
 import {EncryptionFactory} from '/frontend/scripts/encryption/encryption-factory.js';
 import {EncryptionAESGCM} from '/frontend/scripts/encryption/encryption-aes-gcm.js';
 import {EncryptionAES128GCM} from '/frontend/scripts/encryption/encryption-aes-128-gcm.js';
-import * as chai from '/node_modules/chai/chai.js';
+import * as chai from '/node_modules/chai/index.js';
 
 describe('EncryptionFactory', function() {
 	let initialContentEncoding;
