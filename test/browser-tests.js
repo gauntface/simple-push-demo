@@ -11,7 +11,10 @@ test.before(async (t) => {
 });
 test.before(async (t) => {
 	// Start browser
-	browser = await puppeteer.launch({headless: false});
+	browser = await puppeteer.launch({
+		headless: false,
+		args: process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [],
+	});
 	const context = browser.defaultBrowserContext();
 	context.overridePermissions(addr, ['notifications']);
 });
