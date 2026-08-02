@@ -7,7 +7,7 @@
     "eslint": "10.8.0",
     "eslint-config-google": "0.14.0",
     "globals": "17.9.0",
-    "mocha": "11.7.6",
+    "mocha": "11.8.0",
     "puppeteer": "25.4.0",
     "static-server": "2.2.1"
   },
