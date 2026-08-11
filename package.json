@@ -6,9 +6,9 @@
     "chai": "6.2.2",
     "eslint": "10.8.1",
     "eslint-config-google": "0.14.0",
-    "globals": "17.9.0",
+    "globals": "17.10.0",
     "mocha": "11.8.0",
-    "puppeteer": "25.5.0",
+    "puppeteer": "25.6.0",
     "static-server": "2.2.1"
   },
   "private": true,
