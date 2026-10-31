@@ -2,7 +2,7 @@
   "type": "module",
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "ava": "8.2.0",
+    "ava": "8.3.0",
     "chai": "6.3.0",
     "eslint": "10.14.0",
     "eslint-config-google": "0.14.0",
